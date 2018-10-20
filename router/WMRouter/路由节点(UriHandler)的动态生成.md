@@ -13,9 +13,9 @@
 
 先来说一下`UriAnnotationHandler`在`WMRouter`的大致功能：
 
-1.所有`@RouterUri`注解标记的Page,都会生成一个`UriHandler`
-2.在`UriAnnotationHandler`初始化的时候，会把这些生成的`UriHandler`,添加其内部的集合中，作为一个路由子节点
-3.在使用`Router.startUri()`方法时，`DefaultRootUriHandler`会把这次路由交由`UriAnnotationHandler`处理，`UriAnnotationHandler`在其子`UriHandler`中寻找是否有满足条件的`UriHandler`
+1. 所有`@RouterUri`注解标记的Page,都会生成一个`UriHandler`
+2. 在`UriAnnotationHandler`初始化的时候，会把这些生成的`UriHandler`,添加其内部的集合中，作为一个路由子节点
+3. 在使用`Router.startUri()`方法时，`DefaultRootUriHandler`会把这次路由交由`UriAnnotationHandler`处理，`UriAnnotationHandler`在其子`UriHandler`中寻找是否有满足条件的`UriHandler`
 
 其他的`DefaultRootUriHandler`的子`UrlHandler`工作原理与它大致相同。
 
