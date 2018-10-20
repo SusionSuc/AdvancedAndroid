@@ -26,5 +26,6 @@
 
 <p><a href="router/ARouter/跨模块加载实现类与参数的自动注入.md">跨模块加载实现类与参数的自动注入</a></p>
 
+## 方案对比
 
-## <p><a href="router/Android路由框架:WMRouter与ARouter的对比.md"> `WMRouter`与`ARouter`的对比 </a></p>
+<p><a href="router/Android路由框架:WMRouter与ARouter的对比.md"> `WMRouter`与`ARouter`的对比 </a></p>
