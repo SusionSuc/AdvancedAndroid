@@ -17,7 +17,7 @@
 
 >https://www.jianshu.com/p/37df81365edf
 
-下面来看一下`WMRouter`的transform插件。
+下面来看一下`WMRouter`的 gradle transform插件。
 
 ### WMRouterPlugin
 
@@ -45,7 +45,7 @@
 
 ### 怎么生成的？
 
-在上一篇文章已经了解到`UriAnnotationProcessor`在编译时会扫描`@RouterUri`,并且会生成`UriAnnotationInit_xx1`这种类，它的代码就是把根据`@RouterUri`生成的路由`UrlHandler`注册到`UriAnnotationHandler`中。但这些代码在运行时的哪个节点会被调用呢？
+在上一篇文章已经了解到`UriAnnotationProcessor`在编译时会扫描`@RouterUri`,并且会生成`UriAnnotationInit_xx1`这种类，它的代码就是把根据`@RouterUri`生成路由`UrlHandler`注册到`UriAnnotationHandler`中。但这些代码在运行时的哪个节点会被调用呢？
 
 其实`UriAnnotationProcessor`在扫描`@RouterUri`生成相关类的同时，还会生成一个类,就是`ServiceInit_xx`:
 
@@ -89,7 +89,7 @@
         }
 ```
 
-其实就是会把上面代码生成到`com/sankuai/waimai/router/generated/service`文件夹下，这样`WMRouter`的transform插件就能扫描到这些类了:
+其实就是会把下面代码生成到`com/sankuai/waimai/router/generated/service`文件夹下，这样`WMRouter`的transform插件就能扫描到这些类了:
 
 ```
 public class ServiceInit_36ed390bf4b81a8381d45028b37cc645 {
@@ -139,6 +139,15 @@ public class ServiceInit_36ed390bf4b81a8381d45028b37cc645 {
     }
 ```
 
+在把生成的`IUriAnnotationInit`的实现类贴一下:
+
+```
+public class UriAnnotationInit_72565413b8384a4bebb02d352762d60d implements IUriAnnotationInit {
+    public void init(UriAnnotationHandler handler) {
+        handler.register("", "", "/jump_activity_1", "com.sankuai.waimai.router.demo.basic.TestBasicActivity", false);
+    }
+```
+
 即`SerciceLoader`会加载`IUriAnnotationInit`的所有实现类，并传入`UriAnnotationHandler`，调用`init`方法。从而实现了在运行时动态注册了`@RouterUri`标记生成的page的`UriHandler`。
 
 我们用下面这张图总结一下上面的过程:
@@ -177,7 +186,7 @@ public class LibraryModule2 extends LibraryModule {
 ```
 public class ServiceInit_f3649d9f5ff15a62b844e64ca8434259 {
   public static void init() {
-    ServiceLoader.put(IUriAnnotationInit.class, "xxx",xxx.class, false);
+      ServiceLoader.put(IUriAnnotationInit.class, "xxx",xxx.class, false);
   }
 }
 ```

@@ -7,7 +7,7 @@
 
 对于一个功能越来越复杂的APP来说，路由对于代码的解耦、页面灵活跳转、页面拦截功能提供了很好的支持，我拜读了两个业界比较出名的方案`WMRouter`和`ARouter`的源码。用以加深我对目前业界路由技术的了解。
 
-## WMRouter
+## WMRouter (https://github.com/meituan/WMRouter)
 
 <p><a href="router/WMRouter/基本路由架构梳理.md">基本路由架构梳理</a></p>
 
@@ -18,8 +18,13 @@
 <p><a href="router/WMRouter/页面跳转的梳理与拦截器的使用.md">页面路由实例分析</a></p>
 
 
-## ARouter
+## ARouter (https://github.com/alibaba/ARouter)
 
 <p><a href="router/ARouter/基本路由过程.md">基本路由架构梳理</a></p>
 
-<p><a href="router/WMRouter/动态生成路由表.md">路由表的生成</a></p>
+<p><a href="router/ARouter/动态生成路由表.md">路由表的生成</a></p>
+
+<p><a href="router/ARouter/跨模块加载实现类与参数的自动注入.md">跨模块加载实现类与参数的自动注入</a></p>
+
+
+## <p><a href="router/Android路由框架:WMRouter与ARouter的对比.md.md">WMRouter与ARouter的对比</a></p>
