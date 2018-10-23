@@ -198,7 +198,8 @@ public class UriAnnotationProcessor extends BaseProcessor {
 }
 ```
 
-大致逻辑是依次处理每一个`@RouterUri`注解`scheme, host, path, handler, exported, interceptors`, 并利用这些参数生成调用`register`方法的代码:
+大致逻辑是依次处理每一个`@RouterUri`注解`scheme, ho
+st, path, handler, exported, interceptors`, 并利用这些参数生成调用`register`方法的代码:
 
 ```
 public class UriAnnotationInit_72565413b8384a4bebb02d352762d60d implements IUriAnnotationInit {

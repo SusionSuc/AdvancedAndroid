@@ -1,3 +1,4 @@
+>文章来源自作者的Android进阶计划(https://github.com/SusionSuc/AdvancedAndroid)
 
 前面依次对这两个路由框架做了源码分析，本文就来比较一下这两个框架。这里从两个方面对比这两个框架: 路由、模块间通信
 
