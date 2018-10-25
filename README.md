@@ -40,7 +40,7 @@ ARouter :   (https://github.com/alibaba/ARouter
 
 # Gradle插件、代码注入
 
-随着项目的成长，我们相关`build.gradle`中的文件不断变大，可复用代码越来越多，我们可能需要把这些代码抽取出去，比如上次aar到公司的maven仓库。又或者我们需要在`gradle`编译时做一些自定义的处理，比如动态添加一些类文件。对于这些功能一个自定义的gradle插件完全可以完成。并且复用性很好。所以gradle插件的学习是进阶之路上的必修课。
+随着项目的成长，我们项目中的`build.gradle`文件不断变大，可复用代码越来越多，我们可能需要把这些代码抽取出去，比如上传aar到公司的maven仓库这个功能。又或者我们需要在`gradle`编译时做一些自定义的处理，比如动态添加一些类文件。对于这些功能一个自定义的gradle插件完全可以完成。并且复用性很好。所以gradle插件的学习是进阶之路上的必修课。
 
 ### Gradle插件
 
@@ -52,22 +52,24 @@ ARouter :   (https://github.com/alibaba/ARouter
 
 ### 代码注入
 
-前面在了解`ARouter`和`WMRouter`时，发现这两个框架都用到了`javapoet`和`asm库`。这两个一个是可以产生java源文件的库。一个是可以修改class文件或者产生class文件的库。接下来我们就大概了解一下这两个库的使用。
+前面在了解`ARouter`和`WMRouter`时，发现这两个框架都用到了`javapoet`和`asm库`。这两个一个是可以产生java源文件的库，一个是可以修改class文件或者产生class文件的库。接下来我们就大概了解一下这两个库的使用。
 
 #### javapoet
 
 由`square`开源的一个可以生成java源代码的开源工具。API设计的简单易理解。如果我们需要在处理注解时要产生一些java源文件或者我们需要生成一些协议好格式的java源码我们都可以使用这个库。当然生成的都是一些比较简单的java源代码。
 
-- 我们在使用这个库是尽量不要使用`kotlin`来编写。
+我们在使用这个库是尽量不要使用`kotlin`来编写 : 首先使用kotlin来编写产生java代码的源文件,同时思考两种代码写法可能有点绕。再者在使用`addStatement("$T.out.print", System::class.java)`。这种API时`$`会合kotlin产生冲突。
 
-首先使用kotlin来编写产生java代码的源文件,同时思考两种代码写法可能有点绕。再者在使用`addStatement("$T.out.print", System::class.java)`。这种API时`$`会合kotlin产生冲突。对于这个库API的使用可以参考下面这些文章:
+对于这个库API的使用可以参考下面这些文章:
 
 > GitHub : https://github.com/square/javapoet  
+
 > javapoet——让你从重复无聊的代码中解放出来 : https://www.jianshu.com/p/95f12f72f69a 
+
 > 可以从这里拷贝一些模板 : https://juejin.im/entry/58fefebf8d6d810058a610de
 
 #### asm库
 
->AOP 的利器：ASM 3.0 介绍: https://www.ibm.com/developerworks/cn/java/j-lo-asm30/#N101F3
+> AOP 的利器：ASM 3.0 介绍: https://www.ibm.com/developerworks/cn/java/j-lo-asm30/#N101F3
 
 
