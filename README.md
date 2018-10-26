@@ -52,6 +52,9 @@ ARouter :   (https://github.com/alibaba/ARouter
 
 ### 代码注入
 
+#### java 注解
+
+
 前面在了解`ARouter`和`WMRouter`时，发现这两个框架都用到了`javapoet`和`asm库`。这两个一个是可以产生java源文件的库，一个是可以修改class文件或者产生class文件的库。接下来我们就大概了解一下这两个库的使用。
 
 #### javapoet
@@ -70,6 +73,12 @@ ARouter :   (https://github.com/alibaba/ARouter
 
 #### asm库
 
+ASM 是一个 Java 字节码操控框架。它能被用来动态生成类或者增强既有类的功能。ASM 可以直接产生二进制 class 文件，也可以在类被加载入 Java 虚拟机之前动态改变类行为。
+
 > AOP 的利器：ASM 3.0 介绍: https://www.ibm.com/developerworks/cn/java/j-lo-asm30/#N101F3
+
+对于ASM使用的详细介绍可以看`ASM4使用指南`, 这是个中译版，对ASM相关API讲解的十分清楚
+
+> <a href="gradle插件与字节码注入/ASM4使用指南.pdf"> ASM4使用指南.pdf </a>
 
 
