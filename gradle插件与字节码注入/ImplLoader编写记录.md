@@ -65,7 +65,6 @@ public class Module1Page extends LinearLayout {
 ### 定义`@Impl`注解
 
 ```
- */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Impl {
     String name() default "";
@@ -211,7 +210,7 @@ org.gradle.jvmargs=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address
 
 3. 切换运行配置到切换刚刚创建的processor，然后点击debug按钮
 
-![](./picture/运行processer.png)
+![](./picture/运行processer.jpg)
 
 4. 最后，我们在我们需要调试的地方打上断点，然后再次点击编译按钮（小锤子按钮），即可进入断点
 
@@ -288,3 +287,6 @@ dependencies {
 ```
 
 还有一些小问题这里先不讲述了。
+
+
+欢迎关注我的 : https://github.com/SusionSuc/AdvancedAndroid
