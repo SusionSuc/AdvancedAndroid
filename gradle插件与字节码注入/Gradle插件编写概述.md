@@ -129,6 +129,8 @@ implementation-class=org.gradle.GreetingPlugin
 我们可以使用`maven`插件提供的`uploadArchives`来把我们的插件上传到`maven`,比如:
 
 ```
+apply plugin : 'maven'
+
 uploadArchives {
     repositories {
         mavenDeployer {
@@ -138,7 +140,6 @@ uploadArchives {
             snapshotRepository(url: 'xxx') {
                 authentication(userName: 'xx', password: 'xxx')
             }
-
             pom.project {
                 artifactId = libArtifactId
                 version = libVersion
@@ -148,6 +149,54 @@ uploadArchives {
         }
     }
 }
+```
+
+### 发布插件到本地
+
+如果我们没有maven仓库的话，我们也可以先把插件放到本地，然后依赖本地maven仓库
+
+```
+//plugin.gradle
+
+
+//定义上传的坐标
+group 'com.susion.plugin'
+version '0.0.4'
+
+//artifactId 默认为工程名
+
+//把这个插件上传的 “localRepository/libs” 目录下
+uploadArchives {
+    repositories {
+        flatDir {
+            name "localRepository"
+            dir "localRepository/libs"
+        }
+    }
+}
+```
+
+```
+//主工程的build.gradle
+
+buildscript {
+    repositories {
+        flatDir { // 本地的maven仓库
+            name 'localRepository'
+            dir "library/localRepository/libs"
+        }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.3.0'
+        classpath 'com.susion.plugin:library:0.0.4'     //插件的上传时的坐标         
+    }
+}
+```
+
+这样我们就可以在其他的工程中 apply 我们的插件了:
+
+```
+apply plugin: 'plugin id'
 ```
 
 ### 使用自定义的插件
@@ -276,7 +325,6 @@ all(Closure action) : Executes the given closure against all objects in this col
 
 即: 对此集合中的所有对象以及随后添加到此集合的所有对象执行给定的闭包。
 
-对于Gradle插件的编写就简单介绍到这里。
 
 
 
