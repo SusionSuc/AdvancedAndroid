@@ -1,5 +1,5 @@
 
-本文主要来看一下在插件化中，宿主运行时如何使用插件`apk`类、资源等。(宿主即我们的主apk。插件apk即可以被加载的插件模块)。本文所谈的实现思路引用自: <a href="https://github.com/didi/VirtualAPK">VirtualApk</a>
+本文主要来看一下在插件化技术中，实现宿主运行时使用插件`apk`类、资源等原理。(宿主即我们的主apk。插件apk即可以被加载的插件模块)。本文所谈的实现引用自: <a href="https://github.com/didi/VirtualAPK">VirtualApk</a>
 
 另外欢迎关注我的<a href="https://github.com/SusionSuc/AdvancedAndroid">Android进阶计划</a>， 好，开始:
 
@@ -9,8 +9,8 @@
 
 我们先来回顾一下Android中的资源分类, Android中的资源分为两大类 : 可直接访问的资源、无法直接访问的原生资源。
 
-- 直接访问资源 : 这些资源可以使用 R. 进行访问, 都保存在res目录下, 在编译的时候, 会自动生成R.java 资源索引文件。
-- 原生资源 : 这些资源存放在assets下, 不能使用 R类 进行访问, 只能通过 AssetManager 以二进制流形式读取资源。
+- 直接访问资源 : 这些资源可以使用 R.xx.xx 进行访问, 都保存在res目录下, 在编译的时候, 会自动生成R.java 资源索引文件。
+- 原生资源 : 这些资源存放在assets下, 不能使用R类进行访问, 只能通过 AssetManager 以二进制流形式读取资源。
 
 先来回顾一下`AssetManager`和`Resources`:
 
@@ -60,7 +60,7 @@ InputStream open(String fileName, int accessMode)
     }
 ```
 
-即通过`new Resources(assetManager, hostResources.getDisplayMetrics(), hostResources.getConfiguration())`。我们就可以把上面add到`AssetManager`的插件资源和原有的`apk`资源整合成一个`Resources`
+即通过`new Resources(assetManager, hostResources.getDisplayMetrics(), hostResources.getConfiguration())`。我们就可以把上面add到`AssetManager`的插件资源和原有的`apk`资源整合成一个`Resources`。
 
 那么接下来，我们只要让插件在获得资源时，是从上面这个整合过的`Resources`中获取就可以完成在插件中直接访问插件资源了。上面解析的三步实现伪代码如下:
 
@@ -99,7 +99,7 @@ InputStream open(String fileName, int accessMode)
     DexClassLoader loader = new DexClassLoader(apk.getAbsolutePath(), dexOutputPath, libsDir.getAbsolutePath(), parent);
 ```
 
-可以加载插件apk的类的`DexClassLoader`已经构造完成了, 那么有什么用呢？要知道当app运行时，遇到一个为加载的插件类时，由于类加载的`双亲委派模型`，并不会到我们创建的这个`DexClassLoader`中去寻找未加载的类:
+可以加载插件apk的类的`DexClassLoader`已经构造完成了, 那么有什么用呢？要知道当app运行时，遇到一个未加载的插件类时，由于类加载的`双亲委派模型`，并不会到我们创建的这个`DexClassLoader`中去寻找未加载的类:
 
 ![](picture/简单的类加载逻辑.png)
 
@@ -113,12 +113,12 @@ InputStream open(String fileName, int accessMode)
 public class PathClassLoader extends BaseDexClassLoader 
 ```
 
-我们来看一下`BaseDexClassLoader`是如何加载一个未加载的类的:
+即`PathClassLoader`是`BaseDexClassLoader`的子类。我们来看一下`BaseDexClassLoader`是如何加载一个未加载的类的:
 
 ```
     //BaseDexClassLoader.findClass()
     protected Class<?> findClass(String name) throws ClassNotFoundException {       
-        List<Throwable> suppressedExceptions = new ArrayList<Throwable>();
+        ......
         Class c = pathList.findClass(name, suppressedExceptions);
         ......
     }
@@ -132,7 +132,7 @@ public class PathClassLoader extends BaseDexClassLoader
     }
 ```
 
-即是在`pathList`中去寻找类。我们知道`DexClassLoader`继承自`BaseDexClassLoader`。肯定也存在`pathList`。所以如果我们把`DexClassLoader`的`pathList`加在`PathClassLoader`的`pathList`中。那么app在运行时不就相当于会从我们构造的`DexClassLoader`中寻找类了？
+即是在`pathList`中去寻找类。我们知道`DexClassLoader`也继承自`BaseDexClassLoader`。肯定也存在`pathList`。所以如果我们把`DexClassLoader`的`pathList`加在`PathClassLoader`的`pathList`中。那么app在运行时不就相当于会从我们构造的`DexClassLoader`中寻找类了？
 
 因此第二种方法就是把我们自己创建的`DexClassLoader`的`pathList`整合到可被搜寻的`Classloader`的`pathList`上,下面是主要代码实现思路:
 
@@ -204,9 +204,6 @@ public class PathClassLoader extends BaseDexClassLoader
 
 即，通过`PackageParser`我们可以解析出一个`apk`中的四大组件、权限、包签名等信息。
 
-上文中其实有很多Android源码，这里推荐一个可以很方便、快速查看Android源码的网站: http://androidxref.com/
-
-具体怎么快速查看可以参考这篇文章 : https://blog.csdn.net/qq_34908107/article/details/78421212
-
+>上文中其实有很多Android源码，这里推荐一个可以很方便、快速查看Android源码的网站: http://androidxref.com/ 。具体怎么快速查看可以参考这篇文章 : https://blog.csdn.net/qq_34908107/article/details/78421212
 
 最后，欢迎关注我的<a href="https://github.com/SusionSuc/AdvancedAndroid">Android进阶计划</a>。提出批评与指导，一起进步。
