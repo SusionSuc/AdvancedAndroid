@@ -5,11 +5,11 @@
 
 ## Gradle插件
 
-- <a href="gradle插件与字节码注入/Gradle构建生命周期.md">Gradle构建生命周期</a>
+- <a href="Gradle构建生命周期.md">Gradle构建生命周期</a>
 
-- <a href="gradle插件与字节码注入/Gradle插件编写概述.md">Gradle插件编写概述</a>
+- <a href="Gradle插件编写概述.md">Gradle插件编写概述</a>
 
-- <a href="gradle插件与字节码注入/GradleTransformAPI的基本使用.md">GradleTransformAPI的基本使用</a>
+- <a href="GradleTransformAPI的基本使用.md">GradleTransformAPI的基本使用</a>
 
 ## 代码注入
 
@@ -55,7 +55,7 @@ ASM 是一个 Java 字节码操控框架。它能被用来动态生成类或者�
 
 对于ASM使用的详细介绍可以看`ASM4使用指南`, 这是个中译版，对ASM相关API讲解的十分清楚
 
-> <a href="gradle插件与字节码注入/ASM4使用指南.pdf"> ASM4使用指南.pdf </a>
+> <a href="ASM4使用指南.pdf"> ASM4使用指南.pdf </a>
 
 
 ### 自定义一个`ImplLoader`
@@ -64,4 +64,4 @@ ASM 是一个 Java 字节码操控框架。它能被用来动态生成类或者�
 
 > 代码放在了这里 : https://github.com/SusionSuc/ImplLoader
 
-在写的过程中遇到了不少问题，记录一下 : <a href="gradle插件与字节码注入/ImplLoader编写记录.md">ImplLoader编写记录</a>
+在写的过程中遇到了不少问题，记录一下 : <a href="ImplLoader编写记录.md">ImplLoader编写记录</a>
