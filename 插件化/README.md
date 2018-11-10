@@ -23,7 +23,7 @@
 
 在看`VirtualApk`启动插件Activity时，发现了一个问题，这里先记录一下:
 
-<a href="./PathClassLoader与DexClassLoader到底有什么不同?.md">PathClassLoader与DexClassLoader到底有什么不同?</a>
+<a href="./PathClassLoader与DexClassLoader到底有什么不同.md">PathClassLoader与DexClassLoader到底有什么不同?</a>
 
 然后具体看一下，插件Activity是如何启动的:
 
