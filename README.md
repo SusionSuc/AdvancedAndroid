@@ -6,16 +6,14 @@
 
 |技术点| |简介|
 |:----|:-----|:-----|
-|Router|<a href="router/README.md">详情</a>|主要分析了WMRouter和ARouter两款开源框架|
+|Router|<a href="router/README.md">详情</a>|主要分析了WMRouter和ARouter两款开源框架的工作原理|
 |Gradle插件、代码注入|<a href="gradle插件与字节码注入/README.md">详情</a>|Gradle插件与代码生成等|
 |屏幕适配|<a href="屏幕适配/README.md">详情</a>|屏幕适配相关原理及知识|
-|插件化|<a href="插件化/README.md">详情</a>|分析VirtualApk和Replugin等开源框架，透过他们了解Android底层组件的运行机制|
-|Fresco|ing|主要分析Fresco框架的设计层级以及图片处理的整体流程|
-|Android UI 刷新原理|ing||
+|插件化|<a href="插件化/README.md">详情</a>  ing |分析VirtualApk和Replugin等开源框架，透过他们了解Android底层组件的运行机制|
+|Fresco|next|主要分析Fresco框架的设计层级以及图片处理的整体流程|
+|Android UI 刷新原理|next||
 |......| |
 | | |
-
-
 
 
 >文章有我自己写的，也有的是贴的一些比较好的文章链接(如有侵权，请联系我)。
