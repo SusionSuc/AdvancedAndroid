@@ -25,6 +25,6 @@
 
 <a href="./PathClassLoader与DexClassLoader到底有什么不同.md">PathClassLoader与DexClassLoader到底有什么不同?</a>
 
-然后具体看一下，插件Activity是如何启动的:
+然后具体看一下，插件Activity是如何启动的:
 
 <a href="VirtualApk/插件Activity的启动.md">插件Activity的启动</a>
