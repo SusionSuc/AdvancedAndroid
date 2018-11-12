@@ -14,7 +14,7 @@
     }
 ```
 
-但我在看源码的时候发现了一个问题 : 我发现在最新的源码中这个参数已经被`deprecated`了。而且，看源码我真没看出来这两个ClassLoader在能力上到底有什么不同。。。
+但我在看源码的时候发现了一个问题 : 我发现在最新的源码中这个参数已经被`deprecated`了。而且源码好像真没有表现出他们俩有什么不同
 
 >DexClassLoader.java
 ```
@@ -41,7 +41,7 @@ public class PathClassLoader extends BaseDexClassLoader {
 }
 ```
 
-即，`DexClassLoader`传的`optimizedDirectory` 参数根本没用。 官方已经标注了`is deprecated` & `no effect since API level 26`。 这我就有疑问了？ 文章一开始 *DexClassLoader相比于PathClassLoader可以加载SD卡上的apk* 是怎么得出的呢?
+即，`DexClassLoader`传的`optimizedDirectory` 参数根本没用。 官方已经标注了`is deprecated` & `no effect since API level 26`。 那 *DexClassLoader相比于PathClassLoader可以加载SD卡上的apk* 是怎么得出的呢?
 
 在最新源码中，这两者构造函数的能力是一样的。并且 *基类是不可能强判子类做相关处理逻辑的吧？*, 因此，再看一下官方文档对这两个类的解释:
 
@@ -87,12 +87,5 @@ public class PathClassLoader extends BaseDexClassLoader {
   DexClassLoader load success : com.susion.myapplication.modle2.Module2
 ```
 
-然后我在 `API Platform 21`上跑了这段代码,打印的log如下:
-
-```
-  PathClassLoader  load success : com.susion.myapplication.modle2.Module2
-  DexClassLoader load success : com.susion.myapplication.modle2.Module2
-```
-
-即，都能加载成功。so，这两个ClassLoader到底有什么区别呢？从我现在所看到的，好像没什么区别。
+这段代码在 21、18上跑的效果是一样的。即，都能加载成功。那这两个ClassLoader到底有什么区别呢？
 
