@@ -217,6 +217,8 @@ hook了这个类后，就有办法把一个`非正常的插件Activtiy`包装成
     }
 ```
 
+对于资源相关更详细的了解，你可以看一下这篇文章 : https://www.notion.so/pengchengdasf/VirtualAPK-1fce1a910c424937acde9528d2acd537
+
 可以看到上面的代码不仅把插件的资源替换为了自己的，并且还为插件重新设置了`Context`。
 
 ## Context的替换
