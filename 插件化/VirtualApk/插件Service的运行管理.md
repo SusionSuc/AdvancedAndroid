@@ -1,5 +1,7 @@
 
-在继续看`如何启动一个插件Service`之前，先简单的看一下`Android`如何启动一个`Service`, 主要是有个印象。
+本文出自: https://github.com/SusionSuc/AdvancedAndroid
+
+在继续看`VirtualApk如何启动一个插件Service`之前，先简单的看一下`Android`如何启动一个`Service`, 主要是有个印象。
 
 >下面的源码参考自Android8.0。 贴的源码只是包含一些关键点。
 
@@ -225,7 +227,7 @@ public class LocalService extends Service {
 1. 自己模拟的Service生命周期方法毕竟不是系统，随着系统版本的更新需要不断维护
 2. 没有真正支持开`多进程Service`。并且远程Service的名称的修改，需要修改源代码。
 
-好，对于`VirtualApk`的`插件Service`的管理源码的解读就看到这里。
+好，对于`VirtualApk`的`插件Service`的管理源码的解读就看到这里。 欢迎关注我的Android进阶计划 : https://github.com/SusionSuc/AdvancedAndroid
 
 
 
