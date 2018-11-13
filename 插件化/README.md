@@ -7,7 +7,8 @@
 
 ##  <a href="https://github.com/didi/VirtualAPK">VirtualApk</a>
 
-`VirtualApk`是由滴滴开源的一款插件化框架。主要实现思路是`hook`系统多处对于`Android四大组件`的处理，以达到调用插件的四大组件的实现。我们这里主要看一下它是如何实现的、用到了哪些东西。下面的文章不会去细究实现逻辑，只看`VirtualApk`关于一些关键点的实现思路。
+`VirtualApk`是由滴滴开源的一款插件化框架。主要实现思路是`hook`系统多处对于`Android四大组件`的处理，以达到调用插件的四大组件的实现。我们这里主要看一下它是如何实现的、用到了哪些东西。顺便了解Adnroid四大组件的运行机制。
+下面的文章不会去细究实现逻辑，只看`VirtualApk`关于一些关键点的实现思路。
 
 ### 如何解析一个插件APK
 
@@ -34,3 +35,9 @@
 Activty的启动看完，继续看一下`插件Service的启动`, 对于`插件Service`的管理和`插件Activity`不同，它自己管理了一套`插件Service`的运行系统: 
 
 <a href="VirtualApk/插件Service的运行管理.md">插件Service的运行管理</a>
+
+### 插件BroadcastReceiver的管理
+
+`VirtualAPK`对于插件的`BroadcastReceiver`处理十分简单，就是在加载插件的时候把插件的所有`BroadcastReceiver`转为动态广播并注册。所以就不去具体的看源码了，这里我们研究一下Android中的`BroadcastReceiver`的管理:
+
+[从源码了解BroadcastReceiver](VirtualApk/从源码了解BroadcastReceiver.md)

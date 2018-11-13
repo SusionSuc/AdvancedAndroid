@@ -1,13 +1,12 @@
-
 本文出自: https://github.com/SusionSuc/AdvancedAndroid
 
-在继续看`VirtualApk如何启动一个插件Service`之前，先简单的看一下`Android`如何启动一个`Service`, 主要是有个印象。
+在继续看`VirtualApk中如何启动一个插件的Service`之前，先简单的看一下`Android`如何启动一个`Service`, 主要是有个印象。
 
 >下面的源码参考自Android8.0。 贴的源码只是包含一些关键点。
 
 # Service启动的大体流程
 
-我们从`ContextImpl.startService()`开始看。 为什么从这里开始看呢？ 如果你看过前面的文章`插件Activity的启动`, 你应该知道在Activity创建时，其`Context`的实例就是`ContextImpl`。
+我们从`ContextImpl.startService()`开始看。 为什么从这里开始看呢？ 如果你看过前面的文章`插件Activity的启动`, 你应该知道在Activity创建时，其`Context`的实例就是`ContextImpl`，因此我们看一下它的`startService()`。
 
 ```
     public ComponentName startService(Intent service) {
@@ -98,7 +97,7 @@ ok分析到这里，我们大致知道了`Service`是如何启动的。 至于`S
 
 - 服务端对于Service的启动有校验机制吗 ?
 
-前面在分析源码时注释已经标注了。`ActiveServices.retrieveServiceLocked()`这个方法在构造`ServiceRecord`的时候会做这个校验。 所以启动一个插件的Service，我们也需要类似`插件Activity`来启动一个占坑的`Service`。
+前面在分析源码时注释已经标注了。`ActiveServices.retrieveServiceLocked()`这个方法在构造`ServiceRecord`的时候会做这个校验。即必须在manifest文件中注册。 所以启动一个插件的Service，我们也需要类似`插件Activity`来启动一个占坑的`Service`。
 
 ## 动态代理ActivityManagerService
 
