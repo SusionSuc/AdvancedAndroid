@@ -11,7 +11,7 @@
 |屏幕适配|<a href="屏幕适配/README.md">详情</a>|屏幕适配相关原理及知识|
 |插件化|<a href="插件化/README.md">详情</a>|分析VirtualApk和Replugin等开源框架，透过他们了解Android底层组件的运行机制|
 |Fresco|next|主要分析Fresco框架的设计层级以及图片处理的整体流程|
-|Android UI 刷新原理|next||
+|coding与思考|<a href="coding与思考/README.md">详情</a>|一些代码该怎么写、这个东西如果设计才是比较好的|
 |......| |
 | | |
 

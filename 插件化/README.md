@@ -28,3 +28,9 @@
 然后具体看一下，插件Activity是如何启动的:
 
 <a href="VirtualApk/插件Activity的启动.md">插件Activity的启动</a>
+
+### 插件Service的运行管理
+
+Activty的启动看完，继续看一下`插件Service的启动`, 对于`插件Service`的管理和`插件Activity`不同，它自己管理了一套`插件Service`的运行系统: 
+
+<a href="VirtualApk/插件Service的运行管理.md">插件Service的运行管理</a>
