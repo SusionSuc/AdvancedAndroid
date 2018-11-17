@@ -35,3 +35,9 @@
 Activty的启动看完，继续看一下`插件Service的启动`, 对于`插件Service`的管理和`插件Activity`不同，它自己管理了一套`插件Service`的运行系统: 
 
 <a href="VirtualApk/插件Service的运行管理.md">插件Service的运行管理</a>
+
+### 插件BroadcastReceiver的管理
+
+`VirtualAPK`对于插件的`BroadcastReceiver`处理十分简单，就是在加载插件的时候把插件的所有`BroadcastReceiver`转为动态广播并注册。所以就不去具体的看源码了，这里我们研究一下Android中的`BroadcastReceiver`的管理:
+
+[从源码了解BroadcastReceiver](VirtualApk/从源码了解BroadcastReceiver.md)
