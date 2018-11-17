@@ -114,15 +114,15 @@ static abstract class Stub extends android.os.Binder implements com.susion.demo.
 
 我们还是一个一个的看一下:
 
-### `DESCRIPTOR`
+#### `DESCRIPTOR`
 
 基于我们前面的解释，我们知道在跨进程通信中`Binder`对象具有某种功能->`IInterface`。但是`Binder`通信机制中那么多`Binder`都有`IInterface`。那么系统怎么识别哪个`Binder`是哪个`Binder`呢？所以`IInterface`只是一个能力的抽象，`DESCRIPTOR`就是来表示具体是哪一个功能`IInterface`。
 
-### `TRANSACTION_userCount` 
+#### `TRANSACTION_userCount` 
 
 即功能下的哪个操作。
 
-### Stub构造函数
+#### Stub构造函数
 
 ```
     public Stub() {
@@ -142,15 +142,15 @@ public void attachInterface(@Nullable IInterface owner, @Nullable String descrip
 
 即，Binder在内部会用`IInterface`来保存自己的功能。和这个功能更对应的唯一描述`descriptor`。
 
-### asBinder()
+#### asBinder()
 
 自己返回自己，因为自己本身就是个`Binder`呀。
 
-### onTransact()
+#### onTransact()
 
 当其他进程想跨进程调用我这个`Binder`的功能时，必须通过这个方法来沟通。这个方法我们最后再来看。
 
-### `asInterface(android.os.IBinder obj)`
+#### `asInterface(android.os.IBinder obj)`
 
 即接收一个`IBinder`(这个IBinder是系统传入的), 把这个`IBinder`转化为它所具有功能接口。*其实这里就是`Binder`跨进程通信的一个核心* 。那怎么转化的呢？
 
@@ -183,7 +183,7 @@ public IInterface queryLocalInterface(String descriptor) {
 ```
 所以此时`asInterface()`返回的是: `IUserManager.Stub.Proxy(obj)`, 即代理对象，它代理了`BinderProxy`。
 
-### IUserManager.Stub.Proxy
+## IUserManager.Stub.Proxy
 
 它又是`Stub`的静态内部类,如果调用者和`Binder`不在同一个进程的话，调用者拿到的实际是它:
 
