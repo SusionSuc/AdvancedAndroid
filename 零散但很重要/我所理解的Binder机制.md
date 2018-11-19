@@ -1,13 +1,11 @@
 
->讲`Binder`的好的文章非常多比如:
+讲`Android Binder机制`的文章非常多,这篇文章主要是理一下我对`Binder`的理解。本文不是一篇介绍`Binder`的文章,也不是一篇探讨`Binder`实现的文章。 
+本文会以`AndroidStudio`根据`aidl接口`自动产生的`java文件`来看`Binder`,进而来理解`Binder机制`。
 
-- [Android 进阶9：进程通信之 AIDL 解析](https://blog.csdn.net/u011240877/article/details/72825706)
-- [Binder学习指南](http://weishu.me/2016/01/12/binder-index-for-newer/)
-
-那我为什么还要写这篇文章呢？主要还是为了理一下自己对于`Binder`的理解。本文不是一篇介绍Binder的文章(可以看上面两篇文章), 本文会以`aidl`为例来看`Binder`,来理解`aidl`中涉及的每一个东西的含义。
-所以说如果你本身对`Binder`不是很理解的话，这篇文章估计我也不能很好的表达我的理解给你。
+>其实Android的Binder机制类似于:[RPC(远程过程调用)](https://blog.csdn.net/liucan9035/article/details/73662426)。如果你理解它，相信`Binder`机制就更容易理解了。
 
 首先我们使用`AndroidStudio`来定义一个`aidl`接口:
+
 ```
 interface IUserManager {
     int getUserAge(in String userName);
@@ -53,9 +51,7 @@ public interface IInterface
 }
 ```
 
-即他是所有`Binder`都要实现的接口, 为什么呢 ？:
-
-举一个我们都熟悉的场景:
+即他是所有`Binder`都要实现的接口, 为什么呢？举一个我们都熟悉的场景 :
 
 比如`ApplicationThread`，`ActivityManagerService`(运行在服务端进程)就可以通过它来调用我们客户端的方法。我们会把这些方法抽象为一个接口（`IApplicationThread`），这个接口可以理解为我们告诉服务端，你可以对客户端执行哪些操作。
 
@@ -130,7 +126,7 @@ static abstract class Stub extends android.os.Binder implements com.susion.demo.
     }
 ```
 
-即一个`Stub`(`Binder`)在构造的时候，就标识好了自己的具体功能`IUserManager`。来看一下`attachInterface(this, DESCRIPTOR)`做了什么:
+即一个`Stub`(`Binder`)在构造的时候，就标识好了自己的具体功能`IInterface(IUserManager)`。来看一下`attachInterface(this, DESCRIPTOR)`做了什么:
 
 ```
 //Binder.java
@@ -140,7 +136,7 @@ public void attachInterface(@Nullable IInterface owner, @Nullable String descrip
 }
 ```
 
-即，Binder在内部会用`IInterface`来保存自己的功能。和这个功能更对应的唯一描述`descriptor`。
+即，Binder在内部会用`IInterface`来保存自己的功能。和这个功能更对应的唯一描述`descriptor`,方便在通信的时候寻找。
 
 #### asBinder()
 
@@ -185,7 +181,7 @@ public IInterface queryLocalInterface(String descriptor) {
 
 ## IUserManager.Stub.Proxy
 
-它又是`Stub`的静态内部类,如果调用者和`Binder`不在同一个进程的话，调用者拿到的实际是它:
+它是`Stub`的静态内部类,如果调用者和`Binder`不在同一个进程的话，调用者拿到的实际是它:
 
 ```
     private static class Proxy implements com.didi.virtualapk.demo.aidl.IUserManager {
@@ -249,7 +245,7 @@ public IInterface queryLocalInterface(String descriptor) {
 
 `_data`是序列化后的入参、`_reply`是序列化后的返回值。可以看到`_data`所携带的参数是需要序列化的，`_reply`所带的内容是被序列化的，所以读取要反序列化。
 
-所以`IUserManager.Stub.Proxy`类的作用就是对传给`mRemote(BinderProxy)`的参数做序列化，对`mRemote(BinderProxy)`返回值做反序列化。
+所以`IUserManager.Stub.Proxy`类的作用就是在跨进程调用时对传给`mRemote(BinderProxy)`的参数做序列化，对`mRemote(BinderProxy)`返回值做反序列化。*参数的接受者和返回者是`BinderProxy`*
 
 具体调用`Binder`的能力是使用`BinderProxy`的`transact()`方法,*它是跨进程通信的核心* , 我们来看一下这个方法:
 
@@ -273,9 +269,11 @@ public boolean onTransact(int code, android.os.Parcel data, android.os.Parcel re
             reply.writeString(DESCRIPTOR);
             return true;
         }
-        case TRANSACTION_userCount: {
+        case TRANSACTION_getUserAge: {
             data.enforceInterface(DESCRIPTOR);
-            int _result = this.userCount();
+            java.lang.String _arg0;
+            _arg0 = data.readString();
+            int _result = this.getUserAge(_arg0);
             reply.writeNoException();
             reply.writeInt(_result);
             return true;
@@ -290,6 +288,12 @@ public boolean onTransact(int code, android.os.Parcel data, android.os.Parcel re
 最后我们用一张图来总结`Binder进程通信机制` : 
 
 ![Binder机制](picture/Binder机制.png)
+
+参考:
+
+> [Android 进阶9：进程通信之 AIDL 解析](https://blog.csdn.net/u011240877/article/details/72825706)
+
+> [Binder学习指南](http://weishu.me/2016/01/12/binder-index-for-newer/)
 
 
 
