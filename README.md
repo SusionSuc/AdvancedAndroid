@@ -11,7 +11,7 @@
 |:----|:-----|:-----|:-----|
 |Router|主要分析了WMRouter和ARouter两款开源框架的工作原理|<a href="router/README.md">详情</a>|8篇|
 |Gradle插件、代码注入|Gradle插件与代码生成等|<a href="gradle插件与字节码注入/README.md">详情</a>|4篇|
-|插件化|分析VirtualApk和Replugin等开源框架，透过他们了解Android底层组件的运行机制|<a href="插件化/README.md">详情</a>|4篇|
+|插件化|分析VirtualApk和Replugin等开源框架，透过他们了解Android底层组件的运行机制|<a href="插件化/README.md">详情</a>|5篇|
 |Fresco|主要分析Fresco框架的设计层级以及图片处理的整体流程|next|0|
 |......| |
 
