@@ -40,4 +40,4 @@ Activty的启动看完，继续看一下`插件Service的启动`, 对于`插件S
 
 `VirtualAPK`对于插件的`BroadcastReceiver`处理十分简单，就是在加载插件的时候把插件的所有`BroadcastReceiver`转为动态广播并注册。所以就不去具体的看源码了，这里我们研究一下Android中的`BroadcastReceiver`的管理:
 
-[从源码了解BroadcastReceiver](VirtualApk/从源码了解BroadcastReceiver.md)
+[从源码了解BroadcastReceiver](VirtualApk/从源码了解BroadcastReceiver的工作过程.md)
