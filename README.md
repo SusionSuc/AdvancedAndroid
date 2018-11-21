@@ -24,6 +24,8 @@
 
 > [我所理解的Binder机制](零散但很重要/我所理解的Binder机制.md) 
 
+> [从源码了解BroadcastReceiver的工作过程](插件化/VirtualApk/从源码了解BroadcastReceiver的工作过程.md)
+
 # 其他
 
 >文章有我自己写的，也有的是贴的一些比较好的文章链接(如有侵权，请联系我)。

@@ -1,9 +1,9 @@
 
->这篇文章本来应该是继续看`VirtualApk`中关于`插件BroadcastReceiver`的处理的。不过由于处理逻辑比较简单(在加载插件的时候把插件的所有`BroadcastReceiver`转为动态广播并注册),所以这里就不看了。看完源码后再看看这个处理方式有没有什么问题。
+>这篇文章本来应该是继续看`VirtualApk`中关于`插件BroadcastReceiver`的处理的。不过由于处理逻辑比较简单(在加载插件的时候把插件的所有`BroadcastReceiver`转为动态广播并注册),所以这里就不看了。
 
->本文就从Android源码(8.0)来看一下`BroadcastReceiver`的处理逻辑,`BroadcastReceiver`的源码处理逻辑很多也很复杂，我们只看重点，所以对于广播一些很细致的点是看不到了。本文的目标是了解系统对广播的整个处理的过程。
+>本文就从Android源码(8.0)来看一下系统对`BroadcastReceiver`的处理逻辑(广播接收者注册、发送广播),`BroadcastReceiver`的源码处理逻辑很多也很复杂，我们只看重点，所以对于广播一些很细致的点是看不到了。本文的目标是了解系统对广播的整个处理的过程。
 
-# BroadcastReceiver的注册
+# BroadcastReceiver的注册 
 
 ## 动态注册广播接收者
 
@@ -28,11 +28,11 @@ private Intent registerReceiverInternal(BroadcastReceiver receiver, int userId,
 
 `LoadedApk` : 这个类是用来保存当前运行app的状态的类，它保存着app的`Application`、类加载器、receiver、service等信息。
 
-`LoadedApk.ReceiverDispatcher` : 这个类含有一个`InnerReceiver(Stub Binder)`，用来和服务端通信，当`ActivityManagerService`分发广播时，这个`Stub Binder`就会调用`BroadcastReceiver.onReceiver()`。这个我们到后续看广播接收的时候再讲。先知道这个类可以被`ActivityManagerService`用来和客户端通信即可。
+`LoadedApk.ReceiverDispatcher` : 这个类含有一个`InnerReceiver(Stub Binder)`，用来和服务端通信，当`ActivityManagerService`分发广播时，就会通过这个`(Stub)Binder`调用`BroadcastReceiver.onReceiver()`。这个我们到后续看广播接收的时候再讲。先知道这个类可以被`ActivityManagerService`用来和客户端通信即可。
 
 ## ActivityManagerService.registerReceiver()
 
-这个方法的注册逻辑也是很简单的，这里我们不看`粘性广播(已被废弃)`的注册部分:
+这个方法的注册逻辑也比较简单，这里我们不看`粘性广播(已被废弃)`的注册部分:
 
 ```
 public Intent registerReceiver(IApplicationThread caller, String callerPackage, IIntentReceiver receiver, IntentFilter filter ...) {
@@ -56,15 +56,21 @@ public Intent registerReceiver(IApplicationThread caller, String callerPackage, 
 
 即把一个`BroadcastFilter`放入`ReceiverList`和`mReceiverResolver`中。那这两个又是什么呢？
 
-`BroadcastFilter` : 它是`IntentFilter`的子类，不过保存一些`BroadcastReceiver`特有的一些信息，比如权限。
+`BroadcastFilter` : 它是`IntentFilter`的子类，即一个`BroadcastReceiver`的`IntentFilter`,保存一些`BroadcastReceiver`特有的一些信息，比如权限等。
 
-`ReceiverList` : 我们知道一个`BroadcastReceiver`可以有多个`BroadcastFilter(IntentFilter)`。它是用来保存一个`BroadcastReceiver`的`BroadcastFilter`列表的。
+`ReceiverList` : 我们知道一个`BroadcastReceiver`可以有多个`BroadcastFilter(IntentFilter)`。它是用来保存一个`BroadcastReceiver`的`BroadcastFilter`列表的。 `mRegisteredReceivers`是一个保存`ReceiverList`的map。它的key是一个`Binder`,即`LoadedApk.ReceiverDispatcher`中的`InnerReceiver(Stub Binder)`。value就是`ReceiverList`。`Binder`作为key是为了方便和`BroadcastReceiver`的客户端通信。
 
 - mReceiverResolver 
 
 看一下它的类型 : `IntentResolver<BroadcastFilter, BroadcastFilter> mReceiverResolver`
 
-`IntentResolver`这个类还是比较熟悉的，它可以用来保存四大组件的`IntentFilter`, 所以`mReceiverResolver`就是用来保存应用运行时所有`BroadcastReceiver`的`IntentFilter`的。
+`IntentResolver`这个类还是比较熟悉的,它可以解析一个`intent`。 我们知道可以使用`IntentFilter`来匹配一个`Intent`。`BroadcastFilter`就是来匹配`BroadcastReceiver`的`Intent`。`mReceiverResolver`里面维护了一个`BroadcastFilter`列表。所以`mReceiverResolver`就是可以用来解析一个广播的`Intent`。找出其匹配的`BroadcastReceiver`。
+
+即注册过程可以使用下图表示:
+
+![](picture/BroadcastReceiver的注册.png)
+
+*即广播的注册过程就是把注册的`BroadcastFilter(IntentFilter)`放到系统的`BroadcastFilter`维护列表(`mRegisteredReceivers`和`mReceiverResolver`)中。目的是为了在接收广播时好找到对应的广播接收者*
 
 
 # BroadcastReceiver的接收
@@ -316,7 +322,7 @@ public void finishReceiver(IBinder who, int resultCode, String resultData,
     }
 ```
 
-`processNextBroadcastLocked()`这和方法是分发广播的入口，我们不再看了。看一下`r.queue.finishReceiverLocked()` :
+`processNextBroadcastLocked()`这个方法是分发广播的入口，我们不再看了。看一下`r.queue.finishReceiverLocked()` :
 
 ```
   public boolean finishReceiverLocked(BroadcastRecord r, int resultCode,
@@ -341,9 +347,19 @@ public void finishReceiver(IBinder who, int resultCode, String resultData,
 ![](picture/Android广播接收者处理逻辑.png)
 
 
+# LocalBroadcastManager
+
+平时如果我们只是在app内使用广播来做简单的通知等，可以使用它来注册广播接收者和发送广播。它会自己管理注册的广播接受者(不会管理静态注册的广播)，然后做正常的分发，完全不涉及`ActivityManagerService`。因此比较高效。源码比较简单就不做分析。
+
+
+*欢迎关注我的[Android进阶计划](https://github.com/SusionSuc/AdvancedAndroid)看更多干货。*
 
 参考文章
 > https://blog.csdn.net/chenweiaiyanyan/article/details/76907292
+
+> http://gityuan.com/2017/04/23/local_broadcast_manager/
+
+>https://www.jianshu.com/p/ca3d87a4cdf3
 
 
 
