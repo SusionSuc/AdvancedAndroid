@@ -44,4 +44,4 @@ Activty的启动看完，继续看一下`插件Service的启动`, 对于`插件S
 
 ### 插件ContentProvider的处理
 
-看了一遍`BroadcastReceiver`的源码后，我们继续分析`VirtualAPK`的`ContentProvider` : [插件ContentProvider的处理](VirtualApk/插件ContentProvider的处理.md)
+看了一遍`BroadcastReceiver`的源码后，我们继续分析`VirtualAPK`的`ContentProvider` : [插件ContentProvider的处理](VirtualApk/从源码了解ContentProvider的工作过程.md)
