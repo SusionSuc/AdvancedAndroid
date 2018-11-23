@@ -26,6 +26,8 @@
 
 > [从源码了解BroadcastReceiver的工作过程](插件化/VirtualApk/从源码了解BroadcastReceiver的工作过程.md)
 
+> [从源码了解ContentProvider的工作过程](插件化/VirtualApk/从源码了解ContentProvider的工作过程.md)
+
 > [Android性能优化建议](零散但很重要/Android性能优化建议.md) : 这篇文章是我阅读《Android移动性能实战》总结的我们在开发时需要注意的一些点
 
 # 其他

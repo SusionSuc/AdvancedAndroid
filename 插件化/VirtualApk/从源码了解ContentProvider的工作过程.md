@@ -319,12 +319,9 @@ private ContentProviderHolder installProvider(...) {
 6. 在动态代理中把插件的增删改查的Uri,重新拼接定位到`占坑的ContentProvider`
 7. 在`占坑的ContentProvider`实例化插件请求的`ContentProvider`，并做对应的增删该查。
 
-
-
 所以:
 
 1. `插件的ContentProvider`是运行在`占坑的ContentProvider`进程中的。
-
 2. `插件的ContentProvider`是会运行在自己自定的进程中的，即没有多进程的概念。
 
 
