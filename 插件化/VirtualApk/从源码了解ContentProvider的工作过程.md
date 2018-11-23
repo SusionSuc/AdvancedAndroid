@@ -1,9 +1,12 @@
 >前面阅读了[BroadcastReceiver的源码](https://github.com/SusionSuc/AdvancedAndroid/blob/master/%E6%8F%92%E4%BB%B6%E5%8C%96/VirtualApk/%E4%BB%8E%E6%BA%90%E7%A0%81%E4%BA%86%E8%A7%A3BroadcastReceiver%E7%9A%84%E5%B7%A5%E4%BD%9C%E8%BF%87%E7%A8%8B.md)。
 >这篇文章也应该是继续看`VirtualApk`中关于`插件ContentProvider`的处理的。不过由于处理逻辑比较简单,所以到最后再看。本文的目的是了解系统对于`ContentProvider`的整个处理的过程,只看重点过程。
 
-# ContentProvider的实例化过程
+`ContentProvider`是一个可以跨进程的组件,比如我们可以使用通讯录的`ContentProvider`来获取手机中的通信录信息。`ContentResolver`封装了`ContentProvider`跨进程通信的逻辑，使我们在使用`ContentProvider`时不需要关心这些细节。
 
-我们知道`ContentProvider`是一个可以跨进程的组件,比如我们可以使用通讯录的`ContentProvider`来获取手机中的通信录信息。`ContentResolver`封装了`ContentProvider`跨进程通信的逻辑，使我们在使用`ContentProvider`时不需要关心这些细节。
+那我们在使用`context.getContentResolver().query(uri)`时发生了什么呢？我们的进程是如何使用其他进程的ContentProvider的呢？
+接下来我们就来分析Android系统源码对于`ContentProvider`的处理，来弄明白这些问题。
+
+# ContentProvider的实例化过程
 
 我们从`ContextImp.getContentResolver().query()`开始看:
 
@@ -13,7 +16,9 @@ public final Cursor query(...) {
 }
 ```
 
-即首先要获得一个`IContentProvider`。我们在调用`ContextImp.getContentResolver()`获得的其实是`ApplicationContentResolver`。因此来看一下它的`acquireUnstableProvider()`:
+即首先要获得一个`IContentProvider`。它是ContentProvider与系统交互的一个`aidl`接口。其实这里拿到的就是一个`Binder`。所以接下来就看这个`IContentProvider(Binder)`是如果获取的。
+
+我们在调用`ContextImp.getContentResolver()`获得的其实是`ApplicationContentResolver`。因此来看一下它的`acquireUnstableProvider()`:
 
 ```
 protected IContentProvider acquireProvider(Context context, String auth) {
@@ -23,11 +28,11 @@ protected IContentProvider acquireProvider(Context context, String auth) {
     }
 ```
 
-*`ContentProvider`并不是(没有实现)`IContentProvider`*,它是ContentProvider与系统交互的一个`aidl`接口。继续看源码, 切换到主线程:
+继续看源码, 切换到主线程`ActivityThread.java`:
 
 ```
 public final IContentProvider acquireProvider(Context c, String auth, int userId, boolean stable) {
-    // 如果是本进程的ContentProvider，并且已经实例化过了，则直接返回
+    // 如果已经缓存过这个 auth对应的IContentProvider，则直接返回
     final IContentProvider provider = acquireExistingProvider(c, auth, userId, stable);
     if (provider != null) return provider;
 
@@ -52,9 +57,7 @@ public final IContentProvider acquireProvider(Context c, String auth, int userId
 
 `ContentProviderHolder getContentProviderImpl(IApplicationThread caller,String name, IBinder token, boolean stable, int userId)`
 
-即最终是返回一个`ContentProviderHolder`,它是什么呢？
-
-它其实是一个可以在进程间传递的数据对象，我看一下它的定义:
+即最终是返回一个`ContentProviderHolder`,它是什么呢？它其实是一个可以在进程间传递的数据对象(aidl)，看一下它的定义:
 
 ```
 public class ContentProviderHolder implements Parcelable {
@@ -64,9 +67,9 @@ public class ContentProviderHolder implements Parcelable {
     ...
 ```
 
-这个方法比较长，所以接下来我们分段来看这个方法, 顺序是(1)、（2）、（3）... 这种:
+继续看`getContentProviderImpl()`,这个方法比较长，所以接下来我们分段来看这个方法, 顺序是(1)、(2)、(3)... 这种 : 
 
->`ActivityManagerService.getContentProviderImpl()`(1)
+>`ActivityManagerService.getContentProviderImpl()(1)`
 ```
     //三个关键对象
     ContentProviderRecord cpr;
@@ -76,21 +79,21 @@ public class ContentProviderHolder implements Parcelable {
     cpr = mProviderMap.getProviderByName(name, userId); // 看看系统是否已经缓存了这个ContentProvider
 ```
 
-先来解释一下`ContentProviderRecord`、`ContentProviderConnection`、`ProviderInfo`、`mProviderMap`它们大概是个什么东西:
+先来解释一下`ContentProviderRecord`、`ContentProviderConnection`、`ProviderInfo`、`mProviderMap`它们大概是什么:
 
 `ContentProviderRecord`: 它是系统(ActivityManagerService)用来记录一个`ContentProvider`相关信息的对象。
 
 `ContentProviderConnection`: 它是一个`Binder`。连接服务端(ActivityManagerService)和客户端(我们的app)。里面记录着一个`ContentProvider`的状态，比如是否已经死掉了等。
 
-`ProviderInfo`: 用来保存一个`ContentProvider`的信息, 比如`authority`、`readPermission`等。
+`ProviderInfo`: 用来保存一个`ContentProvider`的信息(manifest中的`<provider>`), 比如`authority`、`readPermission`等。
 
 `mProviderMap`: 它的类型是`ProviderMap`。它里面存在几个map，这些map都是保存`ContentProvider`的信息的。
 
 ok我们继续来看源码:
 
->`ActivityManagerService.getContentProviderImpl()`(2)
+>`ActivityManagerService.getContentProviderImpl()(2)`
 ```
-    ProcessRecord r = getRecordForAppLocked(caller); //获取客户端(获得content provider的发起者)的进程信息
+    cpr = mProviderMap.getProviderByName(name, userId); // 看看系统是否已经缓存了这个ContentProvider
     boolean providerRunning = cpr != null && cpr.proc != null && !cpr.proc.killed;
     if (providerRunning) { 
         ...
@@ -104,10 +107,11 @@ ok我们继续来看源码:
 即根据`ContentProvider`所在的`进程是否是活跃`、`这个ContentProvider是否被启动过`两个状态来进行不同的处理 :
 
 ## ContentProvider所在的进程正在运行
-
->`ActivityManagerService.getContentProviderImpl()`(3)
+即: `if(providerRunning){ ... }`中的代码
+>`ActivityManagerService.getContentProviderImpl()(3)`
 ```
-    if (r != null && cpr.canRunHere(r)) { // r的类型是ProgressRecord 。 如果请求的ContentProvider和客户端位于同一个进程
+    ProcessRecord r = getRecordForAppLocked(caller); //获取客户端(获得content provider的发起者)的进程信息
+    if (r != null && cpr.canRunHere(r)) { //如果请求的ContentProvider和客户端位于同一个进程
         ContentProviderHolder holder = cpr.newHolder(null); //ContentProviderConnection参数传null
         holder.provider = null; //注意，这里置空是让客户端自己去实例化！！
         return holder;
@@ -122,8 +126,8 @@ ok我们继续来看源码:
 即如果请求的是同进程的`ContentProvider`则直接回到进程的主线程去实例化`ContentProvider`。否则使用`ContentProviderRecord`和`ProcessRecord`构造一个`ContentProviderConnection`
 
 ## ContentProvider所在的进程没有运行
-
->`ActivityManagerService.getContentProviderImpl()`(4)
+即: `if(!providerRunning){ ... }`中的代码
+>`ActivityManagerService.getContentProviderImpl()(4)`
 ```
     //先解析出来一个ProviderInfo
     cpi = AppGlobals.getPackageManager().resolveContentProvider(name, STOCK_PM_FLAGS | PackageManager.GET_URI_PERMISSION_PATTERNS, userId);
@@ -137,10 +141,7 @@ ok我们继续来看源码:
         cpr = new ContentProviderRecord(this, cpi, ai, comp, singleton); // 构造一个 ContentProviderRecord
     }
 
-    //还是，如果是同一个进程的 ContentProvider, 并且进程是存活的，则直接交由客户端处理
-    if (r != null && cpr.canRunHere(r)) {
-        return cpr.newHolder(null); 
-    }
+    ...
 
     final int N = mLaunchingProviders.size(); //  mLaunchingProviders它是用来缓存正在启动的 ContentProvider的集合的
     int i;
@@ -155,7 +156,6 @@ ok我们继续来看源码:
         ProcessRecord proc = getProcessRecordLocked(cpi.processName, cpr.appInfo.uid, false);
         ...
         
-        //启动content provider 所在的进程, 并且唤起 content provider
          if (proc != null && proc.thread != null && !proc.killed) { //content provider所在的进程已经启动
             proc.thread.scheduleInstallProvider(cpi); //安装这个 Provider , 即客户端实例化它
           } else {
@@ -183,9 +183,6 @@ ok我们继续来看源码:
 ## 等待客户端实例化 ContentProvider
 
 >`ActivityManagerService.getContentProviderImpl()`(5)
-
-如果ContentProvider所在的进程并没有运行，并且在服务端创建了一个`ContentProviderConnection`,那么服务端就会挂起，启动ContentProvider所在的进程，并等待它实例化`ContentProvider` :
-
 ```
     // Wait for the provider to be published...
     synchronized (cpr) {
@@ -200,6 +197,8 @@ ok我们继续来看源码:
 
     return cpr != null ? cpr.newHolder(conn) : null; //返回给请求这个客户端的进程
 ```
+
+根据前面的分析，ContentProvider所在的进程没有运行，就创建了一个`ContentProviderConnection`,那么服务端就会挂起，启动ContentProvider所在的进程，并等待它实例化`ContentProvider` :
 
 在继续看客户端实例化ContentProvider之前，我们先用一张图来总结一下服务端(`ActivityManagerService`)启动一个ContentProvider的逻辑 :
 
@@ -222,7 +221,7 @@ ok，通过前面的分析我们知道`ContentProvider`最终是在它所在的�
     //在向服务端获取holder，服务端如果发现ContentProvider的进程和当前客户端进程是同一个进程就会让客户端进程来实例化ContentProvider，具体细节可以在下面分析中看到
     holder = installProvider(c, holder, holder.info, true /*noisy*/, holder.noReleaseNeeded, stable);
 ```
-我们继续看`installProvider`, 这个方法也很长, 下面我只截取一些关键的逻辑, 很关键:
+我们继续看`installProvider`, 这个方法其实有两个逻辑, 下面我只截取一些关键的逻辑,我们现在只看`同一个进程中的ContentProvider实例化过程`, 即会初始化`localProvider`的逻辑:
 
 ```
 private ContentProviderHolder installProvider(...) {
@@ -269,7 +268,7 @@ private ContentProviderHolder installProvider(...) {
 
 ### 不在同一个进程中的ContentProvider实例化过程
 
-如果`客户端进程`和`请求的ContentProvider`，根据前面我们分析`ActivityManagerService`的逻辑可以知道, `ActivityManagerService`会调用`ContentProvider`所在进程的`proc.thread.scheduleInstallProvider(cpi)`,
+如果`客户端进程`和`请求的ContentProvider`不在同一个进程，根据前面我们分析`ActivityManagerService`的逻辑可以知道, `ActivityManagerService`会调用`ContentProvider`所在进程的`proc.thread.scheduleInstallProvider(cpi)`,
 其实最终调用到`installContentProviders()`
 
 ```
@@ -291,7 +290,11 @@ private ContentProviderHolder installProvider(...) {
 
 即它会调用`installProvider`来实例化`ContentProvider`，并通知服务端`ContentProvider`ok了，可以给其他进程使用了。
 
-那`installProvider`具体做了什么呢？ 前面已经分析过了，这里就不说了。
+那`installProvider`具体做了什么呢？ 前面已经分析过了，其实就是 *缓存下其他进程的`IContentProvider(Binder)`*。你可以去看一下上面
+`installProvider`方法的`localProvider == null`的那个逻辑。
+
+
+到这里，客户端其实就拿到了`IContentProvider(Binder)`。 即`ContextImp.getContentResolver().query()`拿到了`IContentProvider`。可执行`query`了。
 
 是不是有点云里雾里的，我们看一下下面这张图，来理一下思路吧:
 
@@ -302,7 +305,7 @@ private ContentProviderHolder installProvider(...) {
 1. 进程在启动ContentProvider时会向`ActivityManagerService`要，`ActivityManagerService`如果没有就会让客户端启动这个`ContentProvider`
 2. 客户端进程启动`ContentProvider`后就会缓存起来, 方便后续获取
 3. `ActivityManagerService`只会缓存那些可能跨进程访问的`ContentProvider`
-4. 和不同进程的`ContentProvider`通信是通过`Binder`实现的
+4. 和不同进程的`ContentProvider`通信是通过`Binder`实现的
 
 
 # VirtualApk关于ContentProvider的处理
@@ -313,7 +316,7 @@ private ContentProviderHolder installProvider(...) {
 
 1. 定义一个占坑的ContentProvider（运行在一个独立的进程）
 2. hook掉`插件Activity的Context`,并返回自定义的`PluginContentResolver`
-3. `PluginContentResolver`在获取`ContentProvider`时，先把占坑的`定义一个占坑的ContentProvider`唤醒。
+3. `PluginContentResolver`在获取`ContentProvider`时，先把`个占坑的ContentProvider`唤醒。即让它在`ActivityManagerService`中跑起来
 4. 返回给插件一个`IContentProvider`的动态代理。
 5. 插件通过这个`IContentProvider动态代理`来对`ContentProvider`做增删改查
 6. 在动态代理中把插件的增删改查的Uri,重新拼接定位到`占坑的ContentProvider`
@@ -322,7 +325,7 @@ private ContentProviderHolder installProvider(...) {
 所以:
 
 1. `插件的ContentProvider`是运行在`占坑的ContentProvider`进程中的。
-2. `插件的ContentProvider`是会运行在自己自定的进程中的，即没有多进程的概念。
+2. `插件的ContentProvider`是不会运行在自己自定的进程中的，即没有多进程`ContentProvider`的概念。
 
 
 
