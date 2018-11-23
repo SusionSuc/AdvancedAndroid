@@ -44,7 +44,7 @@ public final IContentProvider acquireProvider(Context c, String auth, int userId
     //获取失败
     if (holder == null) return null;
 
-    //在向服务端获取holder，服务端如果发现ContentProvider的进程和当前客户端进程是同一个进程就会让客户端进程来实例化ContentProvider，具体细节可以在下面分析中看到
+    //在向服务端获取holder，服务端如果发现ContentProvider的进程和当前客户端进程是同一个进程就会让客户端进程来实例化ContentProvider，具体细节可以在下面分析中看到
     holder = installProvider(c, holder, holder.info, true /*noisy*/, holder.noReleaseNeeded, stable);
 
     return holder.provider;
@@ -218,7 +218,7 @@ ok，通过前面的分析我们知道`ContentProvider`最终是在它所在的�
 ```
     holder = ActivityManager.getService().getContentProvider( getApplicationThread(), auth, userId, stable);
 
-    //在向服务端获取holder，服务端如果发现ContentProvider的进程和当前客户端进程是同一个进程就会让客户端进程来实例化ContentProvider，具体细节可以在下面分析中看到
+    //在向服务端获取holder，服务端如果发现ContentProvider的进程和当前客户端进程是同一个进程就会让客户端进程来实例化ContentProvider，具体细节可以在下面分析中看到
     holder = installProvider(c, holder, holder.info, true /*noisy*/, holder.noReleaseNeeded, stable);
 ```
 我们继续看`installProvider`, 这个方法其实有两个逻辑, 下面我只截取一些关键的逻辑,我们现在只看`同一个进程中的ContentProvider实例化过程`, 即会初始化`localProvider`的逻辑:
