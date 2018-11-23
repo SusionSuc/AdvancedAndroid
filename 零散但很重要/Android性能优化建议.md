@@ -31,11 +31,11 @@ class SimpleCard : LinearLayout, AdapterItem{
 }
 ```
 
-因为`SimpleCard`在`Recycleview`中频繁被`bindData`, 因此`SP.getBoolean(xxx)`会被频繁调用,前面已经说了`SP`的读或写是io操作。这种写法势必会造成UI卡顿。
+因为`SimpleCard`在`Recycleview`中频繁被`bindData`, 因此`SP.getBoolean(xxx)`会被频繁调用,前面已经说了`SP`的读或写是io操作。这种写法势必会造成UI卡顿。
 
 >最佳实践
 
-flag一般来说在app启动的时候就已经确定了，所有我们只需要获取一次。可以提前初始化这些flag:
+flag一般来说在app启动的时候就已经确定了，所有我们只需要获取一次。可以提前初始化这些flag:
 
 //比如在某个Activity的onCreate
 ```
@@ -44,7 +44,7 @@ flag一般来说在app启动的时候就已经确定了，所有我们只需要
     })
 ```
 
-//SimpleCard.bindData
+//SimpleCard.bindData
 ```
  fun bindData(){
         if(FlagCenter.useStyle1){
@@ -53,13 +53,13 @@ flag一般来说在app启动的时候就已经确定了，所有我们只需要
     }
 ```
 
-## ObjectOutputStream
+## ObjectOutputStream
 
-利用它我们可以把对象保存到磁盘中。不过它有一个特点:在保存对象的时候，每个数据成员会带来一次`I/O`操作。因此如果你对象很多、属性很复杂时，`ObjectOutputStream`的`I/O`操作会异常凶猛。
+利用它我们可以把对象保存到磁盘中。不过它有一个特点:在保存对象的时候，每个数据成员会带来一次`I/O`操作。因此如果你对象很多、属性很复杂时，`ObjectOutputStream`的`I/O`操作会异常凶猛。
 
 >最佳实践
 
-最好在`ObjectOutputStream`上再封装一个输出流,比如`BufferedOutputStream`。先把对象写入到这个流中，然后再使用`ObjectOutputStream`保存到磁盘。
+最好在`ObjectOutputStream`上再封装一个输出流,比如`BufferedOutputStream`。先把对象写入到这个流中，然后再使用`ObjectOutputStream`保存到磁盘。
 
 ## 合理设置buffer
 
@@ -82,7 +82,7 @@ public static int getDefaultPageSize() {
 
 ## Bitmap的解码
 
-在Android4.4以上的系统上，对于Bitmap的解码，`decodeStream()`的效率要高于`decodeFile()`和`decodeResource()`, 而且高的不是一点。所以解码`Bitmap`要使用`decodeStream()`，同时传给`decodeStream()`的文件流是`BufferedInputStream`
+在Android4.4以上的系统上，对于Bitmap的解码，`decodeStream()`的效率要高于`decodeFile()`和`decodeResource()`, 而且高的不是一点。所以解码`Bitmap`要使用`decodeStream()`，同时传给`decodeStream()`的文件流是`BufferedInputStream`
 
 >最佳实践
 
@@ -101,13 +101,13 @@ val bitmap = BitmapFactory.decodeStream(bis,null,ops)
 
 Activity对象会间接或者直接引用View、Bitmap等，所以一旦无法释放，会占用大量内存。并且Activity在Destroy的情况下，更新UI是会引发crash的。而Activity内存泄漏最常见的就以下几种case:
 
-1. 生命周期比Activtiy长的对象持有了Activity的引用。比如在`getSystemService`时使用了`Activity`
+1. 生命周期比Activtiy长的对象持有了Activity的引用。比如在`getSystemService`时使用了`Activity`
 
-2. Activity的内部类作为一个异步的回调监听。比如定义了一个`Handler`内部类，这时候`Handler`默认就会引用`Activity`
+2. Activity的内部类作为一个异步的回调监听。比如定义了一个`Handler`内部类，这时候`Handler`默认就会引用`Activity`
 
 >最佳实践
 
-在使用`getSystemService`方法时尽量使用`Application`， 比如: `applicationContext.getSystemService(Context.INPUT_METHOD_SERVICE)` 
+在使用`getSystemService`方法时尽量使用`Application`， 比如: `applicationContext.getSystemService(Context.INPUT_METHOD_SERVICE)` 
 
 Activity中的`Handler`定义为静态内部类(解除对Activity的引用),并使用`WeakReference<Activity>`来引用Activity。
 
