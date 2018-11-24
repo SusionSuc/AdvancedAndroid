@@ -1,5 +1,5 @@
 >前面阅读了[BroadcastReceiver的源码](https://github.com/SusionSuc/AdvancedAndroid/blob/master/%E6%8F%92%E4%BB%B6%E5%8C%96/VirtualApk/%E4%BB%8E%E6%BA%90%E7%A0%81%E4%BA%86%E8%A7%A3BroadcastReceiver%E7%9A%84%E5%B7%A5%E4%BD%9C%E8%BF%87%E7%A8%8B.md)。
->这篇文章也应该是继续看`VirtualApk`中关于`插件ContentProvider`的处理的。不过由于处理逻辑比较简单,所以到最后再看。本文的目的是了解系统对于`ContentProvider`的整个处理的过程,只看重点过程。
+>这篇文章也应该是继续看`VirtualApk`中关于`插件ContentProvider`的处理的。不过由于处理逻辑比较简单,所以到最后再看。本文的目的是了解系统对于`ContentProvider`的整个处理的过程。
 
 `ContentProvider`是一个可以跨进程的组件,比如我们可以使用通讯录的`ContentProvider`来获取手机中的通信录信息。`ContentResolver`封装了`ContentProvider`跨进程通信的逻辑，使我们在使用`ContentProvider`时不需要关心这些细节。
 
@@ -16,7 +16,7 @@ public final Cursor query(...) {
 }
 ```
 
-即首先要获得一个`IContentProvider`。它是ContentProvider与系统交互的一个`aidl`接口。其实这里拿到的就是一个`Binder`。所以接下来就看这个`IContentProvider(Binder)`是如果获取的。
+即首先要获得一个`IContentProvider`。它是ContentProvider可以跨进交互的一个`aidl`接口。其实这里拿到的就是一个`Binder`。所以接下来就看这个`IContentProvider(Binder)`是如果获取的。
 
 我们在调用`ContextImp.getContentResolver()`获得的其实是`ApplicationContentResolver`。因此来看一下它的`acquireUnstableProvider()`:
 
@@ -104,9 +104,9 @@ ok我们继续来看源码:
     }
 ```
 
-即根据`ContentProvider`所在的`进程是否是活跃`、`这个ContentProvider是否被启动过`两个状态来进行不同的处理 :
+即根据`ContentProvider`所在的`进程是否是活跃`、`这个ContentProvider是否被启动过(缓存下来)`两个状态来进行不同的处理 :
 
-## ContentProvider所在的进程正在运行
+## ContentProvider已被加载并且所在的进程正在运行
 即: `if(providerRunning){ ... }`中的代码
 >`ActivityManagerService.getContentProviderImpl()(3)`
 ```
@@ -125,7 +125,7 @@ ok我们继续来看源码:
 
 即如果请求的是同进程的`ContentProvider`则直接回到进程的主线程去实例化`ContentProvider`。否则使用`ContentProviderRecord`和`ProcessRecord`构造一个`ContentProviderConnection`
 
-## ContentProvider所在的进程没有运行
+## ContentProvider所在的进程没有运行并且服务端(ActivityManagerService)没有加载过它
 即: `if(!providerRunning){ ... }`中的代码
 >`ActivityManagerService.getContentProviderImpl()(4)`
 ```
@@ -198,9 +198,9 @@ ok我们继续来看源码:
     return cpr != null ? cpr.newHolder(conn) : null; //返回给请求这个客户端的进程
 ```
 
-根据前面的分析，ContentProvider所在的进程没有运行，就创建了一个`ContentProviderConnection`,那么服务端就会挂起，启动ContentProvider所在的进程，并等待它实例化`ContentProvider` :
+根据前面的分析，ContentProvider所在的进程没有运行或者不是和`获取者`同一个进程，就创建了一个`ContentProviderConnection`,那么服务端就会挂起，启动ContentProvider所在的进程，并等待它实例化`ContentProvider` :
 
-在继续看客户端实例化ContentProvider之前，我们先用一张图来总结一下服务端(`ActivityManagerService`)启动一个ContentProvider的逻辑 :
+在继续看客户端实例化ContentProvider之前，我们先用一张图来总结一下客户端进程请求服务端(`ActivityManagerService`)启动一个ContentProvider的逻辑 :
 
 ![](picture/ActivityManagerService对于ContentProvider启动请求的处理.png)
 
@@ -221,7 +221,7 @@ ok，通过前面的分析我们知道`ContentProvider`最终是在它所在的�
     //在向服务端获取holder，服务端如果发现ContentProvider的进程和当前客户端进程是同一个进程就会让客户端进程来实例化ContentProvider，具体细节可以在下面分析中看到
     holder = installProvider(c, holder, holder.info, true /*noisy*/, holder.noReleaseNeeded, stable);
 ```
-我们继续看`installProvider`, 这个方法其实有两个逻辑, 下面我只截取一些关键的逻辑,我们现在只看`同一个进程中的ContentProvider实例化过程`, 即会初始化`localProvider`的逻辑:
+我们继续看`ActivityThread.installProvider`, 这个方法其实有两个逻辑, 下面我只截取一些关键的逻辑,我们现在只看`同一个进程中的ContentProvider实例化过程`, 即会初始化`localProvider`的逻辑:
 
 ```
 private ContentProviderHolder installProvider(...) {
@@ -327,9 +327,7 @@ private ContentProviderHolder installProvider(...) {
 1. `插件的ContentProvider`是运行在`占坑的ContentProvider`进程中的。
 2. `插件的ContentProvider`是不会运行在自己自定的进程中的，即没有多进程`ContentProvider`的概念。
 
-
-
-
+>欢迎Star我的[Android进阶计划](https://github.com/SusionSuc/AdvancedAndroid),看更多干货
 
 
 

@@ -2,13 +2,13 @@
 
 对于一个功能越来越复杂的APP来说，路由对于代码的解耦、页面灵活跳转配置、页面拦截功能提供了很好的支持。一个好的路由框架应支持: Uri的动态注册(不需要再Manifest中配)、 支持跨模块获取接口的实现等。
 
-我仔细阅读了两个业界比较出名的方案`WMRouter`和`ARouter`的源码。用以加深我对目前业界路由技术的了解。
+我仔细阅读了两个业界比较出名的方案`WMRouter`和`ARouter`的源码。这两个方案是实现核心原理是差不多的:
 
-> WMRouter:  (https://github.com/meituan/WMRouter)
+*通过注解标注路由信息,在编译期动态扫描路由信息，生成加载路由表信息的java类。并利用 `gradle transform` + `asm`生成加载全部路由信息的class文件。在app运行时，路由框架反射调用这个class文件,从而完成了路由表的装载。*
 
-> ARouter :   (https://github.com/alibaba/ARouter
+下面就来具体看一下这两个框架的源代码:
 
-### WMRouter
+### [WMRouter](https://github.com/meituan/WMRouter)
 
 - 整个框架的路由体系是如何设计的 : <a href="WMRouter/基本路由架构梳理.md">基本路由架构梳理</a>
 
@@ -18,7 +18,7 @@
 
 - <a href="WMRouter/页面路由实例分析.md">页面路由实例分析</a>
 
-### ARouter
+### [ARouter](https://github.com/alibaba/ARouter)
 
 - 分析整个路由流程，以及相关类 : <a href="ARouter/基本路由过程.md">基本路由架构梳理</a>
 
