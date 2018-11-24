@@ -352,7 +352,7 @@ public void finishReceiver(IBinder who, int resultCode, String resultData,
 平时如果我们只是在app内使用广播来做简单的通知等，可以使用它来注册广播接收者和发送广播。它会自己管理注册的广播接受者(不会管理静态注册的广播)，然后做正常的分发，完全不涉及`ActivityManagerService`。因此比较高效。源码比较简单就不做分析。
 
 
-*欢迎关注我的[Android进阶计划](https://github.com/SusionSuc/AdvancedAndroid)看更多干货。*
+>欢迎Star我的[Android进阶计划](https://github.com/SusionSuc/AdvancedAndroid),看更多干货
 
 参考文章
 > https://blog.csdn.net/chenweiaiyanyan/article/details/76907292

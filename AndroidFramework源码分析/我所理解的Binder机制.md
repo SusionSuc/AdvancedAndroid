@@ -289,6 +289,8 @@ public boolean onTransact(int code, android.os.Parcel data, android.os.Parcel re
 
 ![Binder机制](picture/Binder机制.png)
 
+>欢迎Star我的[Android进阶计划](https://github.com/SusionSuc/AdvancedAndroid),看更多干货
+
 参考:
 
 > [Android 进阶9：进程通信之 AIDL 解析](https://blog.csdn.net/u011240877/article/details/72825706)
