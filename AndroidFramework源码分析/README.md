@@ -8,7 +8,7 @@
 
 每个人阅读源码的方式都不一样。我呢，并没有把Android源代码全部下载下来编译，我只是下载了Framework层`base`的代码 : https://android.googlesource.com/platform/frameworks/base/
 
-我查看的方式也很简单，就是使用`IntelLij IDEA`。所以就不存在想看哪里跳哪里的情况，一个类里面的跳转直接看类结构、跨类我一般都是全局搜索。我感觉这样看起来也是ok的。熟练后效率也不低。
+我查看的方式也很简单，就是使用`IntelLij IDEA`。所以就不存在想看哪里跳哪里的情况，一个类里面的跳转直接看类结构、跨类我一般都是全局搜索。我感觉这样看起来也是ok的。熟练后效率也不低。
 
 ## Binder
 
