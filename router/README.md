@@ -29,7 +29,7 @@
 
 接下来就来看一下这两个点在`ARouter`中是如何处理的:
 
-![基本路由过程](https://github.com/SusionSuc/AdvancedAndroid/blob/master/router/ARouter/%E5%9F%BA%E6%9C%AC%E8%B7%AF%E7%94%B1%E8%BF%87%E7%A8%8B.md)
+[基本路由过程](https://github.com/SusionSuc/AdvancedAndroid/blob/master/router/ARouter/%E5%9F%BA%E6%9C%AC%E8%B7%AF%E7%94%B1%E8%BF%87%E7%A8%8B.md)
 
 对比一下这两个方案，以此来对`Android`中对于一个路由框架需要的功能做更明确的理解:
 

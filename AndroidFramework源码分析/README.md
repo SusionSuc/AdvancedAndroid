@@ -20,13 +20,13 @@
 
 Android四大组件是我们日常开发中最常用的。我们天天和都在用他们提供的接口。所以，如果你深入源码，了解一下他们实现的机制，那么你在使用它们的时候是不是更有一种做`主人`的感觉呢？哈哈
 
-[从源码理解Activity的工作过程](从源码理解Activity的工作过程.md)
-
-[从源码理解Service的工作过程](从源码理解Service的工作过程.md)
-
 [从源码理解BroadcastReceiver的工作过程](从源码理解BroadcastReceiver的工作过程.md)
 
 [从源码理解ContentProvider的工作过程](从源码理解ContentProvider的工作过程.md)
+
+ing [从源码理解Activity的工作过程](从源码理解Activity的工作过程.md)
+
+ing [从源码理解Service的工作过程](从源码理解Service的工作过程.md)
 
 ## 界面绘制的原理
 
