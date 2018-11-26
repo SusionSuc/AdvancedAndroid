@@ -4,7 +4,6 @@
 
 这两个框架的实现核心原理是差不多的: *通过注解标注路由信息,在编译期动态扫描路由信息，生成加载路由表信息的java类。并利用 `gradle transform`和`asm`生成加载全部路由信息的class文件。在app运行时，路由框架反射调用这个class文件,从而完成了路由表的装载*
 
-
 ### [WMRouter](https://github.com/meituan/WMRouter)
 
 在看整个框架的工作原理之前，先来分析一下它的它是如何完成一次路由的:
@@ -26,12 +25,13 @@
 
 ### [ARouter](https://github.com/alibaba/ARouter)
 
-- 分析整个路由流程，以及相关类 : <a href="ARouter/基本路由过程.md">基本路由架构梳理</a>
+`ARouter`的路由节点的动态加载类似于`WMRouter`，就不再分析了，这里主要看一下`ARouter`中是如何组织路由节点，并做Uri的分发的，这是两个框架最大的区别。
 
-- 路由表示如何根据注解生成并在框架运行时加载到内存 : <a href="ARouter/动态生成路由表.md">路由表的生成</a>
+接下来就来看一下这两个点在`ARouter`中是如何处理的:
 
-- <a href="ARouter/跨模块加载实现类与参数的自动注入.md">跨模块加载实现类与参数的自动注入</a>
+![基本路由过程](https://github.com/SusionSuc/AdvancedAndroid/blob/master/router/ARouter/%E5%9F%BA%E6%9C%AC%E8%B7%AF%E7%94%B1%E8%BF%87%E7%A8%8B.md)
 
+对比一下这两个方案，以此来对`Android`中对于一个路由框架需要的功能做更明确的理解:
 
 ### 方案对比
 
@@ -70,3 +70,5 @@
 - ARouter :  https://github.com/alibaba/ARouter/blob/master/README_CN.md
 
 > 水平有限，如果错误，欢迎指出。
+
+>欢迎Star我的[Android进阶计划](https://github.com/SusionSuc/AdvancedAndroid),看更多干货。
