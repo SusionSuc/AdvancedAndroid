@@ -47,3 +47,9 @@ Activty的启动看完，继续看一下`插件Service的启动`, 对于`插件S
 看了一遍`BroadcastReceiver`的源码后，我们继续分析`VirtualAPK`的`ContentProvider` 
 
 [插件ContentProvider的处理](../AndroidFramework源码分析/从源码理解ContentProvider的工作过程.md)
+
+### 解决资源冲突的问题
+
+宿主apk和插件apk是两个不同的apk，他们在编译时都会产生自己的`resources.arsc`。即他们是两个独立的编译过程。那么它们的`resources.arsc`中的资源id必定是有相同的情况,那么在宿主加载插件的时候就会出现冲突，怎么解决呢 ？
+
+[解决插件资源ID与宿主冲突的问题](VirtualApk/解决插件资源ID与宿主冲突的问题.md)

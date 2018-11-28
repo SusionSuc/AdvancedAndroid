@@ -1,5 +1,5 @@
 >前面阅读了[BroadcastReceiver的源码](https://github.com/SusionSuc/AdvancedAndroid/blob/master/%E6%8F%92%E4%BB%B6%E5%8C%96/VirtualApk/%E4%BB%8E%E6%BA%90%E7%A0%81%E4%BA%86%E8%A7%A3BroadcastReceiver%E7%9A%84%E5%B7%A5%E4%BD%9C%E8%BF%87%E7%A8%8B.md)。
->这篇文章也应该是继续看`VirtualApk`中关于`插件ContentProvider`的处理的。不过由于处理逻辑比较简单,所以到最后再看。本文的目的是了解系统对于`ContentProvider`的整个处理的过程。
+>这篇文章也应该是继续看`VirtualApk`中关于`插件ContentProvider`的处理的。不过由于处理逻辑类似于Activity、Service,所以到最后再看。本文的目的是了解系统对于`ContentProvider`的整个处理的过程。
 
 `ContentProvider`是一个可以跨进程的组件,比如我们可以使用通讯录的`ContentProvider`来获取手机中的通信录信息。`ContentResolver`封装了`ContentProvider`跨进程通信的逻辑，使我们在使用`ContentProvider`时不需要关心这些细节。
 
