@@ -46,7 +46,7 @@ Activty的启动看完，继续看一下`插件Service的启动`, 对于`插件S
 
 对于`插件ContentProvider`的运行支持类似于`插件Service`和`插件BroadcastReceiver`的思想结合体。我们继续分析一下:
 
-[插件ContentProvider的处理](../AndroidFramework源码分析/从源码理解ContentProvider的工作过程.md)
+[插件ContentProvider的处理](../AndroidFramework源码分析/ContentProvider启动过程分析.md)
 
 ### 解决资源冲突的问题
 
