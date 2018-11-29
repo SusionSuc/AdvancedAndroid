@@ -5,7 +5,7 @@
 
 >`Android P`开始对`对非SDK API`进行严格管制，先来看一下`私有SDK API`: https://developer.android.google.cn/about/versions/pie/restrictions-non-sdk-interfaces
 
-##  <a href="https://github.com/didi/VirtualAPK">VirtualApk</a>
+## [VirtualApk](https://github.com/didi/VirtualAPK)
 
 `VirtualApk`是由滴滴开源的一款插件化框架。主要实现思路是`hook`系统多处对于`Android四大组件`的处理，以达到调用插件的四大组件的实现。我们这里主要看一下它是如何实现的、用到了哪些东西。顺便了解Adnroid四大组件的运行机制。
 下面的文章不会去细究实现逻辑，只看`VirtualApk`关于一些关键点的实现思路。
@@ -18,7 +18,7 @@
 
 其实不只是`VirtualApk`，很多其他插件化框架对于插件apk的解析也是这个思路。
 
-上一篇文章已经详细了解了一个插件的apk的类、资源、四大组件信息时如何被加载到宿主中了。但是我们知道四大组件都需要在`manifest`文件中注册后才能运行，但是`插件`的四大组件是不可能预先在宿主的`manifest`文件中注册的，那么如何让它们运行起来呢？
+上面了解了一个插件的apk的类、资源、四大组件信息时如何被加载到宿主中了。但是我们知道四大组件都需要在`manifest`文件中注册后才能运行，但是`插件`的四大组件是不可能预先在宿主的`manifest`文件中注册的，那么如何让它们运行起来呢？
 接下来我们就来看一下宿主如何支持插件的四大组件运行的，首先来看最重要的`Activity` :
 
 ### 插件Activity的启动
@@ -52,3 +52,6 @@
 宿主apk和插件apk是两个不同的apk，他们在编译时都会产生自己的`resources.arsc`。即他们是两个独立的编译过程。那么它们的`resources.arsc`中的资源id必定是有相同的情况,那么在宿主加载插件的时候就会出现冲突，怎么解决呢 ？
 
 [解决插件资源ID与宿主冲突的问题](VirtualApk/解决插件资源ID与宿主冲突的问题.md)
+
+
+## [Replugin](https://github.com/Qihoo360/RePlugin)
