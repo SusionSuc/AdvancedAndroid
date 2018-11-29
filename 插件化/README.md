@@ -18,21 +18,20 @@
 
 其实不只是`VirtualApk`，很多其他插件化框架对于插件apk的解析也是这个思路。
 
+上一篇文章已经详细了解了一个插件的apk的类、资源、四大组件信息时如何被加载到宿主中了。但是我们知道四大组件都需要在`manifest`文件中注册后才能运行，但是`插件`的四大组件是不可能预先在宿主的`manifest`文件中注册的，那么如何让它们运行起来呢？
+接下来我们就来看一下宿主如何支持插件的四大组件运行的，首先来看最重要的`Activity` :
+
 ### 插件Activity的启动
 
-上一篇文章已经详细了解了一个插件的apk的类、资源、四大组件信息时如何被加载到宿主中了。那么接下来我们就来看一下宿主如何使用插件的四大组件。以启动一个插件的Activity为例。
+在阅读源码过程中发现了一个问题: [PathClassLoader与DexClassLoader到底有什么不同](./PathClassLoader与DexClassLoader到底有什么不同.md)
 
-在看`VirtualApk`启动插件Activity时，发现了一个问题，这里先记录一下:
-
-<a href="./PathClassLoader与DexClassLoader到底有什么不同.md">PathClassLoader与DexClassLoader到底有什么不同?</a>
-
-然后具体看一下，插件Activity是如何启动的:
+`VirtualApk`主要是通过hook`Instrumentation`来实现对`插件Activity`运行支持的:
 
 <a href="VirtualApk/插件Activity的启动.md">插件Activity的启动</a>
 
 ### 插件Service的运行管理
 
-Activty的启动看完，继续看一下`插件Service的启动`, 对于`插件Service`的管理和`插件Activity`不同，它自己管理了一套`插件Service`的运行系统: 
+对于`插件Service`的支持和`插件Activity`类似，`VirtualApk`动态代理了`AMS`。不过不同的是它自己管理了一套`插件Service`的运行系统: 
 
 <a href="VirtualApk/插件Service的运行管理.md">插件Service的运行管理</a>
 

@@ -101,7 +101,7 @@ int anim abc_fade_out 0x7f010001
 
 和第一步相同
 
-## 过滤插件资源:过滤掉在宿主中已经存在的资源
+### 过滤插件资源:过滤掉在宿主中已经存在的资源
 
 ```
     private void filterPluginResources() {
@@ -129,7 +129,7 @@ int anim abc_fade_out 0x7f010001
 
 即经过上面的操作，`pluginResources`只含有插件的资源。这份资源和宿主的资源集合没有交集，即没有相同的资源。
 
-## 重新设置插件的资源ID
+### 重新设置插件的资源ID
 
 这一步就是核心了，逻辑很简单，即基于自定义的`PP`字段的值，修改上面已经收集好的`pluginResources`中资源的资源ID:
 
@@ -178,7 +178,7 @@ int anim abc_fade_out 0x7f010001
 
 ok，经过上面的处理，`pluginResources`中的资源的资源id都是重新设置的新的资源Id。
 
-## 删除掉插件资源目录下前面已经被过滤掉的资源
+### 删除掉插件资源目录下前面已经被过滤掉的资源
 
 我们前面经过和宿主的资源对比后，可能已经删除了插件中的一些资源id，但是对应的文件还没有删除，因此需要把文件也删除掉:
 
@@ -214,11 +214,11 @@ ok，经过上面的处理，`pluginResources`中的资源的资源id都是重�
     }
 ```
 
-## 重新编排插件`resources.arsc`文件中插件资源ID为新设置的资源ID
+### 重新编排插件`resources.arsc`文件中插件资源ID为新设置的资源ID
 
 这个代码就不列了，感兴趣可以查看`VirtualApk`源代码 : [ArscEditor.slice()](https://github.com/didi/VirtualAPK/blob/master/virtualapk-gradle-plugin/src/main/groovy/com.didi.virtualapk/aapt/ArscEditor.groovy)
 
-## 重新产生R.java文件
+### 重新产生R.java文件
 
 ```
  public static void generateRJava(File dest, String pkg, ListMultimap<String, ResourceEntry> resources, List<StyleableEntry> styleables) {
@@ -252,3 +252,4 @@ ok，经过上面的处理，`pluginResources`中的资源的资源id都是重�
     }
 ```
 
+>欢迎Star我的[Android进阶计划](https://github.com/SusionSuc/AdvancedAndroid),看更多干货。
