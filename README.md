@@ -7,10 +7,10 @@
 
 |技术点|简介||
 |:----|:-----|:-----|
-|Android Framework 源码分析|源码面前，了无秘密。了解Android Framework层的实现对于我们百利而无一害|[详情](AndroidFramework源码分析/README.md)|
 |Router|主要分析了WMRouter和ARouter两款开源框架的工作原理|<a href="router/README.md">详情</a>|
-|Gradle插件、代码注入|Gradle插件与代码生成等|<a href="gradle插件与字节码注入/README.md">详情</a>|
 |插件化|分析VirtualApk和Replugin等开源框架，主要是透过他们了解Android底层组件的运行机制,系统是如何对他们提供支持的。|<a href="插件化/README.md">详情</a>|
+|Android Framework 源码分析|源码面前，了无秘密。了解Android Framework层的实现对于我们百利而无一害|[详情](AndroidFramework源码分析/README.md)|
+|Gradle插件、代码注入|Gradle插件与代码生成等|<a href="gradle插件与字节码注入/README.md">详情</a>|
 |Fresco|主要分析Fresco框架的设计层级以及图片处理的整体流程|next|
 |......| |
 
