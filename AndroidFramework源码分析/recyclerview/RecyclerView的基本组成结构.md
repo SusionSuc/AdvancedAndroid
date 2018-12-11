@@ -1,5 +1,5 @@
 >`RecyclerView`作为Android开发中最常用的View之一。很多`App`的feed流都是使用`RecyclerView`来实现的。加深对于`RecyclerView`的掌握对于开发效率和开发质量都有很重要的意义。接下来我打算从源码
->角度剖析`RecyclerView`的实现，加深对于`RecycledView`额的了解。`RecyclerView`的源码实现还是很庞大的。本文就先来看一下`RecyclerView`的整体设计，了解其核心实现类的作用。
+>角度剖析`RecyclerView`的实现，加深对于`RecycledView`的了解。`RecyclerView`的源码实现还是很庞大的。本文就先来看一下`RecyclerView`的整体设计，了解其核心实现类的作用。
 
 下面这张图是我截取的`RecyclerView的Structure:`
 
@@ -82,9 +82,10 @@ ArrayList<ViewHolder> mChangedScrap = null;
 ```
 
 - `View Scrap状态`
+
 相信你在许多`RecyclerView`的`crash log`中都看到过这个单词。它是指`View`在`RecyclerView`布局期间进入分离状态的子视图。即它已经被`deatach`(并不是调用了onDetatchToWindow方法, 是被标记为`FLAG_TMP_DETACHED`状态)了。这种`View`是可以被立即复用的。它在复用时，如果数据没有更新，是不需要调用`onBindViewHolder`方法的。如果数据更新了，那么需要重新调用`onBindViewHolder`。
 
-`mAttachedScrap`和`mChangedScrap`中的View复用主要作用在`adapter.notifyXXX`时。这时候就会产生很多`scrap`状态的`view`。 也可以把它理解为一个`ViewHolder`的缓存。不过在从这里获取`ViewHolder`时完全是根据`ViewHolder`的`position`而不是`item type`。
+`mAttachedScrap`和`mChangedScrap`中的View复用主要作用在`adapter.notifyXXX`时。这时候就会产生很多`scrap`状态的`view`。 也可以把它理解为一个`ViewHolder`的缓存。不过在从这里获取`ViewHolder`时完全是根据`ViewHolder`的`position`而不是`item type`。如果在`notifyXX`时data已经被移除掉你，那么其中对应的`ViewHolder`也会被移除掉。
 
 
 ### mCacheViews
@@ -93,7 +94,7 @@ ArrayList<ViewHolder> mChangedScrap = null;
 
 ### RecycledViewPool
 
-它是一个可以被复用的`ViewHolder`缓存池。即可以给多个`RecycledView`来设置统一个`RecycledViewPool`。这个对于多tab的应用可能会有很显著的效果。它内部利用一个`ScrapData`来保存`ViewHolder`:
+它是一个可以被复用的`ViewHolder`缓存池。即可以给多个`RecycledView`来设置统一个`RecycledViewPool`。这个对于`多tab feed流`应用可能会有很显著的效果。它内部利用一个`ScrapData`来保存`ViewHolder`集合:
 
 ```
 class ScrapData {
@@ -103,10 +104,10 @@ class ScrapData {
     long mBindRunningAverageNs = 0;
 }
 
-SparseArray<ScrapData> mScrap = new SparseArray<>();
+SparseArray<ScrapData> mScrap = new SparseArray<>();  //RecycledViewPool 用来保存ViewHolder的容器
 ```
 
-一个`ScrapData`对应一种`type`的`ViewHolder`。看一下它的获取`ViewHolder`和保存`ViewHolder`的方法:
+一个`ScrapData`对应一种`type`的`ViewHolder`集合。看一下它的获取`ViewHolder`和保存`ViewHolder`的方法:
 
 ```
 //存
