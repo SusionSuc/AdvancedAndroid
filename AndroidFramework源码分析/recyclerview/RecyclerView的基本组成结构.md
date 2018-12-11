@@ -5,7 +5,7 @@
 
 ![](picture/类的组成.png)
 
-本文着重看: `Adapter`、`LayoutManager`、`ViewHolder`、`Recycler`、`RecyclerPool`
+本文着重看: `Adapter`、`LayoutManager`、`ViewHolder`、`Recycler`、`RecyclerPool`
 
 先用一张图大致描述他们之间的关系,这张图是`adapter.notifyXX()`时`RecyclerView`的执行逻辑涉及到的一些类:
 
