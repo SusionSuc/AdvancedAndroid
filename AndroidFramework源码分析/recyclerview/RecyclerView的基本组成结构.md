@@ -1,11 +1,11 @@
 >`RecyclerView`作为Android开发中最常用的View之一。很多`App`的feed流都是使用`RecyclerView`来实现的。加深对于`RecyclerView`的掌握对于开发效率和开发质量都有很重要的意义。接下来我打算从源码
->角度剖析`RecyclerView`的实现，加深对于`RecycledView`的了解。`RecyclerView`的源码实现还是很庞大的。本文就先来看一下`RecyclerView`的整体设计，了解其核心实现类的作用。
+>角度剖析`RecyclerView`的实现，加深对于`RecycledView`的了解。`RecyclerView`的源码实现还是很庞大的。本文就先来看一下`RecyclerView`的整体设计，了解其核心实现类的作用以及大致实现原理。
 
 下面这张图是我截取的`RecyclerView的Structure:`
 
 ![](picture/类的组成.png)
 
-本文着重看: `Adapter`、`LayoutManager`、`ViewHolder`、`Recycler`、`RecyclerPool`
+本文着重看: `ViewHolder`、`Adapter`、`AdapterDataObservable`、`RecyclerViewDataObserver`、`LayoutManager`、、`Recycler`、`RecyclerPool`。 从而理解`RecycledView`的大致实现原理。
 
 先用一张图大致描述他们之间的关系,这张图是`adapter.notifyXX()`时`RecyclerView`的执行逻辑涉及到的一些类:
 
@@ -56,6 +56,35 @@ class SimpleStringAdapter(val dataSource: List<String>, val context: Context) : 
 1. 它引用着一个数据源集合`dataSource`
 2. `getItemCount()`用来告诉`RecyclerView`展示的总条目
 3. 它并不是直接映射`data -> ViewHolder`， 而是 `data position -> data type -> viewholder`。 所以对于`ViewHolder`来说，它知道的只是它的`view type`
+
+## AdapterDataObservable
+
+`Adapter`是数据源的直接接触者，当数据源发生变化时，它需要通知给`RecyclerView`。这里使用的模式是`观察者模式`。`AdapterDataObservable`是数据源变化时的被观察者。`RecyclerViewDataObserver`是观察者。
+在开发中我们通常使用`adapter.notifyXX()`来刷新UI,实际上`Adapter`会调用`AdapterDataObservable`的`notifyChanged()`:
+
+```
+    public void notifyChanged() {
+        for (int i = mObservers.size() - 1; i >= 0; i--) {
+            mObservers.get(i).onChanged();
+        }
+    }
+```
+
+逻辑很简单，即通知`Observer`数据发生变化。
+
+## RecyclerViewDataObserver
+
+它是`RecycledView`用来监听`Adapter`数据变化的观察者:
+
+```
+    public void onChanged() {
+        mState.mStructureChanged = true; // RecycledView每一次UI的更新都会有一个State
+        processDataSetCompletelyChanged(true);
+        if (!mAdapterHelper.hasPendingUpdates()) {
+            requestLayout();
+        }
+    }
+```
 
 ## LayoutManager
 
