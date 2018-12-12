@@ -33,7 +33,7 @@ class ViewHolder {
 
 ## Adapter
 
-它的工作是把`data`和`View`绑定，即上面说的一个`data`对应一个`ViewHolder`。比如下面这个Adapter:
+它的工作是把`data`和`View`绑定，即上面说的一个`data`对应一个`ViewHolder`。主要负责`ViewHolder`的创建以及数据变化时通知`RecycledView`。比如下面这个Adapter:
 
 ```
 class SimpleStringAdapter(val dataSource: List<String>, val context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -49,6 +49,10 @@ class SimpleStringAdapter(val dataSource: List<String>, val context: Context) : 
     override fun getItemCount() = dataSource.size
 
     override fun getItemViewType(position: Int) = 1
+
+    override fun notifyDataSetChanged() {   //super的实现
+        mObservable.notifyChanged();
+    }  
 }
 ```
 即: 
@@ -88,7 +92,7 @@ class SimpleStringAdapter(val dataSource: List<String>, val context: Context) : 
 
 ## LayoutManager
 
-它是`RecyclerView`的布局管理者，`RecyclerView`在`onLayout`时，会利用它来`layoutChildren`,它决定了`RecyclerView`中的子View如何摆放。但不止如此, 它做的工作还有:
+它是`RecyclerView`的布局管理者，`RecyclerView`在`onLayout`时，会利用它来`layoutChildren`,它决定了`RecyclerView`中的子View的摆放规则。但不止如此, 它做的工作还有:
 
 1. 测量子View
 2. 对子View进行布局
@@ -159,7 +163,7 @@ private ScrapData getScrapDataForType(int viewType) {
 }
 ```
 
-以上所述，是`RecycledView`最核心的组成部分。接下来会继续分析`RecycledView`是如何利用它们来工作起来的。
+以上所述，是`RecycledView`最核心的组成部分(本文并没有描述动画的部分)。接下来会继续分析`RecycledView`是如何利用它们来工作起来的。
 
 >欢迎关注我的[Android进阶计划](https://github.com/SusionSuc/AdvancedAndroid)。看更多干货
 
