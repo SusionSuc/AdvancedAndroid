@@ -4,7 +4,7 @@
 本文会从源码分析两件事 :
 
 1. `adapter.notifyXXX()`时RecyclerView的UI刷新的逻辑,即`子View`是如何添加到`RecyclerView`中的。
-2. 在数据存在的情况下，滑动`RecyclerView`时`子View`是如何添加到`RecyclerView`的。
+2. 在数据存在的情况下，滑动`RecyclerView`时`子View`是如何添加到`RecyclerView`并滑动的。
 
 本文不会涉及到`RecyclerView`的动画，动画的实现会专门在一篇文章中分析。
 
@@ -71,21 +71,21 @@ private void dispatchLayoutStep2() {
 }
 ```
 
-这里有一个`mState`，它是一个`RecyclerView.State`对象。顾名思义它是用来保存`RecyclerView`状态的一个对象，主要是在`LayoutManager、Adapter等`组件之间共享状态的。可以看到这个方法将布局的工作交给了`mLayout`。这里它的实例是`LinearLayoutManager`，因此接下来看一下`LinearLayoutManager.onLayoutChildren()`:
+这里有一个`mState`，它是一个`RecyclerView.State`对象。顾名思义它是用来保存`RecyclerView`状态的一个对象，主要是用在`LayoutManager、Adapter等`组件之间共享`RecyclerView状态`的。可以看到这个方法将布局的工作交给了`mLayout`。这里它的实例是`LinearLayoutManager`，因此接下来看一下`LinearLayoutManager.onLayoutChildren()`:
 
 ## LinearLayoutManager.onLayoutChildren()
 
 这个方法也挺长的，就不展示具体源码了。不过布局逻辑还是很简单的:
 
 1. 确定锚点`(Anchor)View`, 设置好`AnchorInfo`
-2. 确定有多少布局空间可用``
-3. 根据当前设置的`LinearLayoutManager`的方向(是否是reverse),开始摆放子View
+2. 根据`锚点View`确定有多少布局空间`mLayoutState.mAvailable`可用
+3. 根据当前设置的`LinearLayoutManager`的方向开始摆放子View
 
 接下来就从源码来看这三步。
 
 ### 确定锚点View
 
-锚点View大部分是通过`updateAnchorFromChildren`方法确定的,这个方法主要是获取一个View，把它的信息设置到`AnchorInfo`中 :
+`锚点View`大部分是通过`updateAnchorFromChildren`方法确定的,这个方法主要是获取一个View，把它的信息设置到`AnchorInfo`中 :
 
 ```
 mAnchorInfo.mLayoutFromEnd = mShouldReverseLayout   // 即和你是否在 manifest中设置了布局 rtl 有关
@@ -107,7 +107,7 @@ private boolean updateAnchorFromChildren(RecyclerView.Recycler recycler, Recycle
 
 即， 如果是`start to end`, 那么就找最接近start(RecyclerView头部)的View作为布局的锚点View。如果是`end to start (rtl)`, 就找最接近end的View作为布局的锚点。
 
-`AnchorInfo`最重要的两个属性时`mCoordinate`和`mPosition`，找到锚点View后就会设置这两个属性，即` anchorInfo.assignFromView()`方法:
+`AnchorInfo`最重要的两个属性时`mCoordinate`和`mPosition`，找到锚点View后就会通过`anchorInfo.assignFromView()`方法来设置这两个属性:
 ```
 public void assignFromView(View child, int position) {
     if (mLayoutFromEnd) {
@@ -119,7 +119,8 @@ public void assignFromView(View child, int position) {
 }
 ```
 
-`mCoordinate`其实就是`锚点View`的`Y(X)`坐标去掉`RecyclerView`的padding。`mPosition`其实就是`锚点View`的位置。
+>- `mCoordinate`其实就是`锚点View`的`Y(X)`坐标去掉`RecyclerView`的padding。
+>- `mPosition`其实就是`锚点View`的位置。
 
 ### 确定有多少布局空间可用并摆放子View
 
@@ -148,7 +149,7 @@ public void assignFromView(View child, int position) {
 
 #### 确定可用布局空间
 
-在`fill`之前，需要先确定`从锚点View`到`RecyclerView底部`有多少可用空间，即`updateLayoutStateToFillEnd`方法 :
+在`fill`之前，需要先确定`从锚点View`到`RecyclerView底部`有多少可用空间。是通过`updateLayoutStateToFillEnd`方法:
 
 ```
 updateLayoutStateToFillEnd(anchorInfo.mPosition, anchorInfo.mCoordinate);
@@ -250,7 +251,7 @@ void scrollStep(int dx, int dy, @Nullable int[] consumed) {
     }
 }
 ```
-即把滑动的处理交给了`mLayout`, 这里继续看`LinearLayoutManager.scrollVerticallyBy`, 它直接调用了`scrollBy()`, 它就是`LinearLayoutManager`处理滚动的核心方法。
+即把滑动的处理交给了`mLayout`, 这里继续看`LinearLayoutManager.scrollVerticallyBy`, 它直接调用了`scrollBy()`, 这个方法就是`LinearLayoutManager`处理滚动的核心方法。
 
 ## LinearLayoutManager.scrollBy
 
@@ -306,7 +307,7 @@ void updateLayoutState(int layoutDirection, int requiredSpace,boolean canUseExis
 
 ![](picture/RecyclerView滚动时可使用的布局空间.png)
 
-相信看完上图，有关滑动布局可用空间`mLayoutState.mAvailable`已经很清楚了。同时` mLayoutState.mScrollingOffset`就是`滚动的距离 - mLayoutState.mAvailable`
+`RecyclerView的padding`我没标注,不过相信上图可以让你理解: 滑动布局可用空间`mLayoutState.mAvailable`。同时` mLayoutState.mScrollingOffset`就是`滚动的距离 - mLayoutState.mAvailable`
 
 所以 `consumed`也可以理解: 
 
