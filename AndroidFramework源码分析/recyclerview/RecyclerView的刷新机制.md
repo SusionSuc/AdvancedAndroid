@@ -307,7 +307,7 @@ void updateLayoutState(int layoutDirection, int requiredSpace,boolean canUseExis
 
 ![](picture/RecyclerView滚动时可使用的布局空间.png)
 
-`RecyclerView的padding`我没标注,不过相信上图可以让你理解: 滑动布局可用空间`mLayoutState.mAvailable`。同时` mLayoutState.mScrollingOffset`就是`滚动的距离 - mLayoutState.mAvailable`
+`RecyclerView的padding`我没标注,不过相信上图可以让你理解: 滑动布局可用空间`mLayoutState.mAvailable`。同时` mLayoutState.mScrollingOffset`就是`滚动的距离 - mLayoutState.mAvailable`
 
 所以 `consumed`也可以理解: 
 
@@ -315,7 +315,7 @@ void updateLayoutState(int layoutDirection, int requiredSpace,boolean canUseExis
 int consumed = mLayoutState.mScrollingOffset + fill(recycler, mLayoutState, state, false);   
 ```
 
-`fill()`就不看了。子View摆放完毕后就要滚动布局展示刚刚摆放好的子View。这是依靠的`mOrientationHelper.offsetChildren(-scrolled)`, 继续看一下是如何执行`RecyclerView`的滚动的
+`fill()`就不看了。子View摆放完毕后就要滚动布局展示刚刚摆放好的子View。这是依靠的`mOrientationHelper.offsetChildren(-scrolled)`, 继续看一下是如何执行`RecyclerView`的滚动的
 
 ### 滚动RecyclerView
 
