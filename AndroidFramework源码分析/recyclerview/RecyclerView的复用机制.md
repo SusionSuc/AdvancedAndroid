@@ -1,7 +1,7 @@
 >上一篇文章分析[RecyclerView刷新机制](RecyclerView刷新机制.md)知道`LayoutManager`在布局`子View`时会向`Recycler`索要一个`子View`。但从`Recycler`中获取一个`View`的前提示`Recycler`中要有`View`。那`Recycler`中是如何`有View`的呢？
->本文会分析两个问题:
+>本文会分析两个问题:
 
-1. `RecyclerView`的`View`是在什么时候放入到`Recycler`中的。以及在`Recycler`中是如何保存的。
+1. `RecyclerView`的`View`是在什么时候放入到`Recycler`中的。以及在`Recycler`中是如何保存的。
 2. `LayoutManager`在向`Recycler`获取`View`时，`Recycler`寻找`View`的逻辑是什么。
 
 即`何时存、怎么存`和`何时取、怎么取`的问题。`何时取`已经很明显了:`LayoutManager`在布局`子View`时会从`Recycler`中获取`子View`。 所以本文要理清的是其他3个问题。在文章继续之前要知道`Recycler`管理的基本单元是`ViewHolder`，`LayoutManager`操作的基本单元是`View`，即`ViewHolder`的`itemview`。本文不会分析`RecyclerView`动画时`view`的复用逻辑。
@@ -32,7 +32,7 @@
 9. 如果需要的话调用`mAdapter.bindViewHolder`来设置`ViewHolder`。(在做动画时可能不需要再`BindData`)
 10. 调整`ViewHolder.itemview`的布局参数为`Recycler.LayoutPrams`，并返回Holder
 
-虽然步骤很多，逻辑还是很简单的,即从几个缓存集合中获取`ViewHolder`，如果实在没有就创建。但比较疑惑的可能就是上述`ViewHolder缓存集合`中什么时候会保存`ViewHolder`。接下来分几个`RecyclerView`的具体情形，来一点一点弄明白这些`ViewHolder缓存集合`的问题。
+虽然步骤很多，逻辑还是很简单的,即从几个缓存集合中获取`ViewHolder`，如果实在没有就创建。但比较疑惑的可能就是上述`ViewHolder缓存集合`中什么时候会保存`ViewHolder`。接下来分几个`RecyclerView`的具体情形，来一点一点弄明白这些`ViewHolder缓存集合`的问题。
 
 ## 情形一 : 由无到有
 
