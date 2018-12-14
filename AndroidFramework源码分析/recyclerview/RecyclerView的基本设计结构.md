@@ -116,14 +116,14 @@ ArrayList<ViewHolder> mChangedScrap = null;
 
 - `View Scrap状态`
 
-相信你在许多`RecyclerView`的`crash log`中都看到过这个单词。它是指`View`在`RecyclerView`布局期间进入分离状态的子视图。即它已经被`deatach`(并不是调用了onDetatchToWindow方法, 是被标记为`FLAG_TMP_DETACHED`状态)了。这种`View`是可以被立即复用的。它在复用时，如果数据没有更新，是不需要调用`onBindViewHolder`方法的。如果数据更新了，那么需要重新调用`onBindViewHolder`。
+相信你在许多`RecyclerView`的`crash log`中都看到过这个单词。它是指`View`在`RecyclerView`布局期间进入分离状态的子视图。即它已经被`deatach`(标记为`FLAG_TMP_DETACHED`状态)了。这种`View`是可以被立即复用的。它在复用时，如果数据没有更新，是不需要调用`onBindViewHolder`方法的。如果数据更新了，那么需要重新调用`onBindViewHolder`。
 
 `mAttachedScrap`和`mChangedScrap`中的View复用主要作用在`adapter.notifyXXX`时。这时候就会产生很多`scrap`状态的`view`。 也可以把它理解为一个`ViewHolder`的缓存。不过在从这里获取`ViewHolder`时完全是根据`ViewHolder`的`position`而不是`item type`。如果在`notifyXX`时data已经被移除掉你，那么其中对应的`ViewHolder`也会被移除掉。
 
 
 ### mCacheViews
 
-可以把它理解为`RecyclerView`的一级缓存。它的默认大小是2。只能减少不能增加。从中可以根据`item type`来获取`ViewHolder`
+可以把它理解为`RecyclerView`的一级缓存。它的默认大小是3, 从中可以根据`item type`或者`position`来获取`ViewHolder`。可以通过`RecycledView.setItemViewCacheSize()`来改变它的大小。
 
 ### RecycledViewPool
 
