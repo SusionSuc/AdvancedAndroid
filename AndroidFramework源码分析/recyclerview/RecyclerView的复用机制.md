@@ -1,8 +1,8 @@
->上一篇文章分析[RecyclerView刷新机制](RecyclerView刷新机制.md)知道`LayoutManager`在布局`子View`时会向`Recycler`索要一个`子View`。但从`Recycler`中获取一个`View`的前提示`Recycler`中要有`View`。那`Recycler`中是如何`有View`的呢？
+>上一篇文章分析[RecyclerView刷新机制](RecyclerView刷新机制.md)知道`LayoutManager`在布局`子View`时会向`Recycler`索要一个`ViewHolder`。但从`Recycler`中获取一个`ViewHolder`的前提是`Recycler`中要有`ViewHolder`。那`Recycler`中是如何有`ViewHolder`的呢？
 >本文会分析两个问题:
 
 1. `RecyclerView`的`View`是在什么时候放入到`Recycler`中的。以及在`Recycler`中是如何保存的。
-2. `LayoutManager`在向`Recycler`获取`View`时，`Recycler`寻找`View`的逻辑是什么。
+2. `LayoutManager`在向`Recycler`获取`ViewHolder`时，`Recycler`寻找`ViewHolder`的逻辑是什么。
 
 即`何时存、怎么存`和`何时取、怎么取`的问题。`何时取`已经很明显了:`LayoutManager`在布局`子View`时会从`Recycler`中获取`子View`。 所以本文要理清的是其他3个问题。在文章继续之前要知道`Recycler`管理的基本单元是`ViewHolder`，`LayoutManager`操作的基本单元是`View`，即`ViewHolder`的`itemview`。本文不会分析`RecyclerView`动画时`view`的复用逻辑。
 
@@ -11,7 +11,7 @@
 ![](picture/Recycler的组成.png)
 
 - `mChangedScrap` : 用来保存`RecyclerView`做动画时，被detach的`ViewHolder`。
-- `mAttachedScrap` : 用来保存`RecyclerView`做数据刷新`notify`，被detach的`ViewHolder`
+- `mAttachedScrap` : 用来保存`RecyclerView`做数据刷新(`notify`)，被detach的`ViewHolder`
 - `mCacheViews` : `Recycler`的一级`ViewHolder`缓存。
 - `RecyclerViewPool` : `mCacheViews`集合中装满时，会放到这里。
 
@@ -29,7 +29,7 @@
 6. 根据`position和viewType`尝试从用户自定义的`mViewCacheExtension`中获取一个`ViewHolder`
 7. 根据`ViewType`尝试从`RecyclerViewPool`中获取一个`ViewHolder`
 8. 调用`mAdapter.createViewHolder()`来创建一个`ViewHolder`
-9. 如果需要的话调用`mAdapter.bindViewHolder`来设置`ViewHolder`。(在做动画时可能不需要再`BindData`)
+9. 如果需要的话调用`mAdapter.bindViewHolder`来设置`ViewHolder`。
 10. 调整`ViewHolder.itemview`的布局参数为`Recycler.LayoutPrams`，并返回Holder
 
 虽然步骤很多，逻辑还是很简单的,即从几个缓存集合中获取`ViewHolder`，如果实在没有就创建。但比较疑惑的可能就是上述`ViewHolder缓存集合`中什么时候会保存`ViewHolder`。接下来分几个`RecyclerView`的具体情形，来一点一点弄明白这些`ViewHolder缓存集合`的问题。
@@ -115,7 +115,8 @@ ViewHolder getScrapOrHiddenOrCachedHolderForPosition(int position, boolean dryRu
 }
 ```
 
-即如果`mAttachedScrap中holder`的位置和`入参position`相等，并且`holder`是有效的话这个`holder`就是可以复用的。所以综上所述，在情形二下所有的`ViewHolder`几乎都是复用`Recycler中mAttachedScrap集合`中的。并且重新布局完毕后`Recycler`中是不存在可复用的`ViewHolder`的。
+即如果`mAttachedScrap中holder`的位置和`入参position`相等，并且`holder`是有效的话这个`holder`就是可以复用的。所以综上所述，在情形二下所有的`ViewHolder`几乎都是复用`Recycler中mAttachedScrap集合`中的。
+并且重新布局完毕后`Recycler`中是不存在可复用的`ViewHolder`的。
 
 
 ## 情形三 : 滚动复用
@@ -154,7 +155,7 @@ int fill(RecyclerView.Recycler recycler, LayoutState layoutState,RecyclerView.St
 2. 如果没有的话就把`mCacheViews集合`中最前面的`ViewHolder`拿出来放到`RecyclerViewPool`中，然后再把最新的这个ViewHolder放到`mCacheViews集合`
 3. 如果没有成功缓存到`mCacheViews集合`中，就直接放到`RecyclerViewPool`
 
-先不讨论在什么情况下会`没有成功缓存到mCacheViews集合中`。思考一下`mCacheViews集合`为什么要这样缓存? 看一下下面这张图 :
+`mCacheViews集合`为什么要这样缓存? 看一下下面这张图 :
 
 ![](picture/mCacheViews的缓存逻辑.png)
 
@@ -163,14 +164,14 @@ int fill(RecyclerView.Recycler recycler, LayoutState layoutState,RecyclerView.St
 1. 先按照位置从`mCacheViews集合`中获取
 2. 按照`viewType`从`mCacheViews集合`中获取
 
-上面对于`mCacheViews集合`两步操作，其实第一步就已经命中了缓存的`ViewHolder`。并且这时候都不需要调用`Adapter.bindViewHolder()`方法的。即是十分高效的。但是如果是根据`viewType`从`mCacheViews集合`集合中获取是会调用`Adapter.bindViewHolder()`方法的。
+上面对于`mCacheViews集合`两步操作，其实第一步就已经命中了缓存的`ViewHolder`。并且这时候都不需要调用`Adapter.bindViewHolder()`方法的。即是十分高效的。
 
 **所以在普通的滚动复用的情况下，`ViewHolder`的复用主要来自于`mCacheViews集合`, 旧的`ViewHolder`会被放到`mCacheViews集合`, `mCacheViews集合`挤出来的更老的`ViewHolder`放到了`RecyclerViewPool`中**
 
 
+到这里基本的复用情形都覆盖了，其他的就涉及到`RecyclerView动画`了。这些点在下一篇文章继续看。
 
-
-
+>欢迎关注我的[Android进阶计划](https://github.com/SusionSuc/AdvancedAndroid)。看更多干货
 
 
 
