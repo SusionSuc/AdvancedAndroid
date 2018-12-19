@@ -6,7 +6,7 @@
 
 所以我打算深入`RecyclerView`的源码来看一下它的实现。经过一番挣扎我只是大概捋顺了它的实现机制。不过我认为这样已经够了，至少以后出现问题上述问题我可能会有一些解决方案浮现在脑中。
 
-`RecyclerView`的源码实现还是很庞大的，一篇文章肯定是不可能讲清楚的。另外由于`RecyclerView`的整体设计还是优秀的，各部分解耦和扩展性都挺高。在了解了它的大体结构后，我们可以一部分一部分的来看它的源码实现。即整个源码分析一共分为下面几个小节:
+`RecyclerView`的源码实现还是很庞大的，一篇文章肯定是不可能讲清楚的。另外由于`RecyclerView`的整体设计还是很优秀的，各部分解耦和扩展性都挺高。在了解了它的大体结构后，我们可以一部分一部分的来看它的源码实现。即整个源码分析一共分为下面几个小节:
 
 ## RecyclerView的基本设计结构
 
@@ -16,7 +16,7 @@
 
 ## RecyclerView的刷新机制
 
-这节主要看一下`RecyclerView`是实现UI刷新的，即:
+这节主要看一下`RecyclerView`是如何实现UI刷新的，即:
 
 1. 给RecyclerView设置数据后，RecyclerView是怎么展现的？
 2. RecyclerView在滚动时，新的item是如何出现的？
@@ -27,7 +27,7 @@
 
 `RecyclerView`最大的特点就是`ItemView`可以复用，但它的复用逻辑你知道吗？所以这一节主要看一下:
 
-1. 在`adapet.notifyXXX`时RecyclerView的复用逻辑是怎么样的？
+1. 在`adaper.notifyXXX`时RecyclerView的复用逻辑是怎么样的？
 2. `RecyclerView`在滚动时是如何实现复用的呢？
 
 [RecyclerView的复用机制](RecyclerView的复用机制.md)
@@ -35,7 +35,7 @@
 
 ## RecyclerView动画源码浅析
 
-`RecyclerView`支持各种`Item动画`,比如删除、添加、交换的。本节就来看一下`ItemView`的删除动画是如何实现的:
+`RecyclerView`支持各种`Item动画`,比如删除、添加、交换等。本节就来看一下`ItemView删除动画`是如何实现的:
 
 [RecyclerView动画源码浅析](RecyclerView动画源码浅析.md)
 
