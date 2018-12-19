@@ -9,7 +9,7 @@
 
 [RecyclerView的复用机制](RecyclerView的复用机制.md)
 
-简单的RecyclerView动画分析
+[RecyclerView动画源码浅析](RecyclerView动画源码浅析.md)
 
 RecyclerView常见的crash以及解决办法
 
