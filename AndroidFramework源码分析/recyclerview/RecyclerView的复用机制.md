@@ -19,7 +19,68 @@
 
 # 从Recycler中获取一个ViewHolder的逻辑
 
-`LayoutManager`会调用`Recycler.getViewForPosition(pos)`来获取一个指定位置(这个位置是子View布局所在的位置)的`view`。`getViewForPosition()`会调用`tryGetViewHolderForPositionByDeadline(position...)`, 这个方法是从`Recycler`中获取一个`View`的核心方法。它就是`如何从Recycler中获取一个ViewHolder`的逻辑，即`怎么取`, 这里我先列一下大致步骤:
+`LayoutManager`会调用`Recycler.getViewForPosition(pos)`来获取一个指定位置(这个位置是子View布局所在的位置)的`view`。`getViewForPosition()`会调用`tryGetViewHolderForPositionByDeadline(position...)`, 这个方法是从`Recycler`中获取一个`View`的核心方法。它就是`如何从Recycler中获取一个ViewHolder`的逻辑，即`怎么取`, 方法太长, 我做了很多裁剪:
+```
+ViewHolder tryGetViewHolderForPositionByDeadline(int position, boolean dryRun, long deadlineNs) {
+    ...
+    if (mState.isPreLayout()) {     //动画相关
+        holder = getChangedScrapViewForPosition(position);  //从缓存中拿吗？不应该不是缓存？
+        fromScrapOrHiddenOrCache = holder != null;
+    }
+    // 1) Find by position from scrap/hidden list/cache
+    if (holder == null) {
+        holder = getScrapOrHiddenOrCachedHolderForPosition(position, dryRun); //从 attach 和 mCacheViews 中获取
+        if (holder != null) {
+            ... //校验这个holder是否可用
+        }
+    }
+    if (holder == null) {
+        ...
+        final int type = mAdapter.getItemViewType(offsetPosition); //获取这个位置的数据的类型。  子Adapter复写的方法
+        // 2) Find from scrap/cache via stable ids, if exists
+        if (mAdapter.hasStableIds()) {    //stable id 就是标识一个viewholder的唯一性， 即使它做动画改变了位置
+            holder = getScrapOrCachedViewForId(mAdapter.getItemId(offsetPosition),  //根据 stable id 从 scrap 和 mCacheViews中获取
+                    type, dryRun);
+            ....
+        }
+        if (holder == null && mViewCacheExtension != null) { // 从用户自定义的缓存集合中获取
+            final View view = mViewCacheExtension
+                    .getViewForPositionAndType(this, position, type);  //你返回的View要是RecyclerView.LayoutParams属性的
+            if (view != null) {
+                holder = getChildViewHolder(view);  //把它包装成一个ViewHolder
+                ...
+            }
+        }
+        if (holder == null) { // 从 RecyclerViewPool中获取
+            holder = getRecycledViewPool().getRecycledView(type);
+            ...
+        }
+        if (holder == null) { 
+            ...
+            //实在没有就会创建
+            holder = mAdapter.createViewHolder(RecyclerView.this, type);
+            ...
+        }
+    }
+    ...
+    boolean bound = false;
+    if (mState.isPreLayout() && holder.isBound()) { //动画时不会想去调用 onBindData
+        ...
+    } else if (!holder.isBound() || holder.needsUpdate() || holder.isInvalid()) {
+        ...
+        final int offsetPosition = mAdapterHelper.findPositionOffset(position);
+        bound = tryBindViewHolderByDeadline(holder, offsetPosition, position, deadlineNs);  //调用 bindData 方法
+    }
+
+    final ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
+    final LayoutParams rvLayoutParams;
+    ...调整LayoutParams
+    return holder;
+}
+
+```
+
+即大致步骤是:
 
 1. 如果执行了`RecyclerView`动画的话，尝试`根据position`从`mChangedScrap集合`中寻找一个`ViewHolder`
 2. 尝试`根据position`从`scrap集合`、`hide的view集合`、`mCacheViews(一级缓存)`中寻找一个`ViewHolder` 

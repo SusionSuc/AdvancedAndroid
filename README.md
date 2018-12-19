@@ -21,7 +21,7 @@
 
 > [Android性能优化建议](零散但很重要/Android性能优化建议.md) : 这篇文章是我阅读《Android移动性能实战》总结的我们在开发时需要注意的一些点
 
-> [Android中的P与V如何写更解耦](零散但很重要/Android中的P与V如何写更解耦.md) 
+> [Android中的P与V如何写更解耦](零散但很重要/Android中的P与V如何写更解耦.md) : 如何正确的书写Android中的MVP
 
 ## [为什么要开这个repo](为什么要开这个repo.md)
 
