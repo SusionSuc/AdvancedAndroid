@@ -41,9 +41,9 @@
 
 ## 我对RecyclerView使用的思考
 
-我与`RecyclerView`打交道也有一段日子了，本节就来讲一下这段日子中我对于`RecyclerView`的使用思考吧:
+我与`RecyclerView`打交道也有一段日子了，本节就来讲一下这段日子中我对于`RecyclerView`的使用的一个小总结吧:
 
-[我对RecyclerView使用的思考](我对RecyclerView使用的思考.md)
+[对RecyclerView的使用总结以及常见问题解决方案](对RecyclerView的使用总结以及常见问题解决方案.md)
 
 
 >至于其他的内容，待日后感觉可以再写一下的时候继续补充吧。
