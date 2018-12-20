@@ -4,7 +4,7 @@
 
 ## RecycleView设置了数据不显示
 
-这个往往是因为你没有设置`LayoutManger`。 没有`LayoutManger`的话`RecycleView`是无法布局的，即是无法展示数据。
+这个往往是因为你没有设置`LayoutManger`。 没有`LayoutManger`的话`RecycleView`是无法布局的，即是无法展示数据,下面是`RecycleView`布局的源码:
 
 ```
 void dispatchLayout() {  //没有设置 Adapter 和 LayoutManager， 都不可能有内容
@@ -62,7 +62,7 @@ override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
 恩，滚动的时间有点长。因此对于这种case其实我推荐直接使用`scrollToPosition(20)`，效果要比这个好。 可是如果你就是想在`200ms`内从`Item 1 `滚到`Item 20`怎么办呢？
 
-首先`smoothScrollToPosition()`并不是通过动画来实现的，所以直接设置个动画时长`200ms`是不现实的。不过我们可以参考[StackOverflow上的一个答案](https://stackoverflow.com/questions/28803319/android-control-smooth-scroll-over-recycler-view/28853254),大致写法是这样的:
+可以参考[StackOverflow上的一个答案](https://stackoverflow.com/questions/28803319/android-control-smooth-scroll-over-recycler-view/28853254)。大致写法是这样的:
 
 ```
 //自定义 LayoutManager， Hook smoothScrollToPosition 方法
@@ -87,7 +87,7 @@ private fun get200MsScroller(context: Context, distance: Int): RecyclerView.Smoo
 
 ## 如何测量当前RecyclerView的高度
 
-先叙述一下这个需求: `RecyclerView`中的每个`ItemView`的高度都是不固定的。我数据源中有20条数据，在没有渲染的情况下我想知道这个20条数据被`RecycleView`渲染后的总共高度, 比如下面这个图片:
+先描述一下这个需求: `RecyclerView`中的每个`ItemView`的高度都是不固定的。我数据源中有20条数据，在没有渲染的情况下我想知道这个20条数据被`RecycleView`渲染后的总共高度, 比如下面这个图片:
 
 ![](picture/RecyclerView中Item高度各不相同.png)
 
@@ -97,12 +97,12 @@ private fun get200MsScroller(context: Context, distance: Int): RecyclerView.Smoo
    void layoutChunk(RecyclerView.Recycler recycler, RecyclerView.State state,LayoutState layoutState, LayoutChunkResult result) {
         View view = layoutState.next(recycler);   //这个方法会向 recycler要一个View
         ...
-        measureChildWithMargins(view, 0, 0);  //测量这个View的尺寸，方便布局
+        measureChildWithMargins(view, 0, 0);  //测量这个View的尺寸，方便布局, 这个方法是public
         ...
     }
 ```
 
-所以就利用`layoutManager.measureChildWithMargins`方法来测量，代码如下:
+所以我们也可以利用`layoutManager.measureChildWithMargins`方法来测量，代码如下:
 
 ```
     private fun measureAllItemHeight():Int {
@@ -127,7 +127,7 @@ recyclerView.post{
 
 ## IndexOutOfBoundsException: Inconsistency detected. Invalid item position 5(offset:5).state:9 
 
-这个异常通常是由于`Adapter的数据源`改变没有及时通知`RecycleView`做UI刷新导致的，或者通知的方式有问题。 比如如果数据源变化了(比如数量变少了),而没有调用`notifyXXX`, 那么此时滚动`RecycleView`就会产生这个异常。
+这个异常通常是由于`Adapter的数据源大小`改变没有及时通知`RecycleView`做UI刷新导致的，或者通知的方式有问题。 比如如果数据源变化了(比如数量变少了),而没有调用`notifyXXX`, 那么此时滚动`RecycleView`就会产生这个异常。
 
 解决办法很简单 : **`Adapter的数据源`改变时应立即调用`adapter.notifyXXX`来刷新`RecycleView`** 。
 
@@ -152,7 +152,6 @@ if (offsetPosition < 0 || offsetPosition >= mAdapter.getItemCount()) {    //但�
 其实还有很多异常和这个原因差不多，比如:`IllegalArgumentException: Scrapped or attached views may not be recycled. isScrap:false`(很多情况也是由于没有及时同步UI和数据)
 
 所以在使用`RecycleView`时一定要注意保证**数据和UI的同步，数据变化，及时刷新RecyclerView**, 这样就能避免很多crash。
-
 
 # 如何对RecyclerView进行封装
 
