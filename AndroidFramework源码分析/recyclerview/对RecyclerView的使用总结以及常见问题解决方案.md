@@ -1,4 +1,3 @@
-
 >本文是`RecyclerView源码分析系列最后一篇文章`, 主要讲一下我个人对于`RecycleView`的使用的一些思考以及一些常见的问题怎么解决。先来看一下使用`RecycleView`时常见的问题以及一些需求。
 
 # RecyclerView使用常见的问题和需求
@@ -61,9 +60,9 @@ override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
 ![](picture/smoothScroll20.gif)
 
-恩，滚动的时间有点长。因此对于这种case其实我推荐直接使用`scrollToPosition(20)`，效果要比这个好。 可是如果你就是想在`200ms`内从`Item 1 `滚到`Item 20`怎么办呢？
+恩，滚动的时间有点长。因此对于这种case其实我推荐直接使用`scrollToPosition(20)`，效果要比这个好。 可是如果你就是想在`200ms`内从`Item 1 `滚到`Item 20`怎么办呢？
 
-首先`smoothScrollToPosition()`并不是通过动画来实现的，所以直接设置个动画时长`200ms`是不现实的。不过我们可以参考[StackOverflow上的一个答案](https://stackoverflow.com/questions/28803319/android-control-smooth-scroll-over-recycler-view/28853254),大致写法是这样的:
+首先`smoothScrollToPosition()`并不是通过动画来实现的，所以直接设置个动画时长`200ms`是不现实的。不过我们可以参考[StackOverflow上的一个答案](https://stackoverflow.com/questions/28803319/android-control-smooth-scroll-over-recycler-view/28853254),大致写法是这样的:
 
 ```
 //自定义 LayoutManager， Hook smoothScrollToPosition 方法
@@ -108,7 +107,7 @@ private fun get200MsScroller(context: Context, distance: Int): RecyclerView.Smoo
 ```
     private fun measureAllItemHeight():Int {
         val measureTemplateView = SimpleStringView(this)
-        var totalItemHeight = 0
+        var totalItemHeight =
         dataSource.forEach {  //dataSource当前中的所有数据
             measureTemplateView.bindData(it, 0) //设置好UI数据
             recyclerView.layoutManager.measureChild(measureTemplateView, 0, 0) //调用源码中的子View的测量方法
@@ -281,9 +280,6 @@ private class SimpleStringView(context: Context) : FrameLayout(context), Adapter
 2. 很简单的布局的可以直接在代码中写，不要inflate。这样其实也可以减少inflate的耗时，稍微提高了一点性能吧。
 
 当然，如果你不需要对这个View做复用的话你可以不用直接继承自`View`,只实现`AdapterItemView`接口, inflate的工作交给底层框架即可。这样是不会产生上面这个问题的。
-
-
-
 
 **这篇文章就先说这么多吧。欢迎关注我的[Android进阶计划](https://github.com/SusionSuc/AdvancedAndroid)。看更多干货。**
 
