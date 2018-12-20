@@ -75,7 +75,7 @@ abstract fun createItem(viewType: Int): AdapterItemView<T>
 abstract fun getItemType(item: T): Int
 ```
 
-即业务写一个`Adapter`只需要对 **UI 数据** -> **UI View** 做映射即可, 不需要关心`RecycleView.ViewHolder`的逻辑。
+即业务写一个`Adapter`只需要对 **UI 数据** -> **UI View** 做映射即可, 不需要关心`RecycleView.ViewHolder`的逻辑。
 
 ## 因为抽象了`AdapterItemView`, ItemView足够灵活
 
@@ -190,9 +190,9 @@ override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
 ![](picture/smoothScroll20.gif)
 
-恩，滚动的时间有点长。因此对于这种case其实我推荐直接使用`scrollToPosition(20)`，效果要比这个好。 可是如果你就是想在`200ms`内从`Item 1 `滚到`Item 20`怎么办呢？
+恩，滚动的时间有点长。因此对于这种case其实我推荐直接使用`scrollToPosition(20)`，效果要比这个好。 可是如果你就是想在`200ms`内从`Item 1 `滚到`Item 20`怎么办呢？
 
-首先`smoothScrollToPosition()`并不是通过动画来实现的，所以直接设置个动画时长`200ms`是不现实的。不过我们可以参考[StackOverflow上的一个答案](https://stackoverflow.com/questions/28803319/android-control-smooth-scroll-over-recycler-view/28853254),大致写法是这样的:
+首先`smoothScrollToPosition()`并不是通过动画来实现的，所以直接设置个动画时长`200ms`是不现实的。不过我们可以参考[StackOverflow上的一个答案](https://stackoverflow.com/questions/28803319/android-control-smooth-scroll-over-recycler-view/28853254),大致写法是这样的:
 
 ```
 //自定义 LayoutManager， Hook smoothScrollToPosition 方法
