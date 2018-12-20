@@ -39,7 +39,6 @@
 
 [RecyclerView动画源码浅析](RecyclerView动画源码浅析.md)
 
-
 ## 我对RecyclerView使用的思考
 
 我与`RecyclerView`打交道也有一段日子了，本节就来讲一下这段日子中我对于`RecyclerView`的使用思考吧:
