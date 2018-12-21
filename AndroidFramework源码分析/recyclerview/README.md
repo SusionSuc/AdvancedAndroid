@@ -43,7 +43,7 @@
 
 我与`RecyclerView`打交道也有一段日子了，本节就来讲一下这段日子中我对于`RecyclerView`的使用的一个小总结吧:
 
-[对RecyclerView的使用总结以及常见问题解决方案](对RecyclerView的使用总结以及常见问题解决方案.md)
+[RecyclerView的使用总结以及常见问题解决方案](RecyclerView的使用总结以及常见问题解决方案.md)
 
 
 >至于其他的内容，待日后感觉可以再写一下的时候继续补充吧。

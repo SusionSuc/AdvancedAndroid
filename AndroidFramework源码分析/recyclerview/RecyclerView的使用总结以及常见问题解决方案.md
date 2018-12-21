@@ -284,12 +284,6 @@ private class SimpleStringView(context: Context) : FrameLayout(context), Adapter
 
 另外欢迎浏览我的`RecyclerView源码分析系列`的其他文章:
 
-[RecylcerView的基本设计结构](RecylcerView的基本设计结构.md)
-
-[RecyclerView的刷新机制](RecyclerView的刷新机制.md)
-
-[RecyclerView的复用机制](RecyclerView的复用机制.md)
-
-[RecyclerView动画源码浅析](RecyclerView动画源码浅析.md)
+[RecyclerView源码分析系列](https://github.com/SusionSuc/AdvancedAndroid/blob/master/AndroidFramework%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/recyclerview/README.md)
 
 
