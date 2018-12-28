@@ -125,7 +125,7 @@ recyclerView.post{
 }
 ```
 
-## IndexOutOfBoundsException: Inconsistency detected. Invalid item position 5(offset:5).state:9 
+## 异常:IndexOutOfBoundsException: Inconsistency detected. Invalid item position 5(offset:5).state:9 
 
 这个异常通常是由于`Adapter的数据源大小`改变没有及时通知`RecycleView`做UI刷新导致的，或者通知的方式有问题。 比如如果数据源变化了(比如数量变少了),而没有调用`notifyXXX`, 那么此时滚动`RecycleView`就会产生这个异常。
 
