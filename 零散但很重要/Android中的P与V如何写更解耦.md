@@ -40,7 +40,7 @@
 
 比如说现在大家经常使用的一种构建UI的方式:一个RecyclerView构建所有UI，假如下图这个搜索结果页就是使用RecyclerView构建的:
 
-![](https://upload-images.jianshu.io/upload_images/2934684-94707585f9ece32e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](picture/普通RecyclerView构造的界面.png)
 
 如果用户点击筛选按钮(其实本质还是搜索)，那么就需要调用 persenter.search()。但是筛选这个item实际上是使用RecyclerView的一个Item构建的，因此我可能就需要把presenter传到这个ItemView，ItemView在筛选时调用`presenter.search()`
 
