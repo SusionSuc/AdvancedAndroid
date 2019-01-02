@@ -40,6 +40,12 @@
 
 - [简书](https://www.jianshu.com/u/49b1311b5074)
 
+## 微信公众号:susion随心
+
+![](picture/微信公众号.jpeg)
+
+
+
 
 
 
