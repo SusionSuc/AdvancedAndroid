@@ -9,7 +9,7 @@
 |RecyclerView 源码分析|分析RecyclerView的大概实现以及一些使用心得|[详情](AndroidFramework源码分析/recyclerview/README.md)|
 |Android Framework 源码分析|源码面前，了无秘密。了解Android Framework层的实现对于我们百利而无一害|[详情](AndroidFramework源码分析/README.md)|
 |Gradle插件、代码注入|Gradle插件与代码生成等|<a href="gradle插件与字节码注入/README.md">详情</a>|
-|Android Jetpack|了解和使用Android提供的App搭建脚手架，构建强壮的应用| ready to do |
+|Android Jetpack|了解和使Google提供的App搭建脚手架，构建强壮的应用| ready to do |
 |Fresco|主要分析Fresco框架的设计层级以及图片处理的整体流程|有计划|
 |......| |
 
