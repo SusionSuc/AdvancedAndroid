@@ -24,7 +24,7 @@ ok, 接下来我们从源码一点一点弄清这些问题。先来看一下`win
 
 ## `WindowManager` 的创建
 
-在看`windowManager.addView()`之前我们先来看一下`Activity的WindowManager`的实例是谁。
+在看`windowManager.addView()`之前我们先来看一下`Activity的WindowManager`的实例是谁。
 
 追踪`Activity`的源码发现`WindowManager`其实是通过`Window`来获取的，它其实是`Window`的成员变量
 
@@ -43,11 +43,11 @@ final void attach(...){
 }
 ```
 
-`WindowManager`是一个接口，`mWindow.setWindowManager()`内部其实是构造了一个`WindowManagerImpl`。 在`Activity.attach`方法中也可以看出`Activity`的`Window`的实例时`PhoneWindow`。`PhoneWindow`其实是`Window`的唯一实现类，是针对于`app客户端(相对于Android系统)`的一个`Window`实体。总结上述关系即：
+`WindowManager`是一个接口，`mWindow.setWindowManager()`内部其实是构造了一个`WindowManagerImpl`。 在`Activity.attach`方法中也可以看出`Activity`的`Window`的实例时`PhoneWindow`。`PhoneWindow`其实是`Window`的唯一实现类，是针对于`app客户端(相对于Android系统)`的一个`Window`实体。总结上述关系即：
 
  **`Activity`的`WindowManager`来自于`Window`,`Window`的`WindowManager`的实例是`WindowManagerImpl`**
 
-所以`windowManager`的实现是`WindowManagerImpl`。`WindowManagerImpl`只是一个简单的装饰类，所有操作直接转发到了`WindowManagerGlobal`, 因此看`WindowManagerGlobal.addView()`:
+所以`windowManager`的实现是`WindowManagerImpl`。`WindowManagerImpl`只是一个简单的装饰类，所有操作直接转发到了`WindowManagerGlobal`, 因此看`WindowManagerGlobal.addView()`:
 
 ```
   public void addView(View view, ViewGroup.LayoutParams params, Display display, Window parentWindow) {
