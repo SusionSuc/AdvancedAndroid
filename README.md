@@ -7,9 +7,10 @@
 |Router|主要分析了WMRouter和ARouter两款开源框架的工作原理|<a href="router/README.md">详情</a>|
 |插件化|分析VirtualApk和Replugin等开源框架，主要是透过他们了解Android底层组件的运行机制,系统是如何对他们提供支持的。|<a href="插件化/README.md">详情</a>|
 |RecyclerView 源码分析|分析RecyclerView的大概实现以及一些使用心得|[详情](AndroidFramework源码分析/recyclerview/README.md)|
-|Android Framework 源码分析|源码面前，了无秘密。了解Android Framework层的实现对于我们百利而无一害|[详情](AndroidFramework源码分析/README.md)|
+|Android视图层源码分析|理清整个Android视图层是如何工作的，使UI编写起来更加胸有成竹|[doing](AndroidFramework源码分析/Android视图层源码分析/README.md)|
+|Android Framework 源码分析|一些未成体系的Framework源码分析文章|[详情](AndroidFramework源码分析/README.md)|
 |Gradle插件、代码注入|Gradle插件与代码生成等|<a href="gradle插件与字节码注入/README.md">详情</a>|
-|Android Jetpack|了解和使Google提供的App搭建脚手架，构建强壮的应用| ready to do |
+|Android Jetpack|了解和使Google提供的App搭建脚手架，构建强壮的应用| 有计划 |
 |Fresco|主要分析Fresco框架的设计层级以及图片处理的整体流程|有计划|
 |......| |
 
@@ -40,7 +41,7 @@
 
 - [简书](https://www.jianshu.com/u/49b1311b5074)
 
-## 微信公众号:susion随心
+## 欢迎关注我的微信公众号:susion随心
 
 ![](picture/微信公众号.jpeg)
 
