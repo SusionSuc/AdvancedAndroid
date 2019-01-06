@@ -1,4 +1,4 @@
-本文是[Android视图层源码分析](https://github.com/SusionSuc/AdvancedAndroid/blob/master/AndroidFramework%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/Android%E8%A7%86%E5%9B%BE%E5%B1%82%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/README.md)系列第一篇文章。主要来理清`Window`的地位以及作用。
+本文是[Android视图层源码分析](https://github.com/SusionSuc/AdvancedAndroid/blob/master/AndroidFramework%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/Android%E8%A7%86%E5%9B%BE%E5%B1%82%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/README.md)系列第一篇文章。主要理清`Window`的地位以及作用。
 
 >Android中所有的视图(`View`)都是通过`Window`来呈现的，不管是`Activity`、`Dialog`还是`Toast`,它们的视图实际上都是附加在`Window`上的，因此`Window`实际是`View`的直接管理者。本文就从源码来分析一下`Window`，理清`Window`是如何组织视图(`View`)以及`Activity`的`PhoneWindow`的工作原理。本文不会去讨论`Window`的详细使用。
 
