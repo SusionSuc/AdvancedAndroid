@@ -1,3 +1,5 @@
+本文仅是源码流程跟踪的一个索引过程，比较乱，后续我会基于这篇文章仔细整理。
+
 >上一篇文章[深入剖析Window组成](深入剖析Window组成.md)了解到Android应用程序的`UI组成结构`。并且知道`windowManager.addView(view, layoutParams)`可以算是添加了一个理论上的`Window`，那这个`Window`在`WindowManagerService`中的添加逻辑是什么？都做了什么？本文主要跟随源码来理一下系统的处理逻辑，只求弄清楚一些关键步骤，并不做深究。`SurfaceFlinger`还是比较复杂的，有兴趣的同学可以按照本文的逻辑去仔细研究一下源码。本文是基于Android8.0以上源码分析的。
 
 `ViewRootImpl`具有应用程序与系统服务`WindowManagerService`交流的的功能，即可以跨进程通信。`windowManager.addView(view, layoutParams)`的调用会在应用程序中创建一个`ViewRootImpl`对象，并调用`ViewRootImpl.setView()`。这个方法会向`WindowManagerService`正式发起了`Window`的添加操作。
