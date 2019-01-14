@@ -267,7 +267,7 @@ private int createSurfaceControl(Surface outSurface, int result, WindowState win
 
 ### SurfaceControl的创建
 
-`winAnimator.createSurfaceLocked`其实是通过`SurfaceControl`的构造函数创建了一个`SurfaceControl`对象,这个对象的作用其实就是负责在维护`Surface`,`Surface`其实也是由这个对象负责创建的，我们看一下这个对象的构造方法:
+`winAnimator.createSurfaceLocked`其实是通过`SurfaceControl`的构造函数创建了一个`SurfaceControl`对象,这个对象的作用其实就是负责维护`Surface`,`Surface`其实也是由这个对象负责创建的，我们看一下这个对象的构造方法:
 
 >SurfaceControl.java
 ```
@@ -353,7 +353,7 @@ status_t SurfaceFlinger::createLayer(const String8& name,const sp<Client>& clien
 }
 ```
 
-从`SurfaceFlinger.createLayer()`方法可以看出`Layer`分为好几种。我们这里只对普通的`Layer`做一下分析，看`createBufferLayer()`:
+从`SurfaceFlinger.createLayer()`方法可以看出`Layer`分为好几种。我们这里只对普通的`BufferLayer`的创建做一下分析，看`createBufferLayer()`:
 
 ```
 status_t SurfaceFlinger::createBufferLayer(const sp<Client>& client... sp<Layer>* outLayer)
@@ -407,7 +407,7 @@ void BufferQueue::createBufferQueue(sp<IGraphicBufferProducer>* outProducer,
 
 所以实际实现`mProducer`的工作的`queueProducer`是`BufferQueueProducer`。
 
-所以构造一个`SurfaceControl`所做的工作就是创建了一个`SurfaceControl`,并在让`SurfaceFlinger`创建了一个对应的`Layer`，`Layer`中有一个`IGraphicBufferProducer`,它的实例是`BufferQueueProducer`。
+所以构造一个`SurfaceControl`所做的工作就是创建了一个`SurfaceControl`,并让`SurfaceFlinger`创建了一个对应的`Layer`，`Layer`中有一个`IGraphicBufferProducer`,它的实例是`BufferQueueProducer`。
 
 可以用下面这个图来描述`SurfaceControl`的创建过程:
 
