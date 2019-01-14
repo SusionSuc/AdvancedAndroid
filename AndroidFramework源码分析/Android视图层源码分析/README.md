@@ -14,4 +14,4 @@
 
 上面这2个问题，在下面这篇文章都可以找到答案:
 
-[Android的UI显示原理之Surface的创建](浅谈Android的UI显示原理之Surface的创建.md)
+[Android的UI显示原理之Surface的创建](Android的UI显示原理之Surface的创建.md)
