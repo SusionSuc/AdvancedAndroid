@@ -14,7 +14,7 @@ public void setView(View view, WindowManager.LayoutParams attrs, View panelParen
     //mWindow是一个aidl，WindowManagerService可以利用这个对象与服务端交互
     //mAttachInfo可以理解为是一个data bean，可以跨进程传递
     res = mWindowSession.addToDisplay(mWindow, mSeq, mWindowAttributes,
-            getHostVisibility(), mDisplay.getDisplayId(), mWinFrame,
+            getHostVisibility(), mDisplay.getDisplayId(), mWinFrame,¡
             mAttachInfo.mContentInsets, mAttachInfo.mStableInsets,
             mAttachInfo.mOutsets, mAttachInfo.mDisplayCutout, mInputChannel);
     ...
