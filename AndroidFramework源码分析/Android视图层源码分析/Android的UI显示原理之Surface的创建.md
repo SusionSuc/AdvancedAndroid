@@ -1,4 +1,4 @@
-本文是[Android视图层源码分析](https://github.com/SusionSuc/AdvancedAndroid/blob/master/AndroidFramework%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/Android%E8%A7%86%E5%9B%BE%E5%B1%82%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/README.md)系列第二篇文章，通过上一篇文章已经了解到`WindowManager.addView(contentView)`最终会交给`WindowManagerService`处理，`WindowManagerService`会创建这个`contentView`定义的UI载体`Surface`,本文的目的就是理清`Surface`的创建过程，以及它与`SurfaceFlinger`的关系。
+本文是[Android视图层源码分析](https://github.com/SusionSuc/AdvancedAndroid/blob/master/AndroidFramework%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/Android%E8%A7%86%E5%9B%BE%E5%B1%82%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/README.md)系列第二篇文章，通过上一篇文章已经了解到`WindowManager.addView(contentView)`最终会交给`WindowManagerService`处理，`WindowManagerService`会创建这个`contentView`相关的UI载体`Surface`,本文的目的就是理清`Surface`的创建过程，以及它与`SurfaceFlinger`的关系。
 
 **文章比较长，但希望你可以坚持看完，相信会有一定收获的**
 
@@ -503,3 +503,4 @@ sp<Surface> SurfaceControl::generateSurfaceLocked() const
 参考文章:
 
 >[AndroidUI系列—浅谈图像渲染机制](https://www.jianshu.com/p/1998182670fb)
+>[一篇文章看明白 Android 图形系统 Surface 与 SurfaceFlinger 之间的关系](https://blog.csdn.net/freekiteyu/article/details/79483406)
