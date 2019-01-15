@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 本文是[Android视图层源码分析](https://github.com/SusionSuc/AdvancedAndroid/blob/master/AndroidFramework%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/Android%E8%A7%86%E5%9B%BE%E5%B1%82%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/README.md)系列第二篇文章，通过上一篇文章已经了解到`WindowManager.addView(contentView)`最终会交给`WindowManagerService`处理，`WindowManagerService`会创建这个`contentView`相关的UI载体`Surface`,本文的目的就是理清`Surface`的创建过程，以及它与`SurfaceFlinger`的关系。
+=======
+本文是[Android视图层源码分析](https://github.com/SusionSuc/AdvancedAndroid/blob/master/AndroidFramework%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/Android%E8%A7%86%E5%9B%BE%E5%B1%82%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/README.md)系列第二篇文章，通过上一篇文章已经了解到`WindowManager.addView(contentView)`最终会交给`WindowManagerService`处理，`WindowManagerService`会创建这个`contentView`定义的UI载体`Surface`,本文的目的就是理清`Surface`的创建过程，以及它与`SurfaceFlinger`的关系。
+>>>>>>> ee129c8668ce90ea4c76c705d2928f6c99456bbc
 
-**文章比较长，但希望你可以坚持看完，相信会有一定收获的**
+**文章比较长，但希望你可以坚持看完，相信会有一定收获的**
 
 本文是基于[Google Android Repo](https://android.googlesource.com/)中的较新的源码分析的。`Android UI`渲染这一块变化还是比较大的，逻辑可能和网上大部分文章有一些出入。
 
