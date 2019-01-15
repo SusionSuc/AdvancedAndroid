@@ -1,6 +1,6 @@
-本文是[Android视图层源码分析](https://github.com/SusionSuc/AdvancedAndroid/blob/master/AndroidFramework%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/Android%E8%A7%86%E5%9B%BE%E5%B1%82%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/README.md)系列第二篇文章
+本文是[Android视图层源码分析](https://github.com/SusionSuc/AdvancedAndroid/blob/master/AndroidFramework%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/Android%E8%A7%86%E5%9B%BE%E5%B1%82%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/README.md)系列第二篇文章，通过上一篇文章已经了解到`WindowManager.addView(contentView)`最终会交给`WindowManagerService`处理，`WindowManagerService`会创建这个`contentView`定义的UI载体`Surface`,本文的目的就是理清`Surface`的创建过程，以及它与`SurfaceFlinger`的关系。
 
-**文章比较长，但希望你可以认真读一遍，相信你会有收获的**
+**文章比较长，但希望你可以坚持看完，相信会有一定收获的**
 
 本文是基于[Google Android Repo](https://android.googlesource.com/)中的较新的源码分析的。`Android UI`渲染这一块变化还是比较大的，逻辑可能和网上大部分文章有一些出入。
 
@@ -13,17 +13,17 @@ UI刷新过程可能像下面这张图:
 
 ![简单的UI渲染过程图示](picture/简单的UI渲染过程图示.png)
 
-当然实际上的UI渲染原理可没有像上图那样这么简单，本文的目前就是理清上图的过程。为了接下来在源码追踪的过程总不迷路，我们带着下面几个问题来开始分析:
+当然实际上的UI渲染原理可没有像上图那样这么简单。为了接下来在源码追踪的过程中不迷路，我们带着下面几个问题来开始分析:
 
 1. WindowManagerService是如何管理Window的？
 2. Surface是如何创建的？
 3. SurfaceFlinger是如何管理多个应用的UI渲染的？
 4. SurfaceFlinger中UI渲染的基本单元是什么？
 
-ok，接下来就开始`Android UI显示原理`的主要流程分析。由于整个体系的源码流程很复杂，因此在追踪源码时我只贴了一些整个流程分析中的主要节点，并且加了一些注释。
+ok，接下来就开始`Android UI显示原理之Surface的创建`的主要流程分析。由于整个体系的源码流程很复杂，因此在追踪源码时我只贴了一些整个流程分析中的主要节点，并且加了一些注释。
 
 在上一篇文章[深入剖析Window组成](深入剖析Window组成.md)中我们知道，`ViewRootImpl`管理着整个view tree。
-`ViewRootImpl.setView()`可以当做一个`UI渲染操作`的发起者，因此我们就从这个方法开始看:
+对于`ViewRootImpl.setView()`，我们可以简单的把它当做一个`UI渲染操作`的入口，因此我们就从这个方法开始看:
 
 ## WindowManagerService对于Window的管理
 
@@ -47,7 +47,7 @@ public void setView(View view, WindowManager.LayoutParams attrs, View panelParen
 ```
 public int addWindow(Session session, IWindow client...) {
     ...
-    //WindowState用描述一个Window
+    //WindowState用来描述一个Window
     final WindowState win = new WindowState(this, session, client, token, parentWindow,
                 appOp[0], seq, attrs, viewVisibility, session.mUid,
                 session.mCanAddInternalSystemWindow);
@@ -81,7 +81,7 @@ public final class SurfaceSession {
         mNativeClient = nativeCreate(); 
     }
 ```
-这里调用了native方法`nativeCreate()`，这个方法其实是返回了一个`SurfaceComposerClient指针`:
+这里调用了native方法`nativeCreate()`，这个方法其实是返回了一个`SurfaceComposerClient指针`。那这个对象是怎么创建的呢？
 
 ## SurfaceComposerClient的创建
 
@@ -94,7 +94,7 @@ static jlong nativeCreate(JNIEnv* env, jclass clazz) {
 }
 ```
 
-即构造了一个`SurfaceComposerClient`对象。并返回它的指针。这个对象一个应用程序就有一个，它是应用程序与`SurfaceFlinger`沟通的桥梁，为什么这么说呢？在`SurfaceComposerClient指针`第一次使用时会调用下面这个方法:
+即构造了一个`SurfaceComposerClient`对象。并返回它的指针。**这个对象一个应用程序就有一个**，它是应用程序与`SurfaceFlinger`沟通的桥梁，为什么这么说呢？在`SurfaceComposerClient指针`第一次使用时会调用下面这个方法:
 
 ```
 //这个方法在第一次使用SurfaceComposerClient的指针的时候会调用
@@ -108,7 +108,7 @@ void SurfaceComposerClient::onFirstRef() {
 }
 ```
 
-即通过`SurfaceFlinger(它具有跨进程通信的能力)`创建了一个`ISurfaceComposerClient`对象:
+即通过`SurfaceFlinger(它本身具有跨进程通信的能力)`创建了一个`ISurfaceComposerClient`对象:
 
 >SurfaceFlinger.cpp
 ```
@@ -117,7 +117,7 @@ sp<ISurfaceComposerClient> SurfaceFlinger::createConnection() {
 }
 ```
 
-即构造了一个`Client`对象，`Client`实现了`ISurfaceComposerClient`接口。是一个可以跨进程通信的aidl对象。除此之外它还可以创建`Surface`，并且维护一个应用程序的所有`Layer`。**它是一个十分重要的对象**，我们先来看一下它的组成,它所涉及的其他东西在下文分析中都会讲到:
+即构造了一个`Client`对象，`Client`实现了`ISurfaceComposerClient`接口。是一个可以跨进程通信的aidl对象。即`SurfaceComposerClient`可以通过它来和`SurfaceFlinger`通信。除此之外它还可以创建`Surface`，并且维护一个应用程序的所有`Layer(下文会分析到它是什么)`。**它是一个十分重要的对象**，我们先来看一下它的组成,它所涉及的其他东西在下文分析中都会讲到:
 
 >Client.h
 ```
@@ -157,8 +157,9 @@ private:
 
 ![SurfaceComposerClient的创建](picture/SurfaceComposerClient的创建.png)
 
-**经过上面的步骤，应用程序的`ViewRootImpl`已经被`WindowManagerService`识别，并且应用程序已经与`SurfaceFlinger`建立连接。**
+**经过上面的步骤，应用程序的`ViewRootImpl`已经被`WindowManagerService`识别，并且应用程序已经与`SurfaceFlinger`建立连接。即创建了`SurfaceComposerClient`和`Client`对象**
 
+文章开始就已经说了`Surface`是`Window(ViewRootImpl)`的UI载体，那`Surface`是在哪里创建的呢？
 
 ## Surface的创建
 
@@ -180,7 +181,7 @@ public void setView(View view, WindowManager.LayoutParams attrs, View panelParen
     ...
     requestLayout(); //susion 请求layout。先添加到待渲染队列中  
     ...
-    res = mWindowSession.addToDisplay(mWindow, ...);
+    res = mWindowSession.addToDisplay(mWindow, ...); //WindowManagerService会创建mWindow对应的WindowState
     ...
 }
 ```
@@ -197,9 +198,9 @@ void scheduleTraversals() {
 
 对于`Choreographer`本文不做详细的分析，可以去参考 [Android Choreographer 源码分析](https://www.jianshu.com/p/996bca12eb1d)的分析来了解这个类。
 
-`scheduleTraversals()`会通过`Choreographer`来post一个`mTraversalRunnable`，`Choreographer`接收显示系统的时间脉冲(垂直同步信号-VSync信号)，在下一个frame渲染时控制执行这个`mTraversalRunnable`。
+`scheduleTraversals()`会通过`Choreographer`来post一个`mTraversalRunnable`，`Choreographer`接收显示系统的时间脉冲(垂直同步信号-VSync信号，16ms发出一次)，在下一个frame渲染时控制执行这个`mTraversalRunnable`。
 
-但是`mTraversalRunnable`的执行至少要在应用程序与`SurfaceFlinger`建立连接之后。所以在执行完` mWindowSession.addToDisplay(mWindow, ...)`之后，才会执行`mTraversalRunnable`:
+但是`mTraversalRunnable`的执行至少要在应用程序与`SurfaceFlinger`建立连接之后。这是因为渲染操作是由`SurfaceFlinger`负责调度了，如果应用程序还没有与`SurfaceFlinger`创建连接，那`SurfaceFlinger`当然不会渲染这个应用程序。所以在执行完` mWindowSession.addToDisplay(mWindow, ...)`之后，才会执行`mTraversalRunnable`:
 
 >ViewRootImpl.java
 ```
@@ -263,7 +264,7 @@ private int createSurfaceControl(Surface outSurface, int result, WindowState win
     surfaceController.getSurface(outSurface);
 }
 ```
-`winAnimator.createSurfaceLocked`实际上是创建了一个`SurfaceControl`。即看到上面是先构造`SurfaceControl`，然后在构造`Surface`。
+`winAnimator.createSurfaceLocked`实际上是创建了一个`SurfaceControl`。即上面是先构造`SurfaceControl`，然后在构造`Surface`。
 
 ### SurfaceControl的创建
 
@@ -328,7 +329,7 @@ status_t Client::createSurface(...)
 
 ??? 不是说好的要创建`Surface`呢？怎么变成`mFlinger->createLayer()`? 额，我也不明白这个突然转变，不过我们只要知道:
 
-**`Surface`存在的实体其实是`Layer`**
+**`Surface`在`SurfaceFlinger`中对应的实体其实是`Layer`**
 
 我们继续看一下`mFlinger->createLayer()`
 
