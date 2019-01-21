@@ -23,7 +23,7 @@
 
 > [Android性能优化建议](零散但很重要/Android性能优化建议.md) : 这篇文章是我阅读《Android移动性能实战》总结的我们在开发时需要注意的一些点
 
-> [Android中的P与V如何写更解耦](零散但很重要/Android中的P与V如何写更解耦.md) : 如何正确的书写Android中的MVP
+> [Presenter与View的解耦探讨](零散但很重要/Presenter与View的解耦探讨.md) : 如何正确的书写Android中的MVP
 
 > [Android中的异步消息处理机制](零散但很重要/Android中的异步消息处理机制.md) : 这个必须得懂哦
 
