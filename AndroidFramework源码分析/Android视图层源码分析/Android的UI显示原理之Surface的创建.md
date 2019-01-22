@@ -504,4 +504,5 @@ sp<Surface> SurfaceControl::generateSurfaceLocked() const
 参考文章:
 
 >[AndroidUI系列—浅谈图像渲染机制](https://www.jianshu.com/p/1998182670fb)
+
 >[一篇文章看明白 Android 图形系统 Surface 与 SurfaceFlinger 之间的关系](https://blog.csdn.net/freekiteyu/article/details/79483406)
