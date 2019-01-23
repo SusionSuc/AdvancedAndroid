@@ -104,7 +104,7 @@ int Surface::dequeueBuffer(android_native_buffer_t** buffer, int* fenceFd) {
 
 ## mView.draw(canvas)
 
-`View.draw(canvas)`所做的事情其实就是:根据`View`的状态来把带绘制的数据保存到`Canvas`。对`Canvas`如何保存绘制数据，这里我们不做深究。
+`View.draw(canvas)`所做的事情其实就是:根据`View`的状态来把带绘制的数据保存到`Canvas`。对`Canvas`我们到最后再来看一下它和`Surface`的关系。
 
 ## mSurface.unlockCanvasAndPost(canvas)
 
@@ -276,7 +276,21 @@ void SurfaceFlinger::signalLayerUpdate() {
 
 ![](picture/SurfaceUnlockCanvasAndPost(canvas).png)
 
->下一篇文章会分析一下`Canvas`在视图层的作用。**欢迎关注我的[Android进阶计划](https://github.com/SusionSuc/AdvancedAndroid)看更多干货**
+
+## Canvas与Surface
+
+`Canvas`是一个绘图的工具类，其API提供了一系列绘图指令供开发者使用。根据绘制加速模式的不同，`Canvas`有软件`Canvas`与硬件`Canvas`只分。`Canvas`的绘图指令可以分为两个部分:
+
+- 绘制指令:这些最常用的指令由一系列名为`drawXXX`的方法提供。他们用来实现实际的绘制行为，例如绘制点、线、圆以及方块等。
+- 辅助指令:这些用于提供辅助功能的指令将会影响后续绘制指令的效果，如设置变换、裁剪区域等。`Canvas`还提供了`save`与`resotore`用于撤销一部分辅助指令的效果。
+
+对于软件`Canvas`来说，其绘制目标是一个位图`Bitmap`。在`Surface.unlockAndPost`时，这个`Bitmap`所描述的内容会反映到`Surface`的`Buffer`中。可以用下面这张图来表示:
+
+![](picture/Canvas与Surface.png)
+
+最后:
+
+**欢迎关注我的[Android进阶计划](https://github.com/SusionSuc/AdvancedAndroid)看更多干货**
 
 **欢迎关注我的微信公众号:susion随心**
 

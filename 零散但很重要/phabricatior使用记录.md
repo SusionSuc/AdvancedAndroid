@@ -51,6 +51,8 @@ arc install-certificate
 
 ### 新建一个feature分支。（这个分支应只包含一个feature的改动）
 
+>arc feature xxxx
+
 ```
 git add .
 git commit -m "xxx"
