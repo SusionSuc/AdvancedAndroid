@@ -1,6 +1,6 @@
 >本文内容接着上一篇文章[Android的UI显示原理之Surface的创建](Android的UI显示原理之Surface的创建.md)继续来看`Surface`渲染的大致过程。 
 
-这里说的`Surface的渲染`其实就是`ViewRootImpl`的渲染。因此我们从`ViewRootImpl.draw()`来看一下它的渲染逻辑。这个方法最终会调用到`ViewRootImpl.drawSoftward()`:
+对于`Surface的渲染`可以转化为`ViewRootImpl`的渲染。因此我们从`ViewRootImpl.draw()`来看一下它的渲染逻辑。这个方法最终会调用到`ViewRootImpl.drawSoftward()`:
 
 ```
 private boolean drawSoftware(Surface surface, AttachInfo attachInfo,...) {
@@ -288,6 +288,7 @@ void SurfaceFlinger::signalLayerUpdate() {
 
 ![](picture/Canvas与Surface.png)
 
+
 最后:
 
 **欢迎关注我的[Android进阶计划](https://github.com/SusionSuc/AdvancedAndroid)看更多干货**
@@ -298,6 +299,9 @@ void SurfaceFlinger::signalLayerUpdate() {
 
 
 
+>参考文章
+
+- 《深入理解Android 卷3》
 
 
 
