@@ -5,7 +5,7 @@
 `Window`是Android提供的用来构建UI的类，它是承载UI的基本单元。我们在正常开发中一般不会对他直接操作，不过我们所使用的`Activity/Dialog`等UI的展示都是依托于`Window`。
 所以想要深入分析Android UI的展示原理，其实沿着`Window`这条线就可以了(目前Android Framework所提供的唯一`Window`实现类是`PhoneWindow`), 首先我们通过剖析`Window`的组成来大致了解一下`Window`: 
 
-[深入剖析Window组成](Android视图层源码分析/深入剖析Window组成.md)
+[深入剖析Window组成](深入剖析Window组成.md)
 
 上面这篇文章只是简单的讲了`Window`的添加过程和`Activity`中`PhoneWindow`的UI组成结构。那`Window`的UI到底是怎么绘制的呢？
 

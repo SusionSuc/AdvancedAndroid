@@ -6,11 +6,28 @@
 ![](picture/Android视图层主要工作原理图.png)
 
 
-## PhoneWindow
+## Window与PhoneWindow
+
+### 最基础的UI管理者Window
+
+`Window`可以说是`Android Framework`层提供的一个最基础的`UI`组件管理类，`PhoneWindow`是它的唯一实现类。它屏蔽了开发者与`WindowManagerService`的交互，统一了UI设计，并统一接收用户交互事件，比如背景、title和按键事件等。
+
+`Activity/Dialog/Toast`的UI展现都是依赖于`Window`来完成。开发者只需要关注自己的`ContentView`即可:
+
+>PhoneWindow.java
+```
+  public void setContentView(int layoutResID) {
+  }
+```
+
+关于`Window`的具体组成可以参考前面(深入剖析Window组成)[深入剖析Window组成.md]一文。
+
+`DecorView`是`PhoneWindow`
+
+
 
 它是`Framework`层提供的唯一`Window`的实例。它是`Android`提供的很多UI组件的UI承载者,比如`Activity/Dialog`, 它提供了一些列友好的API来屏蔽内部的实现细节，比如:`setContentView(layoutResID)`。
 它内部自带一个`DecorView`作为`View Tree`的根容器。这个`DecorView`可以通过`WindowManager`来添加到`WindowManagerService`。
-
 
 ## WindowManager
 
