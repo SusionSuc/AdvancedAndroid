@@ -79,11 +79,11 @@ win.mToken.addWindow(win);//一个token下会有多个win state
 
 # SurfaceFlinger相关
 
-`SurfaceFlinger`是Android最重要的系统服务之一，它主要负责`UI`的渲染，具体可以说是`Layer`的合成和渲染。下面介绍的几个对象都是存在于`WindowManagerService`中的。
+`SurfaceFlinger`是Android最重要的系统服务之一，它主要负责`UI`的渲染，具体可以说是`Layer`的合成和渲染。下面介绍的几个对象基本都是存在于`WindowManagerService`中的。是应用程序与`SurfaceFlinger`交互的关键对象。
 
 ## SurfaceControl
 
-可以简单的把它理解为`Surface`的管理者。它和`Surface`是一对一的关系，构建`SurfaceControl`的同时就会构造`Surface`。它可以通过`SurfaceComposerClient`来与`SurfaceFlinger`通信。比如请求`SurfaceFlinger`创建`Surface(Layer)`
+可以简单的把它理解为`Surface`的管理者。它和`Surface`是一对一的关系。构建`SurfaceControl`的同时就会构造`Surface`。`ViewRootImpl`的`Surface`实际上和它指向的是同一个对象。它可以通过`SurfaceComposerClient`来与`SurfaceFlinger`通信。比如请求`SurfaceFlinger`创建`Surface(Layer)`
 
 ## SurfaceComposerClient
 
@@ -93,10 +93,40 @@ win.mToken.addWindow(win);//一个token下会有多个win state
 
 它是一个`Binder`,`SurfaceComposerClient`可以通过它来与`SurfaceFlinger`通信。比如通过它可以使`SurfaceFlinger`创建一个`Layer`。它也维护着一个应用程序所有的`Layer`。
 
-
 ## Layer
 
-它是一个可被`SurfaceFlinger`渲染的单元。它有一个`BufferQueueProducer`,里面维护着很多可以被渲染的`GraphicBuffer`,这个buffer可能被渲染完毕，也可能处于待渲染状态。
+被`SurfaceFlinger`管理着，分为多种不同的类型。它是一个可被`SurfaceFlinger`渲染的单元。它有一个`BufferQueueProducer`,里面维护着很多可以被渲染的`GraphicBuffer`,这个buffer可能被渲染完毕，也可能处于待渲染状态。
 
 
+想详细了解上面知识，阅读源码是权威的办法，也可以参考下面这些文章来理清思路:
+
+[Android视图层源码分析](README.md)
+
+[理清Activity、View及Window之间关系](https://blog.csdn.net/huachao1001/article/details/51866287)
+
+[Android Choreographer 源码分析](https://www.jianshu.com/p/996bca12eb1d)
+
+[一篇文章看明白 Android 图形系统 Surface 与 SurfaceFlinger 之间的关系](https://blog.csdn.net/freekiteyu/article/details/79483406)
+
+[老罗的Android之旅](https://www.kancloud.cn/alex_wsc/androids/473757)
+
+[Android显示原理源码分析](https://blog.csdn.net/Awenyini/article/details/79450770)
+
+[AndroidUI系列—浅谈图像渲染机制](https://www.jianshu.com/p/1998182670fb)
+
+[深入理解Android]系列从书
+
+
+最后:
+
+**欢迎关注我的[Android进阶计划](https://github.com/SusionSuc/AdvancedAndroid)看更多干货**
+
+**欢迎关注我的微信公众号:susion随心**
+
+![](../../picture/微信公众号.jpeg)
+
+
+>参考文章
+
+- 《深入理解Android 卷3》
 
