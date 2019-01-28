@@ -2,6 +2,8 @@
 
 >这个系列的文章只是大致了解一下Android视图层的工作原理, 并不会深入去探讨源码中的某个点, 毕竟整个视图层过于复杂，如果没有原因的去抓住分析某个细节并没有太大的意义。
 
+## UI视图的渲染原理
+
 `Window`是Android提供的用来构建UI的类，它是承载UI的基本单元。我们在正常开发中一般不会对他直接操作，不过我们所使用的`Activity/Dialog`等UI的展示都是依托于`Window`。
 所以想要深入分析Android UI的展示原理，其实沿着`Window`这条线就可以了(目前Android Framework所提供的唯一`Window`实现类是`PhoneWindow`), 首先我们通过剖析`Window`的组成来大致了解一下`Window`: 
 
@@ -18,4 +20,8 @@
 
 [Android的UI显示原理之Surface的渲染](Android的UI显示原理之Surface的渲染.md)
 
+上面3篇文章中的源码分析几乎包含了整个视图层源码的所有关键对象，下面总结一下这3篇文章:
 
+[Android的UI显示原理总结](Android的UI显示原理总结.md)
+
+## UI视图的用户交互事件处理原理
