@@ -1,7 +1,7 @@
 
 >本文是[Android视图层源码分析](https://github.com/SusionSuc/AdvancedAndroid/blob/master/AndroidFramework%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/Android%E8%A7%86%E5%9B%BE%E5%B1%82%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/README.md)系列第4篇文章，主要是对前几篇文章做一个总结，理解Android视图的主要组成部分和相互之间的工作逻辑。本文内容是基于[Google Android Repo](https://android.googlesource.com/)中的较新的源码分析而得来的。
 
-先来看一张`Android`视图层主要工作原理图,本文的内容就是逐一解释下图中各个模块的作用:
+先来看一张`Android`视图层工作原理图,本文的内容就是逐一解释下图中各个模块的作用:
 
 ![](picture/Android视图层主要工作原理图.png)
 
@@ -9,7 +9,7 @@
 
 `Window`可以说是`Android Framework`层提供的一个最基础的`UI`组件管理类，`PhoneWindow`是它的唯一实现类。它屏蔽了开发者与`WindowManagerService`的交互，统一了UI设计，并统一接收用户交互事件，比如背景、title和按键事件等。
 
-`Activity/Dialog/Toast`的UI展现都是依赖于`Window`来完成。开发者只需要关注自己的`ContentView`即可:
+`Activity/Dialog/Toast`的UI展现都是依赖于`Window`来完成。对于UI编写，开发者只需要使用`View`相关即可。`View`最终会以`ContentView`的形式设置给`Window`:
 
 >PhoneWindow.java
 ```
@@ -23,7 +23,7 @@
 
 一个`Window`会有一个`WindowManager`。提到`WindowManager`就要提到`WindowManagerGlobal`。他们之间的区别是:
 
-- WindowManager : 负责管理一个`Window`，提供类一系列对`Window`配置的flag。
+- WindowManager : 它负责管理一个`Window`，并提供一系列对`Window`进行配置的flag。
 - WindowManagerGlobal : 它是一个单例类，负责管理应用所有的`Window`(其实并不是很严谨，应该是管理所有的`ViewRootImpl`)。并且它含有与`WindowManagerService`通信的`Binder`。
 
 `WindowManager`所提供的API其实都是用来操作`WindowManagerGlobal`中的`ViewRootImpl`。比如`WindowManager.addView(contentView)`实际上是在`WindowManagerGlobal`中创建了一个与`contentView`对应的`ViewRootImpl`。
@@ -32,9 +32,21 @@
 
 它负责管理一个具体的`View Tree`，比如`DecorView`及其所有子View。具体有下面这些职责:
 
-- 通过与`WindowManagerService`通信，创建`Surface`，显示其管理的`View Tree`
-- 管理整个`View Tree`的测量、布局、绘制。
+- 通过与`WindowManagerService`通信，创建`Surface`来显示其管理的`View Tree`
+- 管理整个`View Tree`的测量、布局、绘制。具体方法是`performTraversals`
 - 通过`Choreographer`来使整个`ViewTree`的UI刷新(测量、布局、绘制)与系统同步。
+
+## Choreographer
+
+`Choreographer`用来控制同步处理输入(Input)、动画(Animation)、绘制(Draw)三个UI操作(UI显示的时候每一帧要完成的事情只有这三种)。其内部维护着一个`Queue`,使用者可以通过`postXXX`来把一些列待运行的UI操作放到`Queue`中。这些事件会在`Choreographer`接收显示系统的时间脉冲(垂直同步信号-VSync信号)后执行这些操作。比如`ViewRootImpl`对于`View Tree`的更新事件:
+
+>ViewRootImpl.java
+```
+void scheduleTraversals() {
+    ...
+     mChoreographer.postCallback(Choreographer.CALLBACK_TRAVERSAL, mTraversalRunnable, null);
+}
+```
 
 ## Surface
 
@@ -46,7 +58,7 @@
 
 它管理着所有应用程序的`Window`:
 
-- 所有`Window`的状态
+- 管理所有`Window`的状态(WindowState)
 - 与`SurfaceFlinger`通信，完成`Window`的渲染
 
 通过`ViewRootImpl`可以向`WindowManagerService`添加一个`Window`:
