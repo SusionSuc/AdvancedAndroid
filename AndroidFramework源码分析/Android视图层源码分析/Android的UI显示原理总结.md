@@ -126,7 +126,3 @@ win.mToken.addWindow(win);//一个token下会有多个win state
 ![](../../picture/微信公众号.jpeg)
 
 
->参考文章
-
-- 《深入理解Android 卷3》
-
