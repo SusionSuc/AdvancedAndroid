@@ -1,4 +1,4 @@
->[RxJava](https://github.com/ReactiveX/RxJava)/[RxAndroid](https://github.com/ReactiveX/RxAndroid):一个在 Java VM 上使用可观测的序列来组成异步的、基于事件的程序的库。大家在项目中或多或少都可能用到这个库，本文我总结一下在我们的项目中常用的API。本文基于`RxAndroid version 1.2`
+>[RxJava](https://github.com/ReactiveX/RxJava)/[RxAndroid](https://github.com/ReactiveX/RxAndroid):一个在 Java VM 上使用可观测的序列来组成异步的、基于事件的程序的库。大家在项目中或多或少都可能用到这个库，本文我总结一下在我们的项目中常用的API。本文基于`RxAndroid version 1.2`
 
 # Do操作符
 
