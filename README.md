@@ -27,7 +27,7 @@
 
 > [Android中的异步消息处理机制](零散但很重要/Android中的异步消息处理机制.md) : 这个必须得懂哦
 
-> [RxJava常用实际](零散但很重要/RxJava实践.md) : 工作中常用的一些RxJava的case
+> [RxJava常用实践](零散但很重要/RxJava实践.md) : 工作中常用的一些RxJava的case
 
 ## [为什么要开这个repo](为什么要开这个repo.md)
 
