@@ -1,9 +1,11 @@
 
 >本文是[Android视图层源码分析](https://github.com/SusionSuc/AdvancedAndroid/blob/master/AndroidFramework%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/Android%E8%A7%86%E5%9B%BE%E5%B1%82%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/README.md)系列第4篇文章，主要是对前几篇文章做一个总结，理解Android视图的主要组成部分和相互之间的工作逻辑。本文内容是基于[Google Android Repo](https://android.googlesource.com/)中的较新的源码分析而得来的。
 
-先来看一张`Android`视图层工作原理图,本文的内容就是逐一解释下图中各个模块的作用:
+这张图大致解释了各模块之间的关系:
 
 ![](picture/Android视图层主要工作原理图.png)
+
+下文内容并没有具体的分析逻辑，主要是解释上图中各模块的职责，算是对Android视图层各模块的一个小总结，方便对于整个Android整个UI显示原理的理解。
 
 # Window相关
 
