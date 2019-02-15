@@ -1,4 +1,4 @@
->[RxJava](https://github.com/ReactiveX/RxJava)/[RxAndroid](https://github.com/ReactiveX/RxAndroid):一个在 Java VM 上使用可观测的序列来组成异步的、基于事件的程序的库。大家在项目中或多或少都可能用到这个库，本文我总结一下在我们的项目中常用的API。本文基于`RxAndroid version 1.2`
+>[RxJava](https://github.com/ReactiveX/RxJava)/[RxAndroid](https://github.com/ReactiveX/RxAndroid):是一个在 Java VM 上使用可观测的序列来组成异步的、基于事件的程序的库。大家在项目中或多或少都可能用到这个库，本文我总结一下在我们的项目中常用的API。本文基于`RxAndroid version 1.2`
 
 # Do操作符
 
@@ -58,7 +58,7 @@ xxxApi
 
 ## zip
 
-`zip`可以把多种类型`Observable`的输出结果做一个组合，然和转化为另外一种类型的`Observable`继续发出。对于多个`Observable`的处理是按照顺序进行的。但是一旦有一个`Observable`出现`error`那么整个`zip`操作将无法继续,所以在使用时需要注意这种情况的发生,可以使用`onErrorResumeNext()`。
+`zip`可以把多种类型`Observable`的输出结果做一个组合，然和转化为另外一种类型的`Observable`继续发出。对于多个`Observable`的处理是按照顺序进行的。但是一旦有一个`Observable`出现`error`那么整个`zip`操作将无法继续,所以在使用时需要注意这种情况的发生,可以使用`onErrorResumeNext()`来防止一个接口爆掉导致其他接口受影响的case。
 
 比如我要`zip`两个网络请求接口的数据:
 
@@ -185,12 +185,11 @@ D/RxTest:  MyObserver  complete
 
 # Subject 
 
-可以简单的把`Subject`理解为是一个既可以发送数据，又可以订阅自己发送的数据的对象。`RxJava`提供了多种不同类型的`Subject`，对于他们较详细的理解可以参考这篇文章:[Subject使用及示例](https://www.jianshu.com/p/1257c8ba7c0c)。下面主要
-看一下`PublishSubject`。
+可以简单的把`Subject`理解为是一个既可以发送数据，又可以订阅自己发送的数据的对象。`RxJava`提供了多种不同类型的`Subject`，对于他们较详细的理解可以参考这篇文章:[Subject使用及示例](https://www.jianshu.com/p/1257c8ba7c0c)。下面主要看一下`PublishSubject`。
 
 ## PublishSubject
 
-它与普通的`Subject`不同, 在订阅时并不立即触发订阅事件，而是允许我们在任意时刻手动调用onNext(),onError(),onCompleted来触发事件。可以使用它来做一个模块事件触发的监听。
+它与普通的`Subject`不同, 在订阅时并不立即触发订阅事件，而是允许我们在任意时刻手动调用`onNext(),onError(),onCompleted()`来触发事件。可以使用它来做一个模块事件触发的监听。
 
 比如我在模块1中想监听模块2的`Like`事件:
 
@@ -218,9 +217,11 @@ class Module1{
 }
 ```
 
+简单点来说上面就是把`Listener`写的更优雅。
+
 ## 使用 PublishSubject 来构建 RxBus
 
-简单点来说可以把`Listener`写的更优雅。除此之外还可以利用`PublishSubject`来实现一个`RxBus`:
+除此之外还可以利用`PublishSubject`来实现一个`RxBus`:
 
 ```
 object RxBus {

@@ -27,7 +27,7 @@
 
 > [Android中的异步消息处理机制](零散但很重要/Android中的异步消息处理机制.md) : 这个必须得懂哦
 
-> [RxJava常用实践](零散但很重要/RxJava实践.md) : 工作中常用的一些RxJava的case
+> [RxAndroid常用实践](零散但很重要/RxJava实践.md) : 工作中常用的一些RxAndroid的case
 
 ## [为什么要开这个repo](为什么要开这个repo.md)
 
@@ -39,11 +39,13 @@
 
 >欢迎在下面开发者社区关注我
 
+- [简书](https://www.jianshu.com/u/49b1311b5074)  **(Master)**
+
 - [掘金](https://juejin.im/user/57b1173f165abd0054298059)
 
-- [简书](https://www.jianshu.com/u/49b1311b5074)
-
 ## 欢迎关注我的微信公众号:susion随心
+
+公众微信号会跟随简书同步更新:
 
 ![](picture/微信公众号.jpeg)
 
