@@ -1,5 +1,6 @@
 >[RxJava](https://github.com/ReactiveX/RxJava)/[RxAndroid](https://github.com/ReactiveX/RxAndroid):是一个在 Java VM 上使用可观测的序列来组成异步的、基于事件的程序的库。大家在项目中或多或少都可能用到这个库，本文我总结一下在我们的项目中常用的API。本文基于`RxAndroid version 1.2`
 
+
 # Do操作符
 
 `RxJava`中有许多`doXXX`操作符。这些操作符一般是用来注册一个`Action`，这些`Action`会在`XXX`事件发生时调用。比如`doOnSubscribe`会在`Observable`被`subscribe()`时调用。下面这张图是官方描述的`Do`的执行时机:
