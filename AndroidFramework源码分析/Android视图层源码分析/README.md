@@ -25,3 +25,9 @@
 [Android的UI显示原理总结](Android的UI显示原理总结.md)
 
 ## UI视图的用户交互事件处理原理
+
+### 触摸事件原理分析
+
+下面这篇文章分析一下: 触摸事件怎么产生和收集的? `Activity.dispatchTouchEvent()`是怎么调用到的?
+
+![Android触摸事件全过程分析](Android触摸事件全过程分析.md)
