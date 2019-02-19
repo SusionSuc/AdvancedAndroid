@@ -1,10 +1,10 @@
->本文会分析**从触摸事件的产生->Activity.disTouchEvent()**整个过程。通过本文对于**触摸事件的产生和系统处理过程**有一个简单了解即可。
+>本文会分析**触摸事件的产生 -> Activity.dispatchTouchEvent()**整个过程。希望对于**触摸事件的产生和系统处理过程**有一个简单了解即可。
 
 ## 触摸事件的产生 : 触摸事件与中断
 
 学习过`Linux`驱动程序编写的同学可能知道`Linux`是以中断的方式处理用户的输入事件。触摸事件其实是一种特殊的输入事件。它的处理方式与输入事件相同，只不过触摸事件的提供的信息要稍微复杂一些。
 
-触摸事件产生的大致原理是:用户对硬件进行操作(触摸屏)会导致这个硬件产生对应的中断。该硬件的驱动程序会处理这个中断。不同的硬件驱动程序处理的方式不同，不过最终都是将数据处理后存放进对应的`/dev/input/eventX`文件中。即**硬件驱动程序完成了触摸事件的数据收集**
+触摸事件产生的大致原理是:用户对硬件进行操作(触摸屏)会导致这个硬件产生对应的中断。该硬件的驱动程序会处理这个中断。不同的硬件驱动程序处理的方式不同，不过最终都是将数据处理后存放进对应的`/dev/input/eventX`文件中。所以**硬件驱动程序完成了触摸事件的数据收集**
 
 那`/dev/input/eventX`中的触摸事件是如何派发到`Activity`的呢？其实整个过程可以分为两个部分:一个是`native(C++)层`的处理、一个是`java层`的处理。我们先来看一下`native层`是如何处理的。
 
@@ -23,9 +23,9 @@
 
 ## InputChannel
 
-我们可以简单的把它理解为一个`socket`, 即可以用来接收数据或者发送数据。一个`Window`会对应两个`InputChannel`，这两个`InputChannel`会相互通信。一个`InputChannel`会注册到`InputDispatcher`中, 称为`serverChannel`。另一个会保留在应用程序进程的`Window`中,称为`clientChannel`。
+我们可以简单的把它理解为一个`socket`, 即可以用来接收数据或者发送数据。一个`Window`会对应两个`InputChannel`，这两个`InputChannel`会相互通信。一个`InputChannel`会注册到`InputDispatcher`中, 称为`serverChannel(服务端InputChannel)`。另一个会保留在应用程序进程的`Window`中,称为`clientChannel(客户端InputChannel)`。
 
-下面来简要了解一下这两个`InputChannel`的创建过程,在[Android的UI显示原理之Surface的创建](Android的UI显示原理之Surface的创建.md)中知道，一个应用程序的`Window`在`WMS`中会对应一个`WindowState`,其实在创建`WindowState`时就会创建这两个`InputChannel`:
+下面来简要了解一下这两个`InputChannel`的创建过程,在[Android的UI显示原理之Surface的创建](Android的UI显示原理之Surface的创建.md)一文中知道,一个应用程序的`Window`在`WindowManagerService`中会对应一个`WindowState`,`WMS`在创建`WindowState`时就会创建这两个`InputChannel`,下面分别看一下他们的创建过程。
 
 ### 服务端InputChannel的创建及注册
 
@@ -38,7 +38,7 @@
         ...
         final boolean openInputChannels = (outInputChannel != null && (attrs.inputFeatures & INPUT_FEATURE_NO_INPUT_CHANNEL) == 0);
         if  (openInputChannels) {
-            win.openInputChannel(outInputChannel);
+            win.openInputChannel(outInputChannel);  
         }
     ...
 }
@@ -52,8 +52,9 @@ void openInputChannel(InputChannel outInputChannel) { //这个 outInputChannel �
 }
 ```
 
-`registerInputChannel(..);`实际上就是把`InputChannel`注册到了`InputDispatcher`中。上图中的`InputChannel`其实就是在创建一个`WindowState`时注册的。来看一下`InputDispatcher`中注册`InputChannel`都干了什么:
+`registerInputChannel(..);`实际上就是把`服务端InputChannel`注册到了`InputDispatcher`中。上图中的`InputChannel`其实就是在创建一个`WindowState`时注册的。来看一下`InputDispatcher`中注册`InputChannel`都干了什么:
 
+>InputDispatcher.cpp
 ```
 status_t InputDispatcher::registerInputChannel(const sp<InputChannel>& inputChannel,const sp<InputWindowHandle>& inputWindowHandle, bool monitor) {
 
@@ -71,11 +72,11 @@ status_t InputDispatcher::registerInputChannel(const sp<InputChannel>& inputChan
 }
 ```
 
-即利用`InputChannel`创建了一个`Connection`，`InputDispatcher`会通过这个`Connection`来向`InputChannel`发射数据。并且把这个`InputChannel`添加到`mLooper`中。
+即利用`InputChannel`创建了一个`Connection`(`InputDispatcher`会通过这个`Connection`来向`InputChannel`发射数据),并且把这个`InputChannel`添加到`mLooper`中。
 
-那这里这个`mLooper`是什么呢？是UI线程的那个`Looper`吗？这部分我们后面再看，我们先来看一下客户端`InputChannel`的相关过程。
+那这里这个`mLooper`是什么呢？是UI线程的那个`Looper`吗？这部分我们后面再看，我们先来看一下`客户端InputChannel`的相关过程。
 
-### 客户端InputChannel的触摸事件的监听
+### 客户端InputChannel的相关逻辑
 
 客户端(应用程序)`Window`是如何通过`InputChannel`来接收触摸事件的呢？上面`WindowState.openInputChannel()`方法创建完`InputChannel`后会走到下面的代码:
 
@@ -86,8 +87,9 @@ if (mInputChannel != null) { // mInputChannel 即为前面创建的 client input
 }
 ```
 
-这里的new了一个`WindowInputEventReceiver`,看一下它的初始化过程:
+这里的new了一个`WindowInputEventReceiver`,它继承自`InputEventReceiver`,看一下它的初始化过程:
 
+>InputEventReceiver.java
 ```
 public InputEventReceiver(InputChannel inputChannel, Looper looper) {
     ...
@@ -107,10 +109,11 @@ static jlong nativeInit(JNIEnv* env, jclass clazz, jobject receiverWeak, jobject
 
 即主要初始化了`NativeInputEventReceiver` ,它的`initialize()`调用了`setFdEvents()`:
 
+>android_view_InputEventReceiver.cpp
 ```
 void NativeInputEventReceiver::setFdEvents(int events) {
     ...
-    int fd = mInputConsumer.getChannel()->getFd(); // 这个InputChannel就是客户端的 InputChannel 的 Connection
+    int fd = mInputConsumer.getChannel()->getFd(); // 这个fd 就是客户端的 InputChannel 的 Connection
     ...
     mMessageQueue->getLooper()->addFd(fd, 0, events, this, NULL);
 }
@@ -131,19 +134,23 @@ int Looper::addFd(int fd, int ident, int events, const sp<LooperCallback>& callb
 
 这里就是利用`fd`来构造了一个`Request`。 **注意 :这里的`callback`就是`NativeInputEventReceiver`**。
 
-OK,到这里我们就看完了`客户端的InputChannel`的初始化。继续来看一下上面提到的`native消息队列`与`Native Looper`。
+OK,到这里我们就看完了`客户端的InputChannel`的初始化。并且还知道 **`Looper`中是持有着`客户端InputChannel`和`服务端InputChannel`的`Connection`** 。
+
+那么就继续来看一下上面提到的`native消息队列`与`Native Looper`,它有什么作用。
 
 
 ## Android Native 消息循环
 
-我们知道`Looper`从`MessageQueue`中不断获取消息并处理消息。其实在`MessageQueue`创建时还创建了一个`native`的消息队列。`InputDispatcher`的触摸事件就会放到这个消息队列中等待执行。先来看一下这个消息队列的创建:
+我们知道`Looper`从`MessageQueue`中不断获取消息并处理消息。其实在`MessageQueue`创建时还创建了一个`native`的消息队列。`InputDispatcher`派发的触摸事件就会放到这个消息队列中等待执行。先来看一下这个消息队列的创建:
 
 ```
+//MessageQueue.java
 MessageQueue(boolean quitAllowed) {
     mQuitAllowed = quitAllowed;
     mPtr = nativeInit();
 }
 
+//android_os_MessageQueue.cpp
 static jlong android_os_MessageQueue_nativeInit(JNIEnv* env, jclass clazz) {
     NativeMessageQueue* nativeMessageQueue = new NativeMessageQueue(); 
     ...
@@ -151,6 +158,7 @@ static jlong android_os_MessageQueue_nativeInit(JNIEnv* env, jclass clazz) {
     return reinterpret_cast<jlong>(nativeMessageQueue);
 }
 
+//android_os_MessageQueue.cpp
 NativeMessageQueue::NativeMessageQueue() : mPollEnv(NULL), mPollObj(NULL), mExceptionObj(NULL) {
     mLooper = Looper::getForThread();  // 其实就是主线程的Looper
     if (mLooper == NULL) {
@@ -231,7 +239,7 @@ status_t InputChannel::sendMessage(const InputMessage* msg) {
 ![](picture/触摸事件InputChannel的通信.png)
 
 
-**其实上面整个过程是利用`Socket`完成了数据的跨进程通信。`Socket`的`阻塞/通知机制`在这里是十分高效的。`NativeMessageQueue/Looper`的主要作用是监听`InputDispatcher`给`服务端InputChannel`发送的触摸数据。然后把这些数据转通过`NativeInputEventReceiver.handleEvent()`回调到客户端。**
+**其实上面整个过程是利用`Socket`完成了数据的跨进程通信（InputDispatcher->NativeMessageQueue）。`Socket`的`阻塞/通知机制`在这里是十分高效的。`NativeMessageQueue/Looper`的主要作用是监听`InputDispatcher`给`服务端InputChannel`发送的触摸数据。然后把这些数据通过`NativeInputEventReceiver.handleEvent()`回调到客户端。**
 
 
 ## NativeInputEventReceiver.handleEvent()
@@ -330,7 +338,7 @@ private void deliverInputEvent(QueuedInputEvent q) {
 }
 ```
 
-`InputStage`可以理解为处理事件过程中的一步，多个`InputStage`可以组成一个处理流程，他们的组织形式类似于一个链表。看一下它的类组成应该就能猜到个大概:
+`InputStage`可以理解为处理事件过程中的一步，多个`InputStage`可以组成一个处理流程，他们的组织形式类似于一个链表。看一下它的类组成应该就能猜到个大概逻辑:
 
 ```
 abstract class InputStage {
@@ -391,7 +399,7 @@ public boolean dispatchTouchEvent(MotionEvent ev) {
 public class Activity extends ContextThemeWrapper implements Window.Callback,...{
 ```
 
-即回调到`Activity.dispatchTouchEvent()`
+即回调到`Activity.dispatchTouchEvent()`。到这里就回到的我们常分析`Android事件分发机制`。这些内容会在下一篇文章来看一下。
 
 
 **本文内容参考自以下文章,感谢这些作者的细致分析**:
@@ -402,6 +410,15 @@ public class Activity extends ContextThemeWrapper implements Window.Callback,...
 
 [Input系统—事件处理全过程](http://gityuan.com/2016/12/31/input-ipc/)
 
+
+最后:
+
+
+**欢迎关注我的[Android进阶计划](https://github.com/SusionSuc/AdvancedAndroid)看更多干货**
+
+**欢迎关注我的微信公众号:susion随心**
+
+![](../../picture/微信公众号.jpeg)
 
 
 
