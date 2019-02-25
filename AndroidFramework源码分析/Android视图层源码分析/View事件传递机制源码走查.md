@@ -1,7 +1,7 @@
 
->上一篇文章我们看了[触摸事件的产生 -> Activity.dispatchTouchEvent()的整个过程](Android触摸事件全过程分析.md)。本文就从`Activity.dispatchTouchEvent()`为起点来看一下触摸事件是如何在`View`中进行分发的。触摸事件分发的源码还是比较简单的(代码量比较少)。
+>上一篇文章我们看了[触摸事件的产生 -> Activity.dispatchTouchEvent()的整个过程](Android触摸事件全过程分析.md)。本文就从`Activity.dispatchTouchEvent()`为起点来看一下触摸事件是如何在`View`中进行分发的。触摸事件分发的源码还是比较少的。
 
->Activity
+>Activity.java
 ```
 public boolean dispatchTouchEvent(MotionEvent ev) {
     if (ev.getAction() == MotionEvent.ACTION_DOWN) {
@@ -192,42 +192,27 @@ ok，到这里，分析完了`ViewGroup.dispatchTouchEvent()`的全逻辑。那�
 即`Step2`中，在变量`子View`时，如果发现`子View`就是`mFirstTouchTarget`，那么就会跳出循环，直接把事件派发给这个`子View`
 
 ```
- for (int i = childrenCount - 1; i >= 0; i--) { 
- 
- }
+    for (int i = childrenCount - 1; i >= 0; i--) { 
+    newTouchTarget = getTouchTarget(child); //判断child是否是上次派发事件过程中的target
+    if (newTouchTarget != null) {
+        // Child is already receiving touch within its bounds.
+        // Give it the new pointer in addition to the ones it is handling.
+        newTouchTarget.pointerIdBits |= idBitsToAssign;
+        break;
+    }
+    }
+
+    把事件派发给 newTouchTarget所指的child
 ```
 
-- 
+### 关于 onInterceptTouchEvent
 
-比如: 子View(onTouchEvent)返回True:
-
->父View(dispatchTouchEvent) -> 父View(onInterceptTouchEvent)->子View(dispatchTouchEvent)->子View(onTouchEvent)
-
-比如: 子View(dispatchTouchEvent)返回True:
-
->父View(dispatchTouchEvent) -> 父View(onInterceptTouchEvent)->子View(dispatchTouchEvent)
-
-- 如果父View拦截了触摸事件，并且`onTouchEvent`返回True，那么事件的派发路径是:
-
->父View(dispatchTouchEvent)->父View(onTouchEvent)
-
-- 如果父View(dispatchTouchEvent)返回了true
-
->那么这个事件只能分发到父View(`dispatchTouchEvent`)
-
-
-#ViewGroup
-
-
-## dispatchTouchEvent
-
-如果直接返回true，那相当于没有做触摸事件的分发，所有的事件都由父View拦截
-
-
-## onInterceptTouchEvent
-
-如果这个方法返回了false, 并且父View没有处理触摸事件，那么每次都会回调这个方法，并且将事件分发到子View中。
+如果这个方法返回了false, 并且父View没有处理触摸事件，事件被子View处理。那么每次都会回调这个方法，并且将事件分发到子View中。
 
 如果父View在`ACTION_DOWN`事件的下发过程中，`onInterceptTouchEvent`就返回了true，那么事件是永远不可能派发到子View的。
 
 如果子View接收到了`ACTION_DOWN`事件，那么它是可以通过`parent.requestDisallowInterceptTouchEvent()`来使父View不拦截事件的下发的。
+
+如果我们想处理一个`ViewGroup`的所有事件， 我们应该重写`dispatchTouchEvent`，不要重写`onInterceptTouchEvent`。
+
+
