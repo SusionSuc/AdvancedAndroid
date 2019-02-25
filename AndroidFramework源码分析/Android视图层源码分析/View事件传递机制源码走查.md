@@ -98,6 +98,7 @@ public boolean dispatchTouchEvent(MotionEvent ev) {
 
 `dispatchTransformedTouchEvent()`的逻辑其实也比较简单:
 
+>ViewGroup.dispatchTransformedTouchEvent()
 ```
 private boolean dispatchTransformedTouchEvent(MotionEvent event, boolean cancel,View child, int desiredPointerIdBits) {
     ...
@@ -127,6 +128,7 @@ private boolean dispatchTransformedTouchEvent(MotionEvent event, boolean cancel,
 
 这段逻辑对应的是下面这段代码:
 
+>ViewGroup.dispatchTouchEvent()
 ```
     if (mFirstTouchTarget == null) { //没有谁能够处理这个事件,交由自己来处理   
         //传null， 会调用 super.dispatchTouchEvent(event)。
@@ -167,11 +169,35 @@ ok，到这里，分析完了`ViewGroup.dispatchTouchEvent()`的全逻辑。那�
 >图出自 : https://blog.csdn.net/binbinqq86/article/details/82315399
 
 
-## 草稿
+## 源码走查后的一些小结论
 
-- 如果在一次事件派发中没有一个`View`对事件做了处理，那么就不会再派发事件。
+### 如果在一次事件派发中没有一个`子View`对事件做了处理，那么就不会再派发事件。全部事件由自己来处理。
 
-- 如果子View处理了这个事件，那么这个触摸事件派发就会变的非常简单。
+其实就对应着上面`Step2`中，如果对子`View`遍历后`mFirstTouchTarget`还是为null，那么就自己来处理这个事件:
+
+```
+    if (actionMasked == MotionEvent.ACTION_DOWN || mFirstTouchTarget != null) { 
+
+    }else{
+        intercepted = true
+    }
+
+    if(intercepted){
+        //自己处理
+    }
+```
+
+### 如果`子View`处理了触摸事件，那么后续的事件都会派发到这个`子View`，不会派发给`其他子View`处理了
+
+即`Step2`中，在变量`子View`时，如果发现`子View`就是`mFirstTouchTarget`，那么就会跳出循环，直接把事件派发给这个`子View`
+
+```
+ for (int i = childrenCount - 1; i >= 0; i--) { 
+ 
+ }
+```
+
+- 
 
 比如: 子View(onTouchEvent)返回True:
 
