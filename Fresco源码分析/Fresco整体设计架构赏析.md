@@ -1,8 +1,8 @@
->本文是`Fresco`源码分析的开篇，会主要分析`Fresco`的组成、各个组成模块的功能、整体的工作原理。希望通过本文可以对`Fresco`的整体框架设计有一个大概的了解，也为后续更为深入的分析打下基础。
+>本文是`Fresco`源码分析系列的开篇，主要分析`Fresco`的整体架构、各个组成模块的功能以及图片加载流程,希望通过本文可以对`Fresco`的整体框架设计有一个大概的了解，也为后续更为深入的分析打下基础。
 
 `Fresco`源码庞大，涉及的图片加载情况众多。本系列`Fresco`源码分析是沿着**Fresco网络加载图片**这个点展开的。
 
-# Fresco的组成结构以及各个组成模块的功能
+# Fresco的整体架构
 
 `Fresco`的组成结构还是比较清晰的，大致如下图所示:
 
@@ -14,7 +14,7 @@
 
 ### DraweeView
 
-它继承自`ImageView`,是`Fresco`加载图片各个阶段过程中图片显示的载体，比如在加载图片过程中它显示的是占位图、在加载成功时切换为目标图片。不过后续官方可能不再让这个类继承`ImageView`。目前`DraweeView`与`ImageView`唯一的交集是:**它利用`ImageView`显示`Drawable`的功能** :
+它继承自`ImageView`,是`Fresco`加载图片各个阶段过程中图片显示的载体，比如在加载图片过程中它显示的是占位图、在加载成功时切换为目标图片。不过后续官方可能不再让这个类继承`ImageView`。目前`DraweeView`与`ImageView`唯一的交集是:**它利用`ImageView`来显示`Drawable`** :
 
 ```
 //DraweeView.setController()
@@ -29,11 +29,11 @@ public @Nullable Drawable getTopLevelDrawable() {
 }
 ```
 
-`DraweeView.setController()`会在`Fresco`加载图片时会调用。其实在这里可以看出`Fresco`的图片显示原理是 : **利用`ImageView`显示`DraweeHierachy`的`TopLevelDrawable`**。上面这段代码和这句话引出了其他两个类:`DraweeHolder/DraweeHierachy`。
+`DraweeView.setController()`会在`Fresco`加载图片时会调用。其实在这里可以看出`Fresco`的图片显示原理是 : **利用`ImageView`显示`DraweeHierachy`的`TopLevelDrawable`**。上面这段代码引出了`UI层`中另外两个关键类:`DraweeHolder`和`DraweeHierachy`。
 
 ### DraweeHierachy
 
-可以说它是`Fresco`图片显示的实现者。它的输出是`Drawable`，这个`Drawable`会被`DraweeView`拿来显示(上面已经说了)。它内部有多个`Drawable`，当前显示在`DraweeView`的`Drawable`叫做`TopLevelDrawable`。在不同的图片加载阶段，`TopLevelDrawable`是不同的(加载过程中是placeholder,加载完成是目标图片)。具体的`Drawable`切换逻辑是由它来具体实现的。
+可以说它是`Fresco`图片显示的实现者。它的输出是`Drawable`，这个`Drawable`会被`DraweeView`拿来显示(上面已经说了)。它内部有多个`Drawable`，当前显示在`DraweeView`的`Drawable`叫做`TopLevelDrawable`。在不同的图片加载阶段，`TopLevelDrawable`是不同的(比如加载过程中是placeholder,加载完成是目标图片)。具体的`Drawable`切换逻辑是由它来具体实现的。
 
 它是由`DraweeController`直接持有的，因此对于不同图片显示的切换操作具体是由`DraweeController`来直接操作的。
 
@@ -45,7 +45,7 @@ public @Nullable Drawable getTopLevelDrawable() {
 
 ## DraweeController : 加载逻辑控制层
 
-它的主要逻辑控制是: **接收`DraweeView`的图片加载请求,控制`ProducerSequence`发起图片加载和处理流程,监听`ProducerSequence`加载过程中的事件(失败、完成等)，并更新最新的`Drawable`到`DraweeHierachy`**。
+它的主要功能是: **接收`DraweeView`的图片加载请求,控制`ProducerSequence`发起图片加载和处理流程,监听`ProducerSequence`加载过程中的事件(失败、完成等)，并更新最新的`Drawable`到`DraweeHierachy`**。
 
 ### DraweeController的构造逻辑
 
@@ -59,7 +59,7 @@ private static void initializeDrawee(Context context, @Nullable DraweeConfig dra
 }
 ```
 
-所以所有的`DraweeController`都是通过同一个`DraweeControllerBuilder`来构造的。而`Fresco`每次图片加载都会对应到一个`DraweeController`，一个`DraweeView`的多次图片加载可以复用同一个`DraweeController`:
+所以所有的`DraweeController`都是通过同一个`DraweeControllerBuilder`来构造的。`Fresco`每次图片加载都会对应到一个`DraweeController`，一个`DraweeView`的多次图片加载可以复用同一个`DraweeController`:
 
 >SimpleDraweeView.java
 ```
@@ -120,11 +120,13 @@ private <T> DataSource<CloseableReference<T>> submitFetchRequest(...) {
 }
 ```
 
-所以`DraweeController`最终拿到的`DataSource`是`CloseableProducerToDataSourceAdapter`。这个类在构造的时候就会发起图片加载流程(它的构造方法会调用`producer.produceResults(...)`,这个方法就是图片加载的起点，我们后面再看),这里我们总结一下`Fresco`中`DataSource`的概念以及作用:**在`Fresco`中`DraweeController`每发起一次图片加载就会创建一个`DataSource`,这个`DataSource`用来提供这次请求的数据(图片)。`DataSource`只是一个接口，至于具体的加载流程`Fresco`是通过`ProducerSequence`来实现的。**
+所以`DraweeController`最终拿到的`DataSource`是`CloseableProducerToDataSourceAdapter`。这个类在构造的时候就会启动图片加载流程(它的构造方法会调用`producer.produceResults(...)`,这个方法就是图片加载的起点，我们后面再看)。
+
+这里我们总结一下`Fresco`中`DataSource`的概念以及作用:**在`Fresco`中`DraweeController`每发起一次图片加载就会创建一个`DataSource`,这个`DataSource`用来提供这次请求的数据(图片)。`DataSource`只是一个接口，至于具体的加载流程`Fresco`是通过`ProducerSequence`来实现的。**
 
 ### Fresco图片加载前的逻辑
 
-了解了上面的知识后，我们过一遍图片加载的源码(`从UI到DraweeController`),来理一下目前所了解的各个模块之间的联系。我们在使用`Fresco`加载图片是一般是使用的这个API:`SimpleDraweeView.setImageURI(imageLink)`,这个方法最终会调用到:
+了解了上面的知识后，我们过一遍图片加载的源码(`从UI到DraweeController`),来理一下目前所了解的各个模块之间的联系。我们在使用`Fresco`加载图片时一般是使用这个API:`SimpleDraweeView.setImageURI(imageLink)`,这个方法最终会调用到:
 
 >SimpleDraweeView.java
 ```
@@ -143,7 +145,7 @@ public void setController(@Nullable DraweeController draweeController) {
 }
 ```
 
-即每次加载都会使用`DraweeControllerBuilder`来`build`一个`DraweeController`。其实这个`DraweeController`默认是复用的。然后会把`DraweeController`设置给`DraweeHolder`, 并在加载开始默认是从`DraweeHolder`获取`TopLevelDrawable`:
+即每次加载都会使用`DraweeControllerBuilder`来`build`一个`DraweeController`。其实这个`DraweeController`默认是复用的。然后会把`DraweeController`设置给`DraweeHolder`, 并在加载开始默认是从`DraweeHolder`获取`TopLevelDrawable`并展示到`DraweeView`。继续看一下`DraweeHolder`的逻辑:
 
 >DraweeHolder.java
 ```
@@ -162,7 +164,7 @@ public void setController(@Nullable DraweeController draweeController) {
   }
 ```
 
-在`DraweeHolder.setController()`中，联系了`DraweeController`和`DraweeHierachy`。 并重新`attachController()`,`attachController()`主要调用了`DraweeController.onAttach()`:
+在`DraweeHolder.setController()`中把`DraweeHierachy`设置给`DraweeController`,并重新`attachController()`,`attachController()`主要调用了`DraweeController.onAttach()`:
 
 >AbstractDraweeController.java
 ```
@@ -190,16 +192,15 @@ protected void submitRequest() {
 
 即通过`submitRequest()`提交了一个请求,这个方法我们前面已经看过了，它所做的主要事情就是，构造了一个`DataSource`。这个`DataSource`我们经过追踪，它的实例实际上是`CloseableProducerToDataSourceAdapter`。`CloseableProducerToDataSourceAdapter`在构造时就会调用`producer.produceResults(...)`,进而发起整个图片加载流程。
 
-从`SimpleDraweeView`->`DraweeController`的图片加载逻辑如下图:
+用下面这张图总结从`SimpleDraweeView`->`DraweeController`的图片加载逻辑:
 
 ![](picture/图片加载之前的逻辑.png)
 
-到这里我们梳理完了`Fresco`在真正发起图片加载前所走的逻辑，那么`Fresco`的图片加载流程是如何控制的呢？
-
+到这里我们梳理完了`Fresco`在真正发起图片加载前所走的逻辑，那么`Fresco`的图片加载流程是如何控制的呢？到底经历了哪些步骤呢？
 
 ## 图片加载实现层
 
-`Fresco`中有关图片的内存缓存、解码、编码、磁盘缓存、网络请求都是在这一层实现的,而所有的实现的基本单元是`Producer`,所以我们先来看一下`Producer`是个什么概念:
+`Fresco`中有关图片的内存缓存、解码、编码、磁盘缓存、网络请求都是在这一层实现的,而所有的实现的基本单元是`Producer`,所以我们先来理解一下`Producer`:
 
 ### Producer
 
@@ -221,14 +222,14 @@ public interface Producer<T> {
 }
 ```
 
-结合注释我们可以这样定义`Producer`的作用:**一个`Producer`用来处理整个`Fresco`图片处理流程中的一步，比如从网络获取图片、内存获取图片、解码图片等等**。对于`Consumer`可以把它理解为监听者,看一下它的定义:
+结合注释我们可以这样定义`Producer`的作用:**一个`Producer`用来处理整个`Fresco`图片处理流程中的一步，比如从网络获取图片、内存获取图片、解码图片等等**。而对于`Consumer`可以把它理解为监听者,看一下它的定义:
 
 ```
 public interface Consumer<T> {
     ...
-    void onNewResult(T newResult, @Status int status);
+    void onNewResult(T newResult, @Status int status); //Producer处理成功
 
-    void onFailure(Throwable t);
+    void onFailure(Throwable t); //Producer处理失败
     ...
 }
 ```
@@ -285,16 +286,16 @@ public class NetworkFetchProducer implements Producer<EncodedImage> {
 }
 ```
 
-代码可能不是很好理解，我们来看一下这两个`Producer`的工作逻辑图:
+代码可能不是很好理解，可以结合下面这张图来理解这个关系:
 
 ![](picture/Producer的工作逻辑.png)
 
 
-`Fresco`可以通过组装多个不同的`Producer`来灵活的自定义图片处理流程的,多个`Producer`组装在一块称为`ProducerSequence(Fresco中并没有这个类哦)`。一个`ProducerSequence`一般定义一种图片处理流程,比如网络加载图片的`ProducerSequence`叫做`NetworkFetchSequence`,它包含多个不同类型的`Producer`,下面我们就来看一下这个`NetworkFetchSequence`。
+`Fresco`可以通过组装多个不同的`Producer`来灵活的定义不同的图片处理流程的,多个`Producer`组装在一块称为`ProducerSequence(Fresco中并没有这个类哦)`。一个`ProducerSequence`一般定义一种图片处理流程,比如网络加载图片的`ProducerSequence`叫做`NetworkFetchSequence`,它包含多个不同类型的`Producer`。
 
 ### 网络图片加载的处理流程
 
-不同的图片请求会有不同的`ProducerSequence`来处理:
+在`Fresco`中不同的图片请求会有不同的`ProducerSequence`来处理，比如网络图片请求:
 
 >ProducerSequenceFactory.java
 ```
