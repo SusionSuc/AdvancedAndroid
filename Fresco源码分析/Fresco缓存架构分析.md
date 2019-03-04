@@ -380,7 +380,7 @@ public File createTempFile(File parent) throws IOException {
 读就是写的逆操作，这里不做具体分析了。
 
 
-OK,到这里本文就算结束了。下一篇文章会继续探讨`Fresco的EncodeImage`的内存管理,欢迎继续关注。
+>OK,到这里本文就算结束了。下一篇文章会继续探讨`Fresco的EncodeImage`的内存管理,欢迎继续关注。
 
 
 **欢迎关注我的[Android进阶计划](https://github.com/SusionSuc/AdvancedAndroid)看更多干货**
