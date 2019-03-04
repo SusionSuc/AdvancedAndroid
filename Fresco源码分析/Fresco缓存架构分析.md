@@ -1,6 +1,7 @@
->本文是`Fresco`源码分析系列第二篇文章:
 
 [(第一篇)Fresco架构设计赏析](Fresco架构设计赏析.md)
+
+>本文是`Fresco`源码分析系列第二篇文章,主要来看一下Fresco中有关图片缓存的内容。
 
 ## 引言
 
@@ -8,17 +9,18 @@
 
 ![](picture/NetworkFetchSequence.png)
 
-这张图描述了`Fresco`在第一次加载一张网络图片时所经历的过程，从图中可以看出涉及到缓存的`Producer`共有4个:`BitmapMemroyCacheGetProducer`、`BitmapMemoryCacheProducer`、`EncodedMemoryCacheProducer`和`DiskCacheWriteProducer`。`Fresco`在加载图片时会按照图中**绿色箭头**所示依次经过这四个`缓存Producer`，一旦在某个`Producer`得到图片请求结果，就会按照**蓝色箭头**所示把结果依次回调回来,这里我先简单介绍一下这4个`缓存Producer`的作用:
+这张图描述了`Fresco`在第一次网络图片时所经历的过程，从图中可以看出涉及到缓存的`Producer`共有4个:`BitmapMemroyCacheGetProducer`、`BitmapMemoryCacheProducer`、`EncodedMemoryCacheProducer`和`DiskCacheWriteProducer`。`Fresco`在加载图片时会按照**图中绿色箭头**所示依次经过这四个`缓存Producer`，一旦在某个`Producer`得到图片请求结果，就会按照**蓝色箭头**所示把结果依次回调回来。简单介绍一下这4个`Producer`的功能:
 
-1. `BitmapMemroyCacheGetProducer`: 这个`Producer`会去内存缓存中检查有没命中缓存，如果命中则返回图片请求结果。
+1. `BitmapMemroyCacheGetProducer`: 这个`Producer`会去内存缓存中检查这次请求有没命中缓存，如果命中则将缓存的图片作为这次请求结果。
 2. `BitmapMemoryCacheProducer`: 这个`Producer`会监听其后面的`Producer`的`Result`，并把`Result(CloseableImage)`存入缓存。
 3. `EncodedMemoryCacheProducer`: 它也是一个内存缓存，不过它缓存的是未解码的图片，即图片原始字节。
-4. `DiskCacheWriteProducer`: 顾名思义，它负责把图片缓存到磁盘，它缓存的也是未解码的图片。
+4. `DiskCacheWriteProducer`: 顾名思义，它负责把图片缓存到磁盘，它缓存的也是未解码的图片。获取图片时如果命中了磁盘缓存那么就返回缓存的结果。
 
+本文主要讨论`BitmapMemoryCacheProducer`和`DiskCacheWriteProducer`。在文章正式开始之前先了解一个概念:
 
 ### 解码图片与未解码图片
 
-在`Fresco`中可以简单的理解 :`CloseableImage`为解码的图片，而`EncodeImage`是未解码的图片。
+对于这两个概念可以这样简单的理解 :`CloseableImage`为解码的图片，而`EncodeImage`是未解码的图片。
 
 #### CloseableImage
 
@@ -46,11 +48,13 @@ public class EncodedImage implements Closeable {
 }
 ```
 
-接下来，我们来仔细看一样上面所列的4个缓存:
+接下来继续分析:
 
 ## Bitmap内存缓存 : BitmapMemoryCacheProducer
 
-`BitmapMemroyCacheGetProducer`派生自`BitmapMemoryCacheProducer`,与`BitmapMemoryCacheProducer`的不同就是**只读不写**而已, 比较简单就不看了, 不过`BitmapMemoryCacheProducer`的缓存逻辑很简单:
+### CacheProducer : 缓存的工作流程
+
+`BitmapMemroyCacheGetProducer`派生自`BitmapMemoryCacheProducer`,与`BitmapMemoryCacheProducer`的不同就是**只读不写**而已。 大致看一下`BitmapMemoryCacheProducer`的缓存运作逻辑:
 
 >BitmapMemoryCacheProducer.java
 ```
@@ -98,11 +102,11 @@ public class BitmapMemoryCacheProducer implements Producer<CloseableReference<Cl
 
 ![](picture/BitmapMemoryCacheProducer工作流.png)
 
-**图中红色箭头和字体是正常网络加载图片的步骤**，这里我们来细看一下`MemoryCache`的实现:
+**图中红色箭头和字体是正常网络加载图片(第一次)的步骤**，这里我们来细看一下`MemoryCache`的实现:
 
 ### 内存缓存的实现 : MemoryCache
 
-`MemoryCache`是一个接口，在这里它的对应实现是`CountingMemoryCache`, 看一下这个类的构造函数:
+`MemoryCache`是一个接口，在这里它的对应实现是`CountingMemoryCache`, 先来看一下这个类的构造函数:
 
 >CountingMemoryCache.java
 ```
@@ -116,26 +120,31 @@ public class CountingMemoryCache<K, V> implements MemoryCache<K, V>, MemoryTrimm
         mValueDescriptor = valueDescriptor;// 用来估算当前缓存实体的大小
         mExclusiveEntries = new CountingLruMap<>(wrapValueDescriptor(valueDescriptor)); // 主要存放没有被引用的对象，它的所有元素一定在 mCachedEntries 集合中存在
         mCachedEntries = new CountingLruMap<>(wrapValueDescriptor(valueDescriptor));  // 主要缓存集合
-        mCacheTrimStrategy = cacheTrimStrategy; // 当 trim 缓存的如何trim (简单点说就是trim ratio)
+        mCacheTrimStrategy = cacheTrimStrategy; // trim缓存的策略 (其实就是指定了trim ratio)
         mMemoryCacheParams = mMemoryCacheParamsSupplier.get();  //  通过 ImagePipelineConfig 来配置的缓存参数
     }
     ...
 }
 ```
 
-通过构造函数可以知道`CountingMemoryCache`一共含有两个缓存集合 : `mCachedEntries`是用来存放所有缓存对象的集合，而`mExclusiveEntries`是用来存放当前没有被引用的对象，在`trim`缓存是，主要是`trim`掉这个缓存集合的中的对象。`CountingMemoryCache`的缓存逻辑也是主要围绕这两个集合展开的。接下来看一下``的`cache`和`get`的方法，来简单理解它的缓存逻辑。
+通过构造函数可以知道`CountingMemoryCache`一共含有两个缓存集合 : 
 
-#### CountingMemoryCache.cache()
+- `mCachedEntries` : 它是用来存放所有缓存对象的集合
+- `mExclusiveEntries`: 它是用来存放当前没有被引用的对象，在`trim`缓存是，主要是`trim`掉这个缓存集合的中的对象。
+
+`CountingMemoryCache`的缓存逻辑主要是围绕这两个集合展开的。接下来看一下它的`cache`和`get`的方法(这两个方法是缓存的核心方法)。
+
+#### 将图片保存到内存缓存 : CountingMemoryCache.cache()
 
 ```
-public @Nullable CloseableReference<V> cache(K key, CloseableReference<V> valueRef, EntryStateObserver<K> observer) {
+public  CloseableReference<V> cache(K key, CloseableReference<V> valueRef, EntryStateObserver<K> observer) {
 
     Entry<K, V> oldExclusive;
     CloseableReference<V> oldRefToClose = null;
     CloseableReference<V> clientRef = null;
 
     synchronized (this) {
-        oldExclusive = mExclusiveEntries.remove(key);   //从没有引用的缓存集合中清除
+        oldExclusive = mExclusiveEntries.remove(key);   //如果存在的话，从没有引用的缓存集合中清除
         Entry<K, V> oldEntry = mCachedEntries.remove(key); //从主缓存集合中移除
         if (oldEntry != null) {
             makeOrphan(oldEntry);
@@ -160,7 +169,7 @@ public @Nullable CloseableReference<V> cache(K key, CloseableReference<V> valueR
 
 ##### Fresco的默认内存缓存大小
 
-`canCacheNewValue`用来判断当前缓存是否已经达到了最大值，那`Fresco`内存缓存的最大值是多少呢？我们可以通过`ImagePipelineConfig`来配置，如果没有配置的话默认配置是:`DefaultBitmapMemoryCacheParamsSupplier`:
+上面`canCacheNewValue()`是用来判断当前缓存是否已经达到了最大值。那`Fresco`内存缓存的最大值是多少呢？这个值可以通过`ImagePipelineConfig`来配置，如果没有配置的话默认配置是:`DefaultBitmapMemoryCacheParamsSupplier`:
 
 >DefaultBitmapMemoryCacheParamsSupplier.java
 ```
@@ -184,9 +193,9 @@ public class DefaultBitmapMemoryCacheParamsSupplier implements Supplier<MemoryCa
 }
 ```
 
-即`Fresco`的默认缓存大小是根据当前应用的运行内存来决定的，对于应用运行内存达到64MB以上的手机，`Fresco`的默认缓存大小是`maxMemory / 4`
+即`Fresco`的默认缓存大小是根据当前应用的运行内存来决定的，对于应用运行内存达到64MB以上的手机(现在的手机普遍已经大于这个值了)，`Fresco`的默认缓存大小是`maxMemory / 4`
 
-#### CountingMemoryCache.get()
+#### 从内存缓存中获取图片 : CountingMemoryCache.get()
 
 缓存获取的逻辑也很简单:
 
@@ -211,7 +220,7 @@ public class DefaultBitmapMemoryCacheParamsSupplier implements Supplier<MemoryCa
 
 即从`mCachedEntries集合`中获取，如果`mExclusiveEntries集合`中存在的话就移除。
 
-#### CountingMemoryCache.get()
+#### trim策略 : CountingMemoryCache.getrimt()
 
 当内存缓存达到峰值或系统内存不足时就需要对当前的内存缓存做`trim`操作, `trim`时是基于`Lru`算法的，我们看一下它的具体逻辑:
 
@@ -231,17 +240,17 @@ public class DefaultBitmapMemoryCacheParamsSupplier implements Supplier<MemoryCa
 
 trim操作的主要步骤是:
 
-1. 根据当前应用的状态决定`trim ratio`。
-2. 根据`trim ratio`来算出经过trim后缓存的大小
+1. 根据当前应用的状态决定`trim ratio` (应用状态是指应用处于前台、后台等等)。
+2. 根据`trim ratio`来算出经过trim后缓存的大小`targetCacheSize`
 3. 根据`mExclusiveEntries`集合的大小来决定到底能trim多少 (能trim的最大就是mExclusiveEntries.size)
 4. 对`mExclusiveEntries`集合做`trim`操作，即移除其中的元素。
 
-即`trim`时最大能`trim`掉的大小是`mExclusiveEntries`集合的大小。所以如果当前应用存在内存泄漏，导致`mExclusiveEntries`中的元素很少，那么`trim`操作是没有效果的。
+即`trim`时最大能`trim`掉的大小是`mExclusiveEntries`集合的大小。所以如果当前应用存在内存泄漏，导致`mExclusiveEntries`中的元素很少，那么`trim`操作几乎是没有效果的。
 
 
 ##  Bitmap编码内存缓存 : EncodedMemoryCacheProducer
 
-这个缓存的工作逻辑和`BitmapMemoryCacheProducer`相同，不同的是它缓存的对象:
+这个缓存`Producer`的工作逻辑和`BitmapMemoryCacheProducer`相同,不同的是它缓存的对象:
 
 ```
 public class EncodedMemoryCacheProducer implements Producer<EncodedImage> {
@@ -255,7 +264,7 @@ public class EncodedMemoryCacheProducer implements Producer<EncodedImage> {
 
 ## Bitmap磁盘缓存 : DiskCacheWriteProducer
 
-它是`Fresco`图片磁盘缓存的逻辑管理者，整个缓存逻辑和`BitmapMemoryCacheProducer`差不多，我们主要看一下它的磁盘存储逻辑(怎么存):
+它是`Fresco`图片磁盘缓存的逻辑管理者，整个缓存逻辑和`BitmapMemoryCacheProducer`差不多:
 
 ```
 public class DiskCacheWriteProducer implements Producer<EncodedImage> {
@@ -271,6 +280,8 @@ public class DiskCacheWriteProducer implements Producer<EncodedImage> {
     }
 }
 ```
+
+接下来我们主要看一下它的磁盘存储逻辑(怎么存), 对于存储逻辑是由`BufferedDiskCache`来负责的:
 
 ### BufferedDiskCache
 
@@ -331,7 +342,7 @@ mFileCache.insert(key, new WriterCallback() {
 
 ##### Step1 :  生成ResourceId
 
-这个`ResourceId`可以简单的理解为文件名，它的生成算法如下:
+这个`ResourceId`可以简单的理解为缓存文件的文件名，它的生成算法如下:
 
 ```
 SecureHashUtil.makeSHA1HashBase64(key.getUriString().getBytes("UTF-8"));  // key就是CacheKey
@@ -367,6 +378,9 @@ public File createTempFile(File parent) throws IOException {
 #### 从磁盘中获取文件 : BufferedDiskCache.get()
 
 读就是写的逆操作，这里不做具体分析了。
+
+
+OK,到这里本文就算结束了。下一篇文章会继续探讨`Fresco的EncodeImage`的内存管理,欢迎继续关注。
 
 
 **欢迎关注我的[Android进阶计划](https://github.com/SusionSuc/AdvancedAndroid)看更多干货**
