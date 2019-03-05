@@ -44,7 +44,7 @@
 
 >参考文章
 
->![](https://blog.csdn.net/lj19851227/article/details/82562115)
+>[一张图看懂Activity启动流程 Activity启动流程详解](https://blog.csdn.net/lj19851227/article/details/82562115)
 
 ## The End
 
