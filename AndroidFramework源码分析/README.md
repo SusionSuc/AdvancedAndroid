@@ -24,7 +24,7 @@ Android四大组件是我们日常开发中最常用的。我们天天和都在�
 
 [从源码理解ContentProvider的工作过程](ContentProvider启动过程分析.md)
 
-ing [从源码理解Activity的工作过程](从源码理解Activity的工作过程.md)
+[一张图把Android Activity启动过程安排的明明白白](一张图弄清Activity的启动过程.md)
 
 ing [从源码理解Service的工作过程](从源码理解Service的工作过程.md)
 
