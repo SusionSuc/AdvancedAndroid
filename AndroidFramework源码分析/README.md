@@ -62,6 +62,10 @@ ing [从源码理解Service的工作过程](从源码理解Service的工作过�
 
 [Android触摸事件全过程分析](Android视图层源码分析/Android触摸事件全过程分析.md)
 
+弄清原理后，来简单走查一遍**Android事件分发机制**吧:
+
+[View事件传递机制源码走查](Android视图层源码分析/View事件传递机制源码走查.md)
+
 
 
 
