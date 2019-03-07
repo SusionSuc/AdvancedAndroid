@@ -59,7 +59,7 @@ public interface IInterface
 
 *我们称`IApplicationThread`为`ApplicationThread`这个`Binder`的功能。* 所以`Binder`除了可以理解为系统给我们提供的一个跨进程通信的对象。 我们在用`Binder`通信时，还可以说`Binder`是一个具有某些功能的一个对象。
 
-那么怎么表示`Binder`有功能呢？ *即要继承`IInterface`* 。`IInterface`可以表示`Binder`有功能， 不然你想一个，那么多`Binder`都只实现自己的接口, 那么系统层就不好操作了，它总不能向下强转为`Binder`吧，所以Android定义了一个更高层级的接口`IInterface`。描述`Binder`功能的接口必须继承自这个接口。 
+那么怎么表示`Binder`有功能呢？ *即要继承`IInterface`* 。`IInterface`可以表示`Binder`有功能， 不然你想一下那么多`Binder`都只实现自己的接口, 那么系统层就不好操作了，它总不能向下强转为`Binder`吧，所以Android定义了一个更高层级的接口`IInterface`。描述`Binder`功能的接口必须继承自这个接口。 
 
 重点: *Binder、Binder的功能(IApplicationThread)、IInterface它们都在同一个对象上 -> ApplicationThread*
 
