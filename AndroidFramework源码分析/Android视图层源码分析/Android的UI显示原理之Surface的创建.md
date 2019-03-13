@@ -33,7 +33,7 @@ ok，接下来就开始`Android UI显示原理之Surface的创建`的主要流�
 public void setView(View view, WindowManager.LayoutParams attrs, View panelParentView) {
     ...
     //mWindowSession是一个aidl，ViewRootImpl利用它来和WindowManagerService交互
-    //mWindow是一个aidl，WindowManagerService可以利用这个对象与服务端交互
+    //mWindow是一个aidl，WindowManagerService可以利用这个对象与客户端交互
     //mAttachInfo可以理解为是一个data bean，可以跨进程传递
     res = mWindowSession.addToDisplay(mWindow, mSeq, mWindowAttributes,
             getHostVisibility(), mDisplay.getDisplayId(), mWinFrame,
@@ -243,7 +243,7 @@ private int relayoutWindow(WindowManager.LayoutParams params, ...) throws Remote
 
 上面我省略了`mWindowSession.relayout()`方法的很多参数，不过有一个十分重要的参数我没有省略，就是`mSurface`。前面已经分析了它就是一个空的`Surface`对象。其实:
 
-**真正的Surface创建是由`SurfaceControl`完成的，应用程序`ViewRootImpl`的`Surface`只是一个指针，指向这个`Surface`**
+**真正的Surface创建是由`SurfaceControl`完成的，应用程序`ViewRootImpl`的`Surface`只是一个指针，指向这个`Surface`, 当然`relayoutWindow()`不会每次调用都创建Surface**
 
 下面就来看一下`SurfaceControl`是如何创建`Surface`的:
 

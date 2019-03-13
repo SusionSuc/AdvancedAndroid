@@ -6,6 +6,8 @@ todo:
 
 3. 图片防止oom的处理
 
-4. UI的展示原理
+4. UI的展示原理  : [Fresco图片显示原理浅析](Fresco图片显示原理浅析.md)
 
-5. fresco使用的扩展
+5. EncodeImage的内存缓存实现 :
+
+6. fresco使用的扩展 : 

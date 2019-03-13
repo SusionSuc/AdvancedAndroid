@@ -59,7 +59,7 @@ virtualApk {
 
 ### 根据`R.txt`文件收集插件中所有的资源
 
-`R.txt`文件是在编译资源过程中产生的资源ID记录文件，在`build/intermediates/symbols/xx/xx/R.txt`可以找到这个问题，它的格式如下:
+`R.txt`文件是在编译资源过程中产生的资源ID记录文件，在`build/intermediates/symbols/xx/xx/R.txt`可以找到这个文件，它的格式如下:
 
 ```
 int anim abc_fade_in 0x7f010000  
