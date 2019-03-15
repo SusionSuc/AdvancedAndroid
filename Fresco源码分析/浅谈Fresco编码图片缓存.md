@@ -5,9 +5,9 @@
 
 [(第三篇)Fresco图片显示原理浅析](Fresco图片显示原理浅析.md)
 
->通过前面的分析我们了解到`Fresco`中的图片缓存分为3种: 解码图片内存缓存、编码图片内存缓存和磁盘缓存,在[Fresco缓存架构分析](Fresco缓存架构分析.md)一文中比较详细的分析了内存缓存和磁盘缓存。本文就来分析一下`Fresco图片编码缓存(EncodeMemoryCache)`的实现。
+>通过前面的分析我们了解到`Fresco`中的图片缓存分为3种: 解码图片内存缓存、编码图片内存缓存和磁盘缓存,在[Fresco缓存架构分析](Fresco缓存架构分析.md)一文中比较详细的分析了内存缓存和磁盘缓存。本文就来分析一下`Fresco编码图片缓存(EncodeMemoryCache)`的实现。
 
-`Fresco`从网络获取的其实是图片的字节流，这个字节流的内容就是未解码的图片的数据。`Fresco`会把这些数据缓存的内存中:
+`Fresco`从网络获取的其实是图片的字节流，这个字节流的内容就是未解码的图片的数据:
 
 >NetworkFetchProducer.java
 ```
@@ -55,7 +55,7 @@ public class MemoryPooledByteBufferOutputStream extends PooledByteBufferOutputSt
 }
 ```
 
-即`MemoryPooledByteBufferOutputStream`实际上是把数据写到了`MemoryChunkPool`中。`MemoryChunkPool`负责管理`MemoryChunk`。一个`MemoryChunk`代表一个可用的内存块。所以`Fresco`网络下载的图片会保存到`MemoryChunk`，在继续看之前我们先来回顾一下Android中应用内存相关知识:
+即`MemoryPooledByteBufferOutputStream`实际上是把数据写到了`MemoryChunkPool`中。`MemoryChunkPool`负责管理`MemoryChunk`。一个`MemoryChunk`代表一个可用的内存块。所以`Fresco`网络下载的图片会保存到`MemoryChunk`。`MemoryChunk`是一个接口，在`Fresco`中一共有两个实现: `BufferMemoryChunk`和`NativeMemoryChunk`。他们分别代表不同的内存区域。在继续看之前我们先来回顾一下Android中应用内存相关知识:
 
 ## Android应用内存
 
@@ -63,11 +63,7 @@ public class MemoryPooledByteBufferOutputStream extends PooledByteBufferOutputSt
 
 所以对于一些由于内存不足而引发的OOM问题，可以通过在`native heap`上分配空间的方式来解决。`Fresco`中的`EncodeMemoryCache`就是基于`native heap`来缓存图片的。
 
-
 ## MemoryChunk的分类
-
-`MemoryChunk`是一个接口，在`Fresco`中一共有两个实现: `BufferMemoryChunk`和`NativeMemoryChunk`。接下来我们主要看一下它们的内存分配策略:
-
 
 ### BufferMemoryChunk
 
