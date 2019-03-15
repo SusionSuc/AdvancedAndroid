@@ -1,4 +1,4 @@
->[RxJava](https://github.com/ReactiveX/RxJava)/[RxAndroid](https://github.com/ReactiveX/RxAndroid):是一个在 Java VM 上使用可观测的序列来组成异步的、基于事件的程序的库。大家在项目中或多或少都可能用到这个库，本文我总结一下在我们的项目中常用的API。本文基于`RxAndroid version 1.2`
+>[RxJava](https://github.com/ReactiveX/RxJava)/[RxAndroid](https://github.com/ReactiveX/RxAndroid):是一个在 Java VM 上使用可观测的序列来组成异步的、基于事件的程序的库。大家在项目中或多或少都可能用到这个库，本文我总结一下在我们的项目中常用的API。本文基于`RxAndroid version 1.2`
 
 
 # Do操作符
@@ -85,8 +85,8 @@ xxxApi
 
 ## merge 与 mergeDelayError
 
-`merge`类似于`zip`, 不过它不会做数据的转换操作，只是简单的按照顺序`merge`多个`Observable`。不过当任意一个`Observable`出现`error`时，都会终止`merge`操作。如果不希望这种处理，可以使用`mergeDelayError`,当一个`Observable`出现错误是不会
-打断其他`Observable`的执行，并在事件的最后派发`error`事件，如下图:
+`merge`类似于`zip`, 不过它不会做数据的转换操作，只是简单的按照顺序`merge`多个`Observable`。不过当任意一个`Observable`出现`error`时，都会终止`merge`操作。如果不希望这种处理，可以使用`mergeDelayError`,当一个`Observable`出现错误是不会
+打断其他`Observable`的执行，并在事件的最后派发`error`事件，如下图:
 
 ![doXXX](picture/RxJava/merge.png)
 
