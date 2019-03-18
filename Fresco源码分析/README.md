@@ -8,6 +8,6 @@ todo:
 
 4. UI的展示原理  : [Fresco图片显示原理浅析](Fresco图片显示原理浅析.md)
 
-5. EncodeImage的内存缓存实现 :
+5. EncodeImage缓存实现 : [浅谈Fresco编码图片缓存](浅谈Fresco编码图片缓存.md)
 
 6. fresco使用的扩展 : 

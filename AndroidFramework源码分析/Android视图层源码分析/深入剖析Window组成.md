@@ -57,7 +57,7 @@ public void setWindowManager(WindowManager wm, IBinder appToken...) {
 
 即 **`Activity`的`PhoneWindow`的`WindowManager`实例是`WindowManagerImpl`**
 
-并且在`Activity.attach`方法中也可以看出`Activity`的`Window`的实例时`PhoneWindow`(`PhoneWindow`其实是`Window`的唯一实现类，是针对于`app客户端(相对于Android系统)`的一个`Window`实体)。
+并且在`Activity.attach`方法中也可以看出`Activity`的`Window`的实例是`PhoneWindow`(`PhoneWindow`其实是`Window`的唯一实现类，是针对于`app客户端(相对于Android系统)`的一个`Window`实体)。
 
 `WindowManagerImpl`其实只是一个简单的装饰类，所有操作直接转发到了`WindowManagerGlobal`, 因此`windowManager.addView()`源码的追踪可以直接看`WindowManagerGlobal.addView()`:
 

@@ -19,7 +19,7 @@
   }
 ```
 
-`DecorView`是`PhoneWindow`的`根ViewGroup`。`Window`提供了一些列的配置项，不同的配置项`DecorView`的UI组成会有一定的不同。关于`Window`的具体组成可以参考前面(深入剖析Window组成)[深入剖析Window组成.md]一文。
+`DecorView`是`PhoneWindow`的`根ViewGroup`。`Window`提供了一些列的配置项，不同的配置项`DecorView`的UI组成会有一定的不同。关于`Window`的具体组成可以参考前面[深入剖析Window组成](深入剖析Window组成.md)一文。
 
 ## WindowManager
 

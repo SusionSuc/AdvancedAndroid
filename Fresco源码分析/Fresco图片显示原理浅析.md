@@ -6,7 +6,7 @@
 
 1. 图片显示原理，图片加载过程中各个阶段的图片切换原理。(比如由占位图->目标图片)
 2. 圆角的实现
-
+3. ScaleType的实现
 
 # 图片显示原理与多状态切换逻辑
 
@@ -47,7 +47,7 @@ public @Nullable Drawable getTopLevelDrawable() {
     }
 ``` 
 
-`FadeDrawable`内部维护着一个`Drawable`数组，它可以由一个`Drawable`切换到另一个`Drawable`，`Drawable`的切换工程中伴有着透明度改变的动画:
+`FadeDrawable`内部维护着一个`Drawable`数组，它可以由一个`Drawable`切换到另一个`Drawable`，`Drawable`的切换过程中伴有着透明度改变的动画:
 
 ```
 public class FadeDrawable extends ArrayDrawable {
@@ -91,7 +91,7 @@ public class FadeDrawable extends ArrayDrawable {
 
 即在构造`GenericDraweeHierarchy`就确定了有几层`Drawable`(`Fresco`中`numLayers`的值一般为`6`)。当然如果没有这一层`Drawable`(比如没有提供`Progress Drawable`),那么这一层`Drawable`就是null。通过`FadeDrawable.draw()`已经知道会按照顺序把这些`Drawable`都画出来(Drawable为null的话就不会画, 透明度为0也不会画)。
 
-可以看到我们实际上要显示的图片位于第3层级。那么如果加载完成，那么如何从加载进度的`Drawable`切换到实际的图片呢？:
+可以看到我们实际上要显示的图片位于第3层级。那么如果图片加载完成，如何从加载进度的`Drawable`切换到实际的图片呢？:
 
 >GenericDraweeHierarchy.java
 ```
@@ -112,9 +112,9 @@ private void fadeOutBranches() {
 }
 ```
 
-当加载完成完最终图片后就会调用到`GenericDraweeHierarchy.setImage()`，上面逻辑其实涉及到的代码很多，但是逻辑很简单就不深入看了。可以简单的理解为:
+当加载完成完最终图片后就会调用到`GenericDraweeHierarchy.setImage()`，上面逻辑其实涉及到的代码很多，但是逻辑很简单就不深入看了。上面的两个核心方法可以这样理解:
 
-- fadeOutLayer() : 把这一层layer的透明度设置为0
+- fadeOutLayer() : 把这一层Drawable(layer)的透明度设置为0
 - fadeInLayer() : 把这一层的透明度设置为1
 
 到这里，基本上就叙述了`Fresco`的图片显示原理。其实整体流程可以用下图表示:
@@ -226,8 +226,11 @@ private static Drawable applyLeafRounding(Drawable drawable, RoundingParams roun
 ```
 
 
+**欢迎关注我的[Android进阶计划](https://github.com/SusionSuc/AdvancedAndroid)看更多干货**
 
+**欢迎关注我的微信公众号:susion随心**
 
+![](../../picture/微信公众号.jpeg)
 
 
 
