@@ -59,7 +59,7 @@ xxxApi
 
 ## zip
 
-`zip`可以把多种类型`Observable`的输出结果做一个组合，然和转化为另外一种类型的`Observable`继续发出。对于多个`Observable`的处理是按照顺序进行的。但是一旦有一个`Observable`出现`error`那么整个`zip`操作将无法继续,所以在使用时需要注意这种情况的发生,可以使用`onErrorResumeNext()`来防止一个接口爆掉导致其他接口受影响的case。
+`zip`可以把多种类型`Observable`的输出结果做一个组合，然后转化为另外一种类型的`Observable`继续发出。对于多个`Observable`的处理是按照顺序进行的。但是一旦有一个`Observable`出现`error`那么整个`zip`操作将无法继续,所以在使用时需要注意这种情况的发生,可以使用`onErrorResumeNext()`来防止一个接口爆掉导致其他接口受影响的case。
 
 比如我要`zip`两个网络请求接口的数据:
 
@@ -209,7 +209,7 @@ class Module2{
 ```
 class Module1{
     fun listenModule2(){
-        Module2().subscribe(object : CommonObserver<String>() {
+        Module2().eventListener.subscribe(object : CommonObserver<String>() {
             override fun onNext(eventType: String) {
                 //do something
             }
