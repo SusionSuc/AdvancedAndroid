@@ -331,7 +331,10 @@ flatMap 可以将事件序列中的元素进行整合加工，返回一个新的
 
 ## LifeCycle的大致原理
 
+实现原理是在Ac上设置了一个Fragment， Fragment设置了retainInstance属性。这个fragment用来派发生命周期事件。 (通过在Application中注册了LifeCycle来观察LifeOwner的生命周期)LifeOwner的事件会到这个fragment， 它会把事件告诉LifeOwner。
+
 ## 为什么要去阅读VirtualApk，与其他插件化框架有什么区别
+
 
 ## 性能优化都做了什么事？ 用了什么工具？ 怎么检查到的这些问题
 
