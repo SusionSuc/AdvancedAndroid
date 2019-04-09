@@ -10,7 +10,7 @@
 |Android Framework 源码分析|一些未成体系的Framework源码分析文章|[详情](AndroidFramework源码分析/README.md)|
 |RecyclerView 源码分析|分析RecyclerView的大概实现以及一些使用心得|[详情](AndroidFramework源码分析/recyclerview/README.md)|
 |Android视图层源码分析|理清整个Android视图层是如何工作的，使UI编写起来更加胸有成竹|[详情](AndroidFramework源码分析/Android视图层源码分析/README.md)|
-|Fresco|主要分析Fresco框架的设计层级以及图片处理的整体流程|[doing](Fresco源码分析/README.md)|
+|Fresco|主要分析Fresco框架的设计层级以及图片处理的整体流程|[详情](Fresco源码分析/README.md)|
 |Android Jetpack|了解和使Google提供的App搭建脚手架，构建强壮的应用| 有计划 |
 |......| |
 
