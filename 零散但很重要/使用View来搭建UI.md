@@ -1,13 +1,15 @@
 
 >本文主要是想表达一下在Android UI开发中我对`View`的看法,个人经验有限,有什么问题欢迎一块讨论。
 
-如果说`Activity`是Android提供的页面容器的话，那`View`就是最基础的UI组件(有点是废话)。什么意思呢？我认为绝大部分UI开发工作都可以使用View来完成，下文就结合我工作中的一些实际case来谈一下`View`的使用。(当然不稳不是讲怎么自定义`View`)
+如果说`Activity`是Android提供的页面容器的话，那`View`就是最基础的UI组件(有点是废话)。什么意思呢？我认为绝大部分UI开发工作都可以使用View来完成。下文就结合我工作中的一些实际case来谈一下`View`的使用。(当然不是讲怎么自定义`View`)
 
 # Fragment与View
 
-`Google`推荐使用`Fragment`来在`Activity`中搭建碎片化UI，但我感觉的完全可以使用`View`来代替`Fragment`完成这个功能，并且这样的代码简单易懂可维护并且bug也少。
+`Google`推荐使用`Fragment`来在`Activity`中搭建碎片化UI，但我感觉完全可以使用`View`来代替`Fragment`完成这个功能，并且代码简单易懂可维护、bug也少。
 
-为什么不推荐使用`Fragment`呢？可以看一下这篇文章: [Square：从今天开始抛弃Fragment吧!](http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2015/0605/2996.html)
+为什么不推荐使用`Fragment`呢？可以看一下这篇文章: 
+
+[Square：从今天开始抛弃Fragment吧!](http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2015/0605/2996.html)
 
 `Fragment`都有哪些坑呢？下面这两篇文章了解一下:
 
