@@ -1,11 +1,11 @@
 
 >本文主要是想表达一下在Android UI开发中我对`View`的看法,个人经验有限,有什么问题欢迎一块讨论。
 
-如果说`Activity`是Android提供的页面容器的话，那`View`就是最基础的UI组件(有点是废话)。什么意思呢？我认为绝大部分UI开发工作都可以使用View来完成，下面就结合我工作中的一些实际case来谈一下怎么使用`View`。（主要内容是对比`View`与`Fragment`来实现页面的不同）
+如果说`Activity`是Android提供的页面容器的话，那`View`就是最基础的UI组件(有点是废话)。什么意思呢？我认为绝大部分UI开发工作都可以使用View来完成，下文就结合我工作中的一些实际case来谈一下`View`的使用。(当然不稳不是讲怎么自定义`View`)
 
 # Fragment与View
 
-`Google`推荐使用`Fragment`来在`Activity`中搭建碎片化UI，但我感觉的完全可以使用`View`来代替`Fragment`完成这个功能，并且这样的代码简单易懂可维护，bug也少。
+`Google`推荐使用`Fragment`来在`Activity`中搭建碎片化UI，但我感觉的完全可以使用`View`来代替`Fragment`完成这个功能，并且这样的代码简单易懂可维护并且bug也少。
 
 为什么不推荐使用`Fragment`呢？可以看一下这篇文章: [Square：从今天开始抛弃Fragment吧!](http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2015/0605/2996.html)
 
@@ -26,7 +26,7 @@
 - 使用`View`不需要理会复杂的生命周期，其实你大部分情况下`View的生命周期`已经足够你使用了，大不了写个方法让`Activity`来回调就可以了。
 - 都是用来显示UI，`View`相较于`Fragment`更直接更纯粹,更轻量级,当然bug更少。
 
-**我们只需要使用`View`创建响应式UI，实现回退栈以及屏幕事件的处理，不用`Fragment`也能满足实际开发的需求。**(出自[Square：从今天开始抛弃Fragment吧!](http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2015/0605/2996.html))
+**我们只需要使用`View`创建响应式UI，实现回退栈以及屏幕事件的处理，不用`Fragment`也能满足实际开发的需求。**《出自[Square：从今天开始抛弃Fragment吧!](http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2015/0605/2996.html)》
 
 
 # View使用实战
@@ -67,19 +67,19 @@ class DemoPage(context: Context) : LinearLayout(context), DemoPageProtocol{
 }
 ```
 
-这里的强转其实是没有问题的，现在的Ac基本都继承自`AppCompatActivity`。（当然你要知道你在写什么）
+这里的强转其实是没有问题的，我们使用的`Activity`基本都继承自`AppCompatActivity`。（当然你要知道你在写什么）
 
 
 ## RecyclerView中的View
 
-`RecyclerView`是使用频率非常高的一个控件，我个人比较推荐的一种写法是直接写`View`,`View`到`ViewHolder`的映射交给`Adapter`来完成。具体封装方式可以参考下面这篇文章:
+`RecyclerView`是使用频率非常高的一个控件，我个人比较推荐的一种写法是:**直接写`View`,`View`到`ViewHolder`的映射交给`Adapter`来完成。**具体封装方式可以参考下面这篇文章:
 
 [RecyclerView的封装](https://github.com/SusionSuc/AdvancedAndroid/blob/master/AndroidFramework%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/recyclerview/RecyclerView%E7%9A%84%E4%BD%BF%E7%94%A8%E6%80%BB%E7%BB%93%E4%BB%A5%E5%8F%8A%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88.md)
 
 
-### View中一些简单的网络请求
+### View中可以做一些简单的网络请求
 
-`RecyclerView`中的`View`有时是会含有一些简单的网络事件的比如点赞、关注等等。我一般是直接写在`View`中，在`View onDetachedFromWindow`时把这些网络事件释放掉:
+`RecyclerView`中的`View`有时是会含有一些简单的网络事件的比如点赞、关注等等。我一般是直接写在`View`中，因为我感觉这样写起来更直观。但是网路请求在什么时候释放呢？我感觉可以在`View onDetachedFromWindow`时把这些网络事件释放掉:
 
 ```
     override fun onDetachedFromWindow() {
@@ -93,9 +93,9 @@ class DemoPage(context: Context) : LinearLayout(context), DemoPageProtocol{
 
 ## PopupWindow与View
 
-为什么说这个呢？ 其实还是对应到`DialogFragment`。对于这个我想说能别用还是别用，这玩意内部怎么实现的我们先来说一下: Fragment->(Dialog ->(PhoneWindow))。这3个东西加在一起就够头疼的了。
+为什么说这个呢？ 其实是对应到`DialogFragment`。对于这个我想说还是别用。它的内部实现是: Fragment->(Dialog ->(PhoneWindow))。这3个东西加在一起就够头疼的了。
 
-所以对于一些侧滑弹窗、上下操作弹窗可以使用`PopupWindow+View`来实现，不过`PopupWindow`在这种场景下也有一些问题，不过相较于`DialogFragment`少一些:
+所以对于一些侧滑弹窗、上下操作弹窗可以使用`PopupWindow+View`来实现，不过`PopupWindow`在这种场景下也有一些问题，但相较于`DialogFragment`少一些:
 
 [PopupWindow不显示的问题](https://www.jianshu.com/p/a53d90a31591):其实这篇文章也没有完全解决，在某些手机上你一定要定死宽高，`PopupWindow`才可以显示出来。
 
@@ -126,13 +126,16 @@ class SimplePopupWindow(val context: Context, val mContentView: View) {
 }
 ```
 
+
 ## View的生命周期
 
 想较于`Fragment`的生命周期来说，`View`的生命周期就很弱了，`View`的生命周期相关方法可以参考下面这篇文章:
 
 [Android View生命周期](https://www.jianshu.com/p/08e6dab7886e)
 
-当使用`View`来搭建页面级UI时，像`onAttatchToWindow`、`onDetachedFromWindow`这种方法可能就不是很适用了。我的一般操作是写个方法直接让上层(`Activity`)来调用:
+这里重点提一下:**对于`View.onAttatchToWindow`方法你应该知道它是在`ViewRootImpl.performTraversal()`中开始回调的，具体回调时机是`measure`前。**
+
+但是当使用`View`来搭建页面级UI时，像`onAttatchToWindow`、`onDetachedFromWindow`这种方法可能就不是很适用了。我的一般操作是写个方法直接让上层(`Activity`)来调用:
 
 >DemoPage
 ```
@@ -156,9 +159,9 @@ class DemoPage(context: Context) : LinearLayout(context),DemoPageProtocol{
 
 我曾经遇到过这样一个需求:
 
-项目中的一个`全局loading`是使用`Dialog`来实现的，这就造成在loading出现时界面是锁死的,在这种情况下如果网络比较慢的话，很容易就让用户以为我们的app死掉了。所以需要实现这样一个全局loading,在它出现的时候不能锁死界面，并且用户点击返回键可以关掉它。
+项目中的一个`全局loading`是使用`Dialog`来实现的，这就造成在loading出现时界面是锁死的,在这种情况下如果网络比较慢的话，很容易就让用户以为我们的app死掉了。所以需要实现这样一个全局loading:在它出现的时候不能锁死界面，并且用户点击返回键可以关掉它。
 
-我是怎么实现的呢？其实我的实现方法比较取巧,对于好不好先不说，说一下思路吧:
+我是怎么实现的呢？其实我的实现方法比较取巧,好不好先不说，说一下思路吧:
 
 1. 自定义一个`ViewGroup`, 它出现时会展示loading动画。
 2. 其内部含有一个看不见的`EditText`，用于监听用户是否点击了返回键，点击了返回键的话就关掉loading。
@@ -168,10 +171,4 @@ class DemoPage(context: Context) : LinearLayout(context),DemoPageProtocol{
 
 [GlobalLoadingView](picture/GlobalLoadingView.kt)
 
-# 最后
-
-**欢迎关注我的[Android进阶计划](https://github.com/SusionSuc/AdvancedAndroid)看更多干货**
-
-**欢迎关注我的微信公众号:susion随心**
-![](picture/微信公众号.jpeg)
 

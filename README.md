@@ -29,7 +29,7 @@
 
 > [RxAndroid常用实践](零散但很重要/RxJava实践.md) : 工作中常用的一些RxAndroid的case
 
-> [View的生命周期]
+> [使用View来搭建UI](零散但很重要/使用View来搭建UI.md) 
 
 ## [为什么要开这个repo](为什么要开这个repo.md)
 
