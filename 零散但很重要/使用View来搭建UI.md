@@ -81,7 +81,7 @@ class DemoPage(context: Context) : LinearLayout(context), DemoPageProtocol{
 
 ### View中可以做一些简单的网络请求
 
-`RecyclerView`中的`View`有时是会含有一些简单的网络事件的比如点赞、关注等等。我一般是直接写在`View`中，因为我感觉这样写起来更直观。但是网路请求在什么时候释放呢？我感觉可以在`View onDetachedFromWindow`时把这些网络事件释放掉:
+`RecyclerView`中的`View`有时是会含有一些简单的网络事件的比如点赞、关注等等。我一般是直接写在`View`中，因为我感觉这样写起来更直观。但是网络请求在什么时候释放呢？我感觉可以在`View onDetachedFromWindow`时把这些网络事件释放掉:
 
 ```
     override fun onDetachedFromWindow() {
@@ -101,7 +101,7 @@ class DemoPage(context: Context) : LinearLayout(context), DemoPageProtocol{
 
 [PopupWindow不显示的问题](https://www.jianshu.com/p/a53d90a31591):其实这篇文章也没有完全解决，在某些手机上你一定要定死宽高，`PopupWindow`才可以显示出来。
 
-[PopupWindow的弹出位置](https://www.jianshu.com/p/6c32889e6377):PopupWindow弹出位置的计算。其实我目前适用的都是基于参照物Anchor(一般我都是取`Activity.window.decorView`)的相对位置来展示的。
+[PopupWindow的弹出位置](https://www.jianshu.com/p/6c32889e6377):PopupWindow弹出位置的计算。其实我目前使用的都是基于参照物Anchor(一般我都是取`Activity.window.decorView`)的相对位置来展示的。
 
 在具体使用时最好采用组合的方式,比如:
 
@@ -148,7 +148,7 @@ class DemoPage(context: Context) : LinearLayout(context),DemoPageProtocol{
        //load data
     }
 
-    //Activity被销毁或者Activity不展示View是回调这个方法
+    //对应Activtiy的onResume
     fun onResume(){
 
     }
