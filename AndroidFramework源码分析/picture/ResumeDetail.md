@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 性能调优
 
 ## 优化布局层级
@@ -11,36 +12,48 @@
 ### 搜索入场动画的优化， intent传参到内存传参。 动画结束之后再弹起键盘，然后加载网络数据。 
 
 1. 为什么要实时截取图片？  （会引起轻微卡顿）
+=======
+>>>>>>> 445fd5a112b80f5b1b3069f30eb9faef0c4de80c
 
-> 静态图片对于不同的手机存在适配问题， 只截取一次的话，由于状态栏UI样式会不断变化，所以每次都截取是无bug的做法。
 
-2. 截取的图片的处理
+# 重构
+为什么要重构:
 
->转为 RGB565， 尽可能减小图片的大小。
+1. 原来的结构是两个AC，页面跳转、转场动画实现起来都不是很流畅  
+2. 采用传统的MVC，一个View里面包含UI更新、业务逻辑、网络获取数据，十分臃肿 -
+3. 笔记结果页实现方式不是很好，头部卡片样式变化，吸顶操作等等。 -> 使用一个RecyclerView实现，数据刷新接口比较简单,页面支持灵活多变 。
+4. bug较多，打点逻辑遍布各处，难以梳理。 -> 打点逻辑全部放在View层 。
 
-3. 为什么不在前一个页面截取
+## 如何重构
 
->其实就是代码写在那个组的问题， 写在搜索中，封装比较好，易于维护，不会有其他组操作的风险。
+### 使用一个AC， View来承载具体UI。(不使用Fragment)。 页面跳转和转场动画实现起来都比较方便和流畅。
 
-4. 后续可以对图片的裁剪时机做优化，这样可以大大加大搜索页面启动速度
+## 重构为细粒度的MVP。完全遵循数据驱动UI的思想
 
-### RecylerView Item 的优化
+## 引入ViewModel/LiveData/LifeCycle。
 
-核心是 : bind data 时不做耗时操作
+- ViewModel中的数据可以在Ac被销毁时不被销毁，Ac在异常销毁时可以快速恢复数据
+- LiveData可以保证Model在通知UI改变时，View不会处于异常的生命周期中
+- LifeCycle可以保证Presenter(继承自LifecycleObserver)观察到Ac的生命周期，及时通知给ViewModel,ViewModel做网络加载的释放，避免RxJava的内存泄漏
 
+<<<<<<< HEAD
 1. 不每次都取KV中flag，flag在搜索初始化时全部初始化起来
 2. 不做获取网络状态的操作， 比如判断是否是wifi，播放GIF。 网络的状态在一个比较恰当的时机获取。 （presenter加载这一次数据时）
 3. view构造时就设置好listner
 4. 一些简单的View减少inflate操作
+=======
+## 列表页使用RecyclerView实现，支持多变的页面类型，支持复杂的吸顶操作。
+>>>>>>> 445fd5a112b80f5b1b3069f30eb9faef0c4de80c
 
-### ViewPager滑动时的卡顿问题， UI事件一步一步的来做
+- RecyclerView中的ItemView都是继承自View， 这样可以保证View的独立性和复用性。
 
-> 解决核心点: ViewPager在滑动的同时不要加载网络数据，当滑动完成后再开始网络数据的加载。
+> AppcompactActivity默认就是一个LifeOwner,它是生命周期事件派发的实现大致是 : 在Application层次注册了一个ActivityLifecycleCallback, 为Ac填了一个(ReportFragment)。利用这个ReportFragment来报告Ac的生命周期的事件。如果Ac依附的Ac需要排放生命周期事件的话，就会派发生命周期事件。
 
-在`onPageScrollStateChanged`中，判断是否完成了页面切换的动作，然后发起网络数据加载
+>ViewModel的实现方式类似于Lifecycle。也是在Ac上依附一个Fragment(HolderFragment)。这个fragment保存了ViewModel对象。 HolderFragment设置了`setRetainInstance()`,它可以保证`HolderFragment`在Activiy重新创建时一直存在。它被保存在fragment manager。 HolderFragment里面有一个ViewModelStore。这个对象管理着多个ViewModel。
 
-这类问题解决的核心就是:**不要在主线程中同时做多件事，对于UI事件应该一步一步的来做**
+>Presenter继承自LifecycleObserver, 可以感知Ac的生命周期事件，管理ViewModel的网络请求。所有的View都必须依赖抽象的Presenter接口。View可以通过dispatch一个Action来触发Presenter的逻辑。可以通过queryStatus来获取数据的状态。这样可以保证的可测试性和复用性。
 
+<<<<<<< HEAD
 - 比如滚动到顶部的问题: 先折起工具栏，然后再把RecylcerView滚动到顶部
 
 ## 其他的优化
@@ -82,25 +95,51 @@ MVP + ViewModel/LiveData/LifeCycle 。 整套设计遵循 **数据驱动View的�
 - Fragment的生命周期的派发
 
 就是简单的在Fragment的生命周期中回调相关方法来完成的。
+=======
+>livedata在被观察时需要接受一个LifeOwner。它会依据LifeOwner当前的生命周期状态来决定是否通知数据更新。
 
-## 数据保存在ViewModel中，Ac在异常销毁时数据不会丢失，它跨Ac生命周期的大致实现
+# 性能调优
 
+## 优化布局层级
+
+- 减少布局层级，优化无用的background，避免overdraw
+- 使用 <merge> 标签来优化层级。为什么？主要是由于RecyclerView中装载的都是View，布局是inflate出来的。因此会产生一层无用的父节点
+- 对于复杂布局使用<LinearLayout>, 对于比较简单的布局使用<RelativeLayoyt>
+- 对于一些很简单的View，不要写XML文件，减少inflate的时间。
+
+## 优化卡顿 (减少ItemView.bindData()所消耗的时间)
+>>>>>>> 445fd5a112b80f5b1b3069f30eb9faef0c4de80c
+
+- 不要在bindData时设置listener， listener在View被构造时就设置。
+- 减少IO(从SharePrefence获取数据)、网络状态的读取操作，这些比较耗时。把这些状态在页面启动时异步的全部读出来
+- 加大RecyclerView缓存，提前加载下一页数据，比如当仅剩6个Item可见时就加载下一页数据
+- 使用notifyXXX()来更新数据。 
+
+<<<<<<< HEAD
 >实现方式类似于Activity的LifeCycle的实现, 在当前Activity上依附了一个Fragment。这个fragment保存了ViewModel对象。 HolderFragment设置了`setRetainInstance()`,它可以保证`HolderFragment`在Activiy重新创建时一直存在。它被保存在fragment manager。 HolderFragment里面有一个ViewModelStore。这个对象管理着多个ViewModel。
+=======
+## 减少UI并发更新带来的卡顿
+>>>>>>> 445fd5a112b80f5b1b3069f30eb9faef0c4de80c
 
->在Ac异常销毁时，在Ac状态恢复回调中，根据数据恢复UI状态。
+- 比如ViewPage页面切换时， 新页面的刷新不要和ViewPage滚动事件同步，
+- 转场动画时，动画不要和键盘弹起、UI更新一块并发
 
-## LiveData 来保存数据， 数据是可被观察的, live data 的通知机制会跟随lifecycle。
+## 减少内存占用
 
+<<<<<<< HEAD
 >livedata在被观察时需要接受一个LifeOwner。它会依据LifeOwner当前的生命周期状态来决定是否通知数据更新。它有一个Active状态的概念， onPause/onResume/onStart才会派发数据给观察者。
 
 
 ViewModel保证了数据的跨域存在， LiveData保证了Ui正确的修改数据。
+=======
+- 页面懒加载
+- 减少Entites对象的属性，这样在网路解析时Gson的转化数据会加快。 (主要是因为随着版本的迭代一些废弃的属性没有及时删除)
+>>>>>>> 445fd5a112b80f5b1b3069f30eb9faef0c4de80c
 
-## 新的 PV 接口
+## 预加载图片
 
-Presenter继承自LifecycleObserver, 可以感知Ac的生命周期事件，管理ViewModel的网络请求。所有的View都必须依赖抽象的Presenter接口。View可以通过dispatch一个Action来触发Presenter的逻辑。可以通过queryStatus来获取数据的状态。这样可以保证的可测试性和复用性。
+- 在Model层拿到数据后，就使用Fresco开始加载数据。这样Model层解析数据-UI的ImageView的图片加载大约几百毫秒的时间，就都用在了图片加载上
 
->可测试性与可复用性 : RecyclerView中View都继承自View，可以直接new。 View依赖于最抽象的Presenter，实例mock起来比较简单。
 
 新的架构里面， ViewModel和View都具有较强的可测试性。
 
@@ -123,6 +162,10 @@ Presenter继承自LifecycleObserver, 可以感知Ac的生命周期事件，管�
 
 2. View事件分发机制等
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 445fd5a112b80f5b1b3069f30eb9faef0c4de80c
 ## Handler
 
 1. 不可以在子线程直接创建Handler， Handler创建时的线程必须要有Looper，不过在new handler时可以直接指定Looper，拿主线程的Looper就OK了。
@@ -167,6 +210,8 @@ View在展示是如何确定当前加载的图片是否已经被加载完毕？�
 
 ### 网络接口多长时间返回  （200~300ms)
 
+### JVM内存分区
+
 ### apk体积优化
 
 1. 清除无用代码、资源， 使用矢量图，使用一套图。 3倍图
@@ -201,6 +246,35 @@ UI绘制优化、内存优化(懒加载,)
 2. 标记-整理算法。  在标记-清除算法的基础上对对象做了移动的操作，不会造成内存碎片的参数。
 4. 复制算法。
 3. 分代算法。 不同生命周期的对象应该采用不同的清理算法。一般分为年轻代/老年代/持久代。
+
+### JVM内存分区
+
+https://www.jianshu.com/p/a60d6ef0771b
+
+- 程序计数器
+
+用来记录当前线程执行程序的位置。
+
+- java栈
+
+线程私有，与线程生命周期绑定。每个方法都会创建一个栈帧，一个栈帧包含局部变量表、操作数栈、动态连接、方法出口。
+
+- 本地方法栈
+
+线程私有，用于运行native代码
+
+- java堆、native堆
+
+被所有线程共享。堆又分为新生代和老年带。对象经过几次回收后会从新生代移动到老年代。对于这两个区域又采用不同的垃圾回收算法。比如标记-清除、标记-整理。
+
+- 方法区
+
+被虚拟机加载的类信息、常量、静态变量等。这一代也会进行垃圾回收。比如回收常量。常量池用于存放编译期生成的各种字节码和符号引用，常量池具有一定的动态性，里面可以存放编译期生成的常量；运行期间的常量也可以添加进入常量池中，比如string的intern()方法。
+
+
+#### 垃圾回收器
+
+垃圾回收器有串行和并行之分。hotspot虚拟机对于堆中的不同代采用了不同的垃圾回收器。比如G1垃圾回收器
 
 ### view的整个布局过程
 
@@ -265,6 +339,27 @@ ObjectAnimation很容易扩展，因为他是通过反射调用的对象的方�
 使用动画时可以开启硬件加速。为什么硬件加速动画会流畅？ ->硬件加速的原理 : https://blog.csdn.net/qian520ao/article/details/81144167#_224
 
 
+# 并发问题
+
+可以使用`Executors`来创建线程，不过一般推荐使用`ThreadPoolExecutor`来创建线程池，它可以对`BlockQueue`来指定容量。
+
+## volatile
+
+>线程的工作内存与主内存，多个线程并发读写一个共享变量的时候，有可能某个线程修改了变量的值，但是其他线程看不到！也就是对其他线程不可见！
+
+volatile保证，任何一个线程修改了变量值，其他线程立马就可以看见了！这就是所谓的volatile保证了可见性的工作原理！
+
+## 原子性问题的解决
+
+可以使用 synchronized、ReentrantLock、Atomic原子类
+
+
+`synchronized` : 它属于互斥锁，任何时候只允许一个线程的读写操作，其他线程必须等待。 它使用(.class)和静态方法使用的是类锁。 它使用对象和this，使用的是对象锁。
+
+`ReentrantReadWriteLock` : 允许多个线程获得读锁，但只允许一个线程获得写锁，效率相对较高一些
+
+
+
 ## 实现一个读写锁(可以同时读，但不可以同时写)
 
 ## 实现一个线程并发的观察者模式
@@ -275,6 +370,7 @@ ObjectAnimation很容易扩展，因为他是通过反射调用的对象的方�
 
 ## kotlin协程
 
+<<<<<<< HEAD
 ## RxJava线程切换原理
 
 使用装饰者模式，在设置执行线程是，会把前面的包装再包装一层，然后把前面的东西换到这个线程来执行
@@ -282,6 +378,29 @@ ObjectAnimation很容易扩展，因为他是通过反射调用的对象的方�
 ## RxJava连续subscribe最终会运行在哪个线程
 
 最后一个被subscribe的线程。
+=======
+
+## RxJava线程切换原理
+
+- RxJava : Observable.create()， 整个被订阅流程的原理
+
+Observable 接收一个被subscribe时实现了subscribe方法的对象。 并传给这个对象一个ObservableEmitter,调用这个对象的onNext/onError等方法时实际上会调用到Observer对象。
+
+- 线程切换原理
+
+在指定subscribeOn()时，会对Observable再做一次包装，包装为`ObservableSubscribeOn`, 这个对象内部使用传入的Scheduler来对`subscribe`做回调，即会运行在`Scheduler`指定的线程。`Scheduler`指定它会运行在Worker中。 不同的`Sccheduler`创建不同的Worker。IoScheduler内部是一个线程池，池中只有一个线程。subscribe会回调在这个线程中。
+
+## RxJava连续subscribe最终会运行在哪个线程
+
+运行在第一个subscribeOn的线程
+
+## map 和 flatMap 有什么区别
+
+map 可以将被观察者发送的数据类型转变成其他的类型
+
+flatMap 可以将事件序列中的元素进行整合加工，返回一个新的被观察者。
+
+>>>>>>> 445fd5a112b80f5b1b3069f30eb9faef0c4de80c
 
 ## Fresco如何引入到一个老的项目中
 
@@ -289,12 +408,27 @@ ObjectAnimation很容易扩展，因为他是通过反射调用的对象的方�
 
 ## Fresco框架的结构
 
+- 优势: 支持多种UI显示特性，可以灵活配置，可以灵活监听图片加载流程中的事件， UI层设计的很灵活
+
+>自定义解码器、网络加载器、缓存配置、图片加载配置。 设计listener， 可以监听到每一步图片处理
+
+>预加载图片到缓存，判断缓存中是否存在图片
+
+>GenericDraweeHierarchy, 普通View只需引入 DraweeHolder就可以
+
+
+
+- 劣势: 包比较大、Bitmap开发人员不能灵活使用，比如不能随便传到其他的界面，必须在Fresco规定的范围内使用
+
 ## 对于Fresco的最大印象，适用在哪里？
 
 常见的feed流加载场景,Fresco对于整个图片加载完全接管，不希望把图片交友开发者管理，因此对于下载图片， 或者对图片做一系列处理等操作就不适合来使用Fresco。
 
+实现原理是在Ac上设置了一个Fragment， Fragment设置了retainInstance属性。这个fragment用来派发生命周期事件。 (通过在Application中注册了LifeCycle来观察LifeOwner的生命周期)LifeOwner的事件会到这个fragment， 它会把事件告诉LifeOwner。
+
 ## 为什么要去阅读VirtualApk，与其他插件化框架有什么区别
 
+<<<<<<< HEAD
 Activity: VirtualApk主要是通过hookInstrumentation来实现对插件Activity运行支持的,这样可以绕过AMS的校验。 除此之外还要提供插件Activity的运行环境，比如资源，Context的替换，Theme，等等
 
 BroadcastReceiver: 在加载插件的时候把插件的所有BroadcastReceiver转为动态广播并注册
@@ -311,6 +445,8 @@ ContentProvider :
 - 在动态代理中把插件的增删改查的Uri,重新拼接定位到占坑的ContentProvider
 - 在占坑的ContentProvider实例化插件请求的ContentProvider，并做对应的增删该查。
 
+=======
+>>>>>>> 445fd5a112b80f5b1b3069f30eb9faef0c4de80c
 
 ## 性能优化都做了什么事？ 用了什么工具？ 怎么检查到的这些问题
 
@@ -341,4 +477,13 @@ syc
 
 ## LeakCanary/Gt的原理？
 
+## kotlin 的 by lazy实现原理
 
+## DNS协议 相关？ 客户端可以做一些什么事情？
+
+## 
+
+#算法
+
+1. 交叉层次打印二叉树
+2. 由内到外顺时针打印正方形二维数组
