@@ -20,7 +20,7 @@ RxBus
 
 项目中所有的`Activity`都是继承自`AppCompatActivity`。`AppCompatActivity`本身就是一个`LifeOwner`。
 
-对于`Fragment`其本身也是`LifeOwner`对象，使用方式同上。
+对于`Fragment`,其本身也是`LifeOwner`对象，使用方式同上。
 
 ### 在View中
 
@@ -75,7 +75,7 @@ RxBus
     .disposeByLifeCycle(ProcessLifecycleOwner.get())
 ```
 
-`ProcessLifecycleOwner`也是`Android Architecture Components`中的组件，它可以用来观察整个app的生命周期
+`ProcessLifecycleOwner`也是`Android Architecture Components`中的组件，它可以用来观察整个app的生命周期。
 
 
 # 不支持
@@ -96,7 +96,7 @@ RxBus
 它是一个`LifecycleObserver`,持有`LifecycleOwner`并负责其所有的`Disposable`的释放工作。
 
 ```
-class RxLifeCycleObserver(val lifeOwner: LifecycleOwner) : LifecycleObserver {
+class RxLifeCycleObserver(lifeOwner: LifecycleOwner) : LifecycleObserver {
 
     companion object {
         fun createKey(lifeOwner: LifecycleOwner) = lifeOwner.javaClass.name
@@ -150,7 +150,6 @@ object GlobalRxDisposeManager {
         lifeCycleObserver.requestRemoveLifecycleObserver = object : RxLifeCycleObserver.RequestRemoveLifecycleObserver {
             override fun requestRemove(observer: RxLifeCycleObserver) {
                 rxLifecycleObservers.remove(observer.getKey())  //释放引用，避免内存泄漏
-                LogUtils.d(TAG, "current rxLifecyclerObservers size : ${rxLifecycleObservers.size}")
             }
         }
     }
