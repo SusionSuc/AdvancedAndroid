@@ -96,7 +96,7 @@ RxBus
 它是一个`LifecycleObserver`,持有`LifecycleOwner`并负责其所有的`Disposable`的释放工作。
 
 ```
-class RxLifeCycleObserver(lifeOwner: LifecycleOwner) : LifecycleObserver {
+class RxLifeCycleObserver(val lifeOwner: LifecycleOwner) : LifecycleObserver {
 
     companion object {
         fun createKey(lifeOwner: LifecycleOwner) = lifeOwner.javaClass.name
