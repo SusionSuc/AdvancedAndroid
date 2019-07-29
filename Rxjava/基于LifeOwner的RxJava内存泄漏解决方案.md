@@ -145,9 +145,11 @@ object GlobalRxDisposeManager {
     fun addLifecycleObserver(lifeCycleObserver: DestroyLifeCycleObserver) {
         rxLifecycleObservers[lifeCycleObserver.getKey()] = lifeCycleObserver
         lifeCycleObserver.requestRemoveLifecycleObserver = object : RequestRemoveLifecycleObserver {
-            override fun requestRemove(observer: DestroyLifeCycleObserver) {
-                rxLifecycleObservers.remove(observer.getKey())  //释放引用，避免内存泄漏
+            override fun requestRemoveDestroyObserver(observer: DestroyLifeCycleObserver) {
+                destroyLifeCycleObserver.remove(observer.getKey())
+                LogUtils.d(TAG, "destroyLifeCycleObserver size : ${destroyLifeCycleObserver.size}")
             }
+            ...
         }
     }
     
@@ -176,4 +178,6 @@ fun Disposable.disposeOnDestroy(lifeOwner: LifecycleOwner): Disposable {
 ```
 
 
-源码 : [RxLifeCycleExtensions](RxLifeCycleExtensions.kt)
+源码 : [RxLifeCycleExtensions](https://github.com/SusionSuc/AdvancedAndroid/blob/master/Rxjava/RxLifeCycleExtensions.kt)
+
+原文链接 : [Android进阶-基于LifeOwner的RxJava内存泄漏解决方案](https://github.com/SusionSuc/AdvancedAndroid/blob/master/Rxjava/%E5%9F%BA%E4%BA%8ELifeOwner%E7%9A%84RxJava%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88.md)
