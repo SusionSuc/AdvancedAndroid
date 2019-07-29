@@ -1,7 +1,7 @@
 
 组件设计思路:
 
-**通过观察`LifeOwner(Activity)`的`LifeCycle Event`,在Activity`onDestroy`时释放掉其所有的`Disposable`,`**
+**通过观察`LifeOwner(Activity)`的`LifeCycle Event`,在Activity`onDestroy`时释放掉其所有的`Disposable`**
 
 >了解`LifeOwner`可以看一下这篇文章: [Android Architecture Components 组件介绍](https://www.jianshu.com/p/db8e804902f5)
 
@@ -41,7 +41,7 @@ RxBus
 
 **即在5.0以上的系统上返回的就是`Avctivity`，即`LifeOwner`，所以对于这个强转还是需要注意的。**
 
->PS: 目前我们的项目`minSdkVersion`是`21`。
+>PS: 目前我们的项目`minSdkVersion`是`21`。如果不是的话不能这样使用。
 
 ### 在Presenter中
 
@@ -54,7 +54,7 @@ RxBus
     .disposeOnDestroy(view.lifeContext())
 ```
 
-这里为了支持这个组件，我们所有MVP中的`View`都继承自下面接口:
+由于我们项目中所有MVP中的`View`都继承自下面接口:
 
 ```
 interface BaseLifeCycleView {
@@ -100,11 +100,7 @@ RxBus
 它是一个`LifecycleObserver`,持有`LifecycleOwner`并负责其所有的`Disposable`的释放工作。
 
 ```
-class RxLifeCycleObserver(val lifeOwner: LifecycleOwner) : LifecycleObserver {
-
-    companion object {
-        fun createKey(lifeOwner: LifecycleOwner) = lifeOwner.javaClass.name
-    }
+internal class DestroyLifeCycleObserver(val lifeOwner: LifecycleOwner) : LifecycleObserver {
 
     private val disposableList = ArrayList<Disposable>()
     var requestRemoveLifecycleObserver: RequestRemoveLifecycleObserver? = null
@@ -115,12 +111,13 @@ class RxLifeCycleObserver(val lifeOwner: LifecycleOwner) : LifecycleObserver {
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun onDestroy() {
+        LogUtils.d(TAG, "${getKey()} OnLifecycleEvent ON_DESTROY , disposableList.size : ${disposableList.size}")
         disposableList.forEach {
             if (!it.isDisposed) {
                 it.dispose()
             }
         }
-        requestRemoveLifecycleObserver?.requestRemove(this)
+        requestRemoveLifecycleObserver?.requestRemoveDestroyObserver(this)
     }
 
     fun addDisposable(disposable: Disposable) {
@@ -128,50 +125,48 @@ class RxLifeCycleObserver(val lifeOwner: LifecycleOwner) : LifecycleObserver {
         disposableList.add(disposable)
     }
 
-    fun getKey() = lifeOwner.javaClass.name
-
-    interface RequestRemoveLifecycleObserver {
-        fun requestRemove(observer: RxLifeCycleObserver)
-    }
+    fun getKey() = lifeOwner.toString()
 }
 ```
 
 ## GlobalRxDisposeManager
 
-主要负责维护所有的`RxLifeCycleObserver`:
+主要负责维护所有的LifeCycleObserver, 以`DestroyLifeCycleObserver`为例:
 
 ```
 object GlobalRxDisposeManager {
 
-    private val rxLifecycleObservers = HashMap<String, RxLifeCycleObserver?>()
+    private val rxLifecycleObservers = HashMap<String, DestroyLifeCycleObserver?>()
 
-    fun getLifecycleObserver(key: String): RxLifeCycleObserver? {
+    fun getLifecycleObserver(key: String): DestroyLifeCycleObserver? {
         return rxLifecycleObservers[key]
     }
 
-    fun addLifecycleObserver(lifeCycleObserver: RxLifeCycleObserver) {
+    fun addLifecycleObserver(lifeCycleObserver: DestroyLifeCycleObserver) {
         rxLifecycleObservers[lifeCycleObserver.getKey()] = lifeCycleObserver
-        lifeCycleObserver.requestRemoveLifecycleObserver = object : RxLifeCycleObserver.RequestRemoveLifecycleObserver {
-            override fun requestRemove(observer: RxLifeCycleObserver) {
+        lifeCycleObserver.requestRemoveLifecycleObserver = object : RequestRemoveLifecycleObserver {
+            override fun requestRemove(observer: DestroyLifeCycleObserver) {
                 rxLifecycleObservers.remove(observer.getKey())  //释放引用，避免内存泄漏
             }
         }
     }
+    
+    ...
 }
 ```
 
 ## disposeOnDestroy扩展函数
 
-组合`GlobalRxDisposeManager`与`RxLifeCycleObserver`并简化使用:
+组合`GlobalRxDisposeManager`与`DestroyLifeCycleObserver`并简化使用:
 
 ```
 fun Disposable.disposeOnDestroy(lifeOwner: LifecycleOwner): Disposable {
-
-    var lifecycleObserver = GlobalRxDisposeManager.getLifecycleObserver(RxLifeCycleObserver.createKey(lifeOwner))
+    LogUtils.d(TAG, "life owner key : ${lifeOwner}")
+    var lifecycleObserver = GlobalRxDisposeManager.getDestroyObserver(lifeOwner.toString())
 
     if (lifecycleObserver == null) {
-        lifecycleObserver = RxLifeCycleObserver(lifeOwner)
-        GlobalRxDisposeManager.addLifecycleObserver(lifecycleObserver)
+        lifecycleObserver = DestroyLifeCycleObserver(lifeOwner)
+        GlobalRxDisposeManager.addDestroyObserver(lifecycleObserver)
     }
 
     lifecycleObserver.addDisposable(this)
