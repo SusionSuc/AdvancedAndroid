@@ -95,7 +95,7 @@ RxBus
 
 主要有2个组件:
 
-## RxLifeCycleObserver
+## DestroyLifeCycleObserver
 
 它是一个`LifecycleObserver`,持有`LifecycleOwner`并负责其所有的`Disposable`的释放工作。
 
