@@ -15,7 +15,7 @@ RxBus
     .subscribe {
       ...
     }
-    .disposeByLifeCycle(this)
+    .disposeOnDestroy(this)
 ```
 
 项目中所有的`Activity`都是继承自`AppCompatActivity`。`AppCompatActivity`本身就是一个`LifeOwner`。
@@ -30,7 +30,7 @@ RxBus
     .subscribe {
       ...
     }
-    .disposeByLifeCycle(context as AppCompatActivity)
+    .disposeOnDestroy(context as AppCompatActivity)
 ```
 
 对于依托于`Activity`的`View`来说，其`Context`就是`Activity(AppCompatActivity)`,所以这里直接做了强转。
@@ -51,7 +51,7 @@ RxBus
     .subscribe {
       ...
     }
-    .disposeByLifeCycle(view.lifeContext())
+    .disposeOnDestroy(view.lifeContext())
 ```
 
 这里为了支持这个组件，我们所有MVP中的`View`都继承自下面接口:
@@ -72,10 +72,14 @@ RxBus
     .subscribe {
       ...
     }
-    .disposeByLifeCycle(ProcessLifecycleOwner.get())
+    .disposeOnDestroy(ProcessLifecycleOwner.get())
 ```
 
 `ProcessLifecycleOwner`也是`Android Architecture Components`中的组件，它可以用来观察整个app的生命周期。
+
+### disposeOnStop 扩展函数
+
+使用方式与`disposeOnDestroy`相同，不同的是会在`OnStop`时释放掉所有的`Disposable`。
 
 
 # 不支持
@@ -156,12 +160,12 @@ object GlobalRxDisposeManager {
 }
 ```
 
-## disposeByLifeCycle扩展函数
+## disposeOnDestroy扩展函数
 
 组合`GlobalRxDisposeManager`与`RxLifeCycleObserver`并简化使用:
 
 ```
-fun Disposable.disposeByLifeCycle(lifeOwner: LifecycleOwner): Disposable {
+fun Disposable.disposeOnDestroy(lifeOwner: LifecycleOwner): Disposable {
 
     var lifecycleObserver = GlobalRxDisposeManager.getLifecycleObserver(RxLifeCycleObserver.createKey(lifeOwner))
 
@@ -175,5 +179,6 @@ fun Disposable.disposeByLifeCycle(lifeOwner: LifecycleOwner): Disposable {
     return this
 }
 ```
+
 
 源码 : [RxLifeCycleExtensions](RxLifeCycleExtensions.kt)
