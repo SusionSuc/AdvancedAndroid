@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # 性能调优
 
 ## 优化布局层级
@@ -6,14 +6,7 @@
 - 使用 <merge> 标签来优化层级。为什么？主要是由于RecyclerView中装载的都是View，布局是inflate出来的。设计为View是为了保证复用性和封装性。也方便单元测试
 - 对于简单的布局使用<LinearLayout>, 对于比较负责布局使用<RelativeLayoyt>来减少层级嵌套
 - 减少布局层级，优化无用的background，避免overdraw
-
-## 优化卡顿
-
-### 搜索入场动画的优化， intent传参到内存传参。 动画结束之后再弹起键盘，然后加载网络数据。 
-
-1. 为什么要实时截取图片？  （会引起轻微卡顿）
-=======
->>>>>>> 445fd5a112b80f5b1b3069f30eb9faef0c4de80c
+- viewstub 来布局网络错误、无结果等提示
 
 
 # 重构
@@ -36,14 +29,11 @@
 - LiveData可以保证Model在通知UI改变时，View不会处于异常的生命周期中
 - LifeCycle可以保证Presenter(继承自LifecycleObserver)观察到Ac的生命周期，及时通知给ViewModel,ViewModel做网络加载的释放，避免RxJava的内存泄漏
 
-<<<<<<< HEAD
 1. 不每次都取KV中flag，flag在搜索初始化时全部初始化起来
 2. 不做获取网络状态的操作， 比如判断是否是wifi，播放GIF。 网络的状态在一个比较恰当的时机获取。 （presenter加载这一次数据时）
 3. view构造时就设置好listner
 4. 一些简单的View减少inflate操作
-=======
-## 列表页使用RecyclerView实现，支持多变的页面类型，支持复杂的吸顶操作。
->>>>>>> 445fd5a112b80f5b1b3069f30eb9faef0c4de80c
+
 
 - RecyclerView中的ItemView都是继承自View， 这样可以保证View的独立性和复用性。
 
@@ -53,7 +43,6 @@
 
 >Presenter继承自LifecycleObserver, 可以感知Ac的生命周期事件，管理ViewModel的网络请求。所有的View都必须依赖抽象的Presenter接口。View可以通过dispatch一个Action来触发Presenter的逻辑。可以通过queryStatus来获取数据的状态。这样可以保证的可测试性和复用性。
 
-<<<<<<< HEAD
 - 比如滚动到顶部的问题: 先折起工具栏，然后再把RecylcerView滚动到顶部
 
 ## 其他的优化
@@ -95,7 +84,7 @@ MVP + ViewModel/LiveData/LifeCycle 。 整套设计遵循 **数据驱动View的�
 - Fragment的生命周期的派发
 
 就是简单的在Fragment的生命周期中回调相关方法来完成的。
-=======
+
 >livedata在被观察时需要接受一个LifeOwner。它会依据LifeOwner当前的生命周期状态来决定是否通知数据更新。
 
 # 性能调优
@@ -108,33 +97,27 @@ MVP + ViewModel/LiveData/LifeCycle 。 整套设计遵循 **数据驱动View的�
 - 对于一些很简单的View，不要写XML文件，减少inflate的时间。
 
 ## 优化卡顿 (减少ItemView.bindData()所消耗的时间)
->>>>>>> 445fd5a112b80f5b1b3069f30eb9faef0c4de80c
 
 - 不要在bindData时设置listener， listener在View被构造时就设置。
 - 减少IO(从SharePrefence获取数据)、网络状态的读取操作，这些比较耗时。把这些状态在页面启动时异步的全部读出来
 - 加大RecyclerView缓存，提前加载下一页数据，比如当仅剩6个Item可见时就加载下一页数据
 - 使用notifyXXX()来更新数据。 
 
-<<<<<<< HEAD
 >实现方式类似于Activity的LifeCycle的实现, 在当前Activity上依附了一个Fragment。这个fragment保存了ViewModel对象。 HolderFragment设置了`setRetainInstance()`,它可以保证`HolderFragment`在Activiy重新创建时一直存在。它被保存在fragment manager。 HolderFragment里面有一个ViewModelStore。这个对象管理着多个ViewModel。
-=======
+
 ## 减少UI并发更新带来的卡顿
->>>>>>> 445fd5a112b80f5b1b3069f30eb9faef0c4de80c
 
 - 比如ViewPage页面切换时， 新页面的刷新不要和ViewPage滚动事件同步，
 - 转场动画时，动画不要和键盘弹起、UI更新一块并发
 
 ## 减少内存占用
 
-<<<<<<< HEAD
 >livedata在被观察时需要接受一个LifeOwner。它会依据LifeOwner当前的生命周期状态来决定是否通知数据更新。它有一个Active状态的概念， onPause/onResume/onStart才会派发数据给观察者。
 
-
 ViewModel保证了数据的跨域存在， LiveData保证了Ui正确的修改数据。
-=======
+
 - 页面懒加载
 - 减少Entites对象的属性，这样在网路解析时Gson的转化数据会加快。 (主要是因为随着版本的迭代一些废弃的属性没有及时删除)
->>>>>>> 445fd5a112b80f5b1b3069f30eb9faef0c4de80c
 
 ## 预加载图片
 
@@ -162,10 +145,6 @@ ViewModel保证了数据的跨域存在， LiveData保证了Ui正确的修改数
 
 2. View事件分发机制等
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 445fd5a112b80f5b1b3069f30eb9faef0c4de80c
 ## Handler
 
 1. 不可以在子线程直接创建Handler， Handler创建时的线程必须要有Looper，不过在new handler时可以直接指定Looper，拿主线程的Looper就OK了。
@@ -400,7 +379,6 @@ map 可以将被观察者发送的数据类型转变成其他的类型
 
 flatMap 可以将事件序列中的元素进行整合加工，返回一个新的被观察者。
 
->>>>>>> 445fd5a112b80f5b1b3069f30eb9faef0c4de80c
 
 ## Fresco如何引入到一个老的项目中
 
