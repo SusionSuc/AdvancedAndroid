@@ -11,9 +11,8 @@
 |RecyclerView 源码分析|分析RecyclerView的大概实现以及一些使用心得|[detail](AndroidFramework源码分析/recyclerview/README.md)|
 |Android视图层源码分析|理清整个Android视图层是如何工作的，使UI编写起来更加胸有成竹|[detail](AndroidFramework源码分析/Android视图层源码分析/README.md)|
 |Fresco|主要分析Fresco框架的设计层级以及图片处理的整体流程|[detail](Fresco源码分析/README.md)|
-|Android Jetpack|了解和使Google提供的App搭建脚手架，构建强壮的应用| 有计划 |
+|RxJava|阅读RxJava源码，做一些自己的思考|[detail](Rxjava/README.md) |
 |......| |
-
 
  除了上面比较成体系的系列外，还有我零零散散总结的，暂不归类:
 
@@ -31,17 +30,11 @@
 
 > [使用View来搭建UI](零散但很重要/使用View来搭建UI.md) 
 
-## [为什么要开这个repo](为什么要开这个repo.md)
-
 ## 其他
-
-如果你对这个计划有兴趣的话，欢迎加入。如果你感觉某个技术点，有一些更好的分析，也欢迎提 pull request给我。
-
->文章有我自己写的，也有的是贴的一些比较好的文章链接(如有侵权，请联系我)。
 
 >欢迎在下面开发者社区关注我
 
-- [简书](https://www.jianshu.com/u/49b1311b5074)  **(Master)**
+- [简书](https://www.jianshu.com/u/49b1311b5074) 
 
 - [掘金](https://juejin.im/user/57b1173f165abd0054298059)
 

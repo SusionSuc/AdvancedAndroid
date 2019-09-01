@@ -63,5 +63,3 @@ viewModel.uiData.observe(view.lifeContext(), Observer {
 ```
 
 就是在上面`view.refreshData(it.dataList)`抛出的。这就导致了上面`mDispatchingValue`未被正确的设置回`false`。从而导致`LiveData`不能正确的派发数据变化事件给观察者！！！
-
-
