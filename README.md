@@ -12,6 +12,7 @@
 |Android视图层源码分析|理清整个Android视图层是如何工作的，使UI编写起来更加胸有成竹|[detail](AndroidFramework源码分析/Android视图层源码分析/README.md)|
 |Fresco|主要分析Fresco框架的设计层级以及图片处理的整体流程|[detail](Fresco源码分析/README.md)|
 |RxJava|阅读RxJava源码，做一些自己的思考|[detail](Rxjava/README.md) |
+|Booster源码分析|如何提高app的稳定性、性能|[detail](booster框架分析/README.md) |
 |......| |
 
  除了上面比较成体系的系列外，还有我零零散散总结的，暂不归类:
