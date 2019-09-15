@@ -144,7 +144,7 @@ public class ShadowToast {
 
 那`ShadowToast`怎么生效的呢？它其实是通过:
 
-**自定`gradle transform`在编译期间把所有的`Taoast.show()`变为了`ShadowToast.show()`**, 可以查看构建报告:
+**自定义`gradle transform`在编译期间把所有的`Taost.show()`变为了`ShadowToast.show()`**, 可以查看构建报告:
 
 ```
  *android/widget/Toast.show()V => com/didiglobal/booster/instrument/ShadowToast.apply(Lcom/didiglobal/booster/instrument/ShadowToast;)V: com/draggable/library/extension/glide/GlideHelper$downloadPicture$2.accept(Ljava/io/File;)V
@@ -286,7 +286,10 @@ public class FinalizerWatchdogDaemonKiller {
     }
 }
 ```
+# END
 
 到这里`booster`修复系统bug的`feature`就简单的过了一遍，后面会继续分析`booster`框架的其他功能。
+
+更多文章见 : [AdvancedAdnroid](https://github.com/SusionSuc/AdvancedAndroid)
 
 
