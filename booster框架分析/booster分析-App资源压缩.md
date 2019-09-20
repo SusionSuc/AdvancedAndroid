@@ -321,3 +321,7 @@ private fun File.repack(shouldCompress: (ZipEntry) -> Boolean) {
 
 实际上`booster-task-compression`这个组件对于减小`apk`的大小还是有很显著的效果的。不过是否是适用于项目则需要根据项目具体情况来考虑。
 
+
+
+更多文章见 : [AdvancedAdnroid](https://github.com/SusionSuc/AdvancedAndroid)
+

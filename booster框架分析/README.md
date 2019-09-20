@@ -10,3 +10,4 @@
 
 ## [booster分析-线程优化&性能检测](booster分析-线程优化&性能检测.md)
 
+## [booster分析-App资源压缩](booster分析-App资源压缩.md)
