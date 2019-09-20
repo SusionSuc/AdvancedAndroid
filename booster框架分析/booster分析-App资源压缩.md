@@ -1,6 +1,6 @@
-# booster分析- 资源压缩 (booster-task-compression)
+>本文继续分析[booster](https://github.com/didi/booster)的实现原理。更多相关文章见[booster-分析](https://github.com/SusionSuc/AdvancedAndroid/blob/master/booster%E6%A1%86%E6%9E%B6%E5%88%86%E6%9E%90/README.md)
 
-这个组件主要做了3件事:
+`booster-task-compression`这个组件主要做了3件事:
 
 1. 删除冗余的图片资源
 2. 压缩图片资源
@@ -230,7 +230,7 @@ nternal open class CwebpCompressImages : CompressImages() {
 }
 ```
 
-`cmdline.executable!!.absolutePath`就是代码`cwbp`命令的位置。
+`cmdline.executable!!.absolutePath`就是代表`cwbp`命令的位置。
 
 ## 重新压缩`resourceXX.ap_`文件中的资源
 
