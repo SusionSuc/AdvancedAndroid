@@ -1,17 +1,24 @@
 # booster分析- 资源压缩 (booster-task-compression)
 
->这个组件主要做了两件事: **冗余资源的删除**和**图片资源的压缩**。
+这个组件主要做了3件事:
 
-为了更好的理解`booster`对于资源压缩的处理，我们先来回顾一下`android build gradle`在编译`app`资源时都经过了哪些步骤:
+1. 删除冗余的图片资源
+2. 压缩图片资源
+3. 重新压缩`resourceXX.ap_`文件中的资源
 
-## 回顾 Android App 资源编译步骤
+在分析它们的实现之前，我们先来了解一下Android的资源编译过程:
+
+## 回顾 App 资源编译步骤
+
+![picture](pic/资源打包过程.png)
 
 对于资源编译有哪些步骤我并没有找到比较详细官方文档，不过我们可以通过查看`com.android.tools.build:gradle`的源码来了解这个过程。构建一个`app`包所涉及的到`GradleTask(比如assembleRelease)`的源码大概位于`ApplicationTaskMamager.java`文件中:
 
 >ApplicationTaskManager.java
 ```
 @Override
-public void createTasksForVariantScope( @NonNull final TaskFactory tasks, @NonNull final VariantScope variantScope) {
+public void createTasksForVariantScope(final TaskFactory tasks, final VariantScope variantScope) {
+
     BaseVariantData variantData = variantScope.getVariantData();
     ...
     // Create all current streams (dependencies mostly at this point)
@@ -41,6 +48,18 @@ public void createTasksForVariantScope( @NonNull final TaskFactory tasks, @NonNu
             variantScope.getFullVariantName(),
             () -> createMergeAssetsTask(tasks, variantScope, null));
 
+    
+    recorder.record(
+            ExecutionType.APP_TASK_MANAGER_CREATE_PROCESS_RES_TASK,
+            project.getPath(),
+            variantScope.getFullVariantName(),
+            () -> {
+                // Add a task to process the Android Resources and generate source files
+                createApkProcessResTask(tasks, variantScope);
+
+                // Add a task to process the java resources
+                createProcessJavaResTask(tasks, variantScope);
+            });
     ...
 }
 ```
@@ -51,6 +70,7 @@ public void createTasksForVariantScope( @NonNull final TaskFactory tasks, @NonNu
 2. 合并`Manifest`文件(`MergeApkManifestsTask`)
 3. 合并`res`资源(`MergeResourcesTask`)
 4. 合并`assets`资源(`MergeAssetsTask`)
+5. 处理资源,生成`_.ap`文件(`ApkProcessTesTask`)
 
 >上面我省略了很多步骤没有列出来。
 
@@ -58,7 +78,7 @@ public void createTasksForVariantScope( @NonNull final TaskFactory tasks, @NonNu
 
 ## 冗余资源的删除
 
-这个操作会在`gradle app 构建`完成`MergeResourcesTask`之后进行:
+这个操作会在`app构建`完成`MergeResourcesTask`之后进行:
 
 ```
 //移除冗余资源的 task， 执行位于资源合并之后
@@ -72,7 +92,7 @@ val reduceRedundancy = variant.project.tasks.create("remove${variant.name.capita
 }.dependsOn(variant.mergeResourcesTask)
 ```
 
-从上面代码可以看出:根据当前不同的`AAPT`版本创建不同的冗余图片移除任务(操作的图片格式为`png`, 但不包括.9.png)。
+即会根据当前不同的`AAPT`版本创建不同的冗余图片移除任务(操作的图片格式为`png`, 但不包括`.9.png`)。
 
 ### AAPT 的冗余资源的移除
 
@@ -113,7 +133,7 @@ open class RemoveRedundantImages: DefaultTask() {
 
 >`Android Gradle Plugin 3.0.0`及更高版本默认会启用`AAPT2`。相较于`AAPT`,`AAPT2`会利用增量编译加快app打包过程中资源的编译。对于`AAPT2`更加详细的介绍可以参考 : https://developer.android.com/studio/command-line/aapt2
 
-当app编译使用的是`AAPT2`时,`booster RemoveRedundantFlatImages`的处理:
+当`app`编译使用的是`AAPT2`时,`booster RemoveRedundantFlatImages`的处理:
 
 ```
 internal open class RemoveRedundantFlatImages : RemoveRedundantImages() {
@@ -153,7 +173,7 @@ internal open class RemoveRedundantFlatImages : RemoveRedundantImages() {
 }
 ```
 
-代码比较长，其实`RemoveRedundantFlatImages`所做的操作是: **在资源合并后，对于同名的png图片，它会取`density`最高的图片，然后把其他的图片删除**
+`RemoveRedundantFlatImages`所做的操作是: **在资源合并后，对于同名的png图片，它会取`density`最高的图片，然后把其他的图片删除**
 
 比如你有下面3张启动图:
 
@@ -183,42 +203,16 @@ internal open class RemoveRedundantFlatImages : RemoveRedundantImages() {
 1. `assets`下的图片资源压缩
 2. `res`下的图片资源压缩
 
->这里直接压缩**assets**下图片资源是存在一些问题的:如果工程中引入了`flutter`,`flutter`中对图片资源是明文引用的,因此`booster`将图片转为`webp`格式的话会造成`flutter`中图片失效。因此这点要注意。
+>这里直接压缩**assets**下图片资源是存在一些问题的:如果工程中引入了`flutter`,`flutter`中对图片资源是明文引用的,`booster`将图片转为`webp`格式的话会造成`flutter`中图片失效。因此这点要注意。
 
-以`res`的资源压缩为例来做分析:
+这里就不去跟源码的详细步骤了，因为涉及的点很多。其实主要实现就是**创建一个Task, 将图片文件转为webp**
 
-### res下的图片压缩
-
->SimpleCompressionTaskCreator.java
-```
-override fun createResourcesCompressionTask(variant: BaseVariant, results: CompressionResults): Task {
-    val aapt2 = variant.project.aapt2Enabled
-
-    //1. 创建资源压缩工具
-    val install = variant.createCompressionToolIfNotExists() 
-
-    //2. 创建资源压缩任务
-    return variant.project.tasks.create("compress${variant.name.capitalize()}ResourcesWith${cmdline.name.substringBefore('.').capitalize()}", getCompressionTaskClass(aapt2).java) {
-        it.outputs.upToDateWhen { false }
-        it.cmdline = cmdline
-        it.variant = variant
-        it.results = results
-        it.sources = { variant.scope.mergedRes.search(if (aapt2) ::isFlatPng else ::isPng) }
-    }.apply {
-        dependsOn(install, variant.mergeResourcesTask)
-        variant.processResTask.dependsOn(this)
-    }
-}
-```
-
-将图片转为`webp`格式需要使用`cwebp`命令，因此要先创建可以执行的`cwebp`命令, `createCompressionToolIfNotExists()`就是使`cwebp`命令可执行(其实就是改了命令的执行权限，具体细节可参考源码))。
-
-`getCompressionTaskClass(aapt2).java`是创建了用于压缩图片资源的任务,如果是使用`cwebp`压缩的话，最终使用的任务是`CwebpCompressFlatImages`:
+以`res`的资源压缩为例, 会执行到下面的代码:
 
 ```
-internal open class CwebpCompressImages : CompressImages() {
+nternal open class CwebpCompressImages : CompressImages() {
+
     open fun compress(filter: (File) -> Boolean) {
-        // cmdline.executable!!.absolutePath 指向的是 cwebp 命令
         sources().parallelStream().filter(filter).map { input ->
             val output = File(input.absolutePath.substringBeforeLast('.') + ".webp")
             ActionData(input, output, listOf(cmdline.executable!!.absolutePath, "-mt", "-quiet", "-q", "80", "-o", output.absolutePath, input.absolutePath))
@@ -229,29 +223,101 @@ internal open class CwebpCompressImages : CompressImages() {
                 spec.commandLine = it.cmdline
             }
             when (rc.exitValue) {
-                0 -> {
-                    val s1 = it.output.length()
-                    if (s1 > s0) {
-                        results.add(CompressionResult(it.input, s0, s0, it.input))
-                        it.output.delete()
-                    } else {
-                        results.add(CompressionResult(it.input, s0, s1, it.input))
-                        it.input.delete()
-                    }
-                }
-                else -> {
-                    logger.error("${CSI_RED}Command `${it.cmdline.joinToString(" ")}` exited with non-zero value ${rc.exitValue}$CSI_RESET")
-                    results.add(CompressionResult(it.input, s0, s0, it.input))
-                    it.output.delete()
-                }
+
             }
         }
     }
-    ...
 }
 ```
 
-`CompressImages`继承自`DefaultTask`。可以看到`CwebpCompressImages`具体做的事是: **执行cwbp命令,将图片转换为webp格式**
+`cmdline.executable!!.absolutePath`就是代码`cwbp`命令的位置。
 
->上面其实跳过了很多详细步骤，不过大概核心代码已经列出，如果有兴趣可以翻阅`booster`源码查看详细实现。
+## 重新压缩`resourceXX.ap_`文件中的资源
+
+这个操作的入口代码是:
+
+```
+class CompressionVariantProcessor : VariantProcessor {
+    override fun process(variant: BaseVariant) {
+
+        variant.processResTask.doLast {
+            variant.compressProcessedRes(results)   //重新压缩.ap_文件
+            variant.generateReport(results)  //生成报告文件
+        }  
+
+        ...
+    }
+}
+```
+
+`compressProcessedRes()`的具体实现是:
+
+```
+private fun BaseVariant.compressProcessedRes(results: CompressionResults) {
+    val files = scope.processedRes.search {
+        it.name.startsWith("resources") && it.extension == "ap_"
+    }
+    files.parallelStream().forEach { ap_ ->
+        val s0 = ap_.length()
+        ap_.repack {
+            !NO_COMPRESS.contains(it.name.substringAfterLast('.')) 
+        }
+        val s1 = ap_.length()
+        results.add(CompressionResult(ap_, s0, s1, ap_))
+    }
+}
+```
+
+即找到所有的`resourcesXX.ap_`文件,然后对他们进行重新压缩打包。`ap_.repack`方法其实是把里面的每个文件都重新压了一遍(已经压过的就不再压了):
+
+```
+private fun File.repack(shouldCompress: (ZipEntry) -> Boolean) {
+    //创建一个新的 .ap_ 文件
+    val dest = File.createTempFile(SdkConstants.FN_RES_BASE + SdkConstants.RES_QUALIFIER_SEP, SdkConstants.DOT_RES)
+
+    ZipOutputStream(dest.outputStream()).use { output ->
+        ZipFile(this).use { zip ->
+            zip.entries().asSequence().forEach { origin ->
+                // .ap_ 中的文件再压缩一遍
+                val target = ZipEntry(origin.name).apply {
+                    size = origin.size
+                    crc = origin.crc
+                    comment = origin.comment
+                    extra = origin.extra
+                    //如果已经压缩过就不再压缩了
+                    method = if (shouldCompress(origin)) ZipEntry.DEFLATED else origin.method
+                }
+
+                output.putNextEntry(target)
+
+                zip.getInputStream(origin).use {
+                    it.copyTo(output)
+                }
+                ..
+            }
+        }
+    }
+
+    //覆盖掉老的.ap_文件
+    if (this.delete()) {
+        if (!dest.renameTo(this)) {
+            dest.copyTo(this, true)
+        }
+    }
+}
+```
+
+对`resourcesXX.ap_`文件的压缩报告如下:
+
+```
+46.49% xxx/processDebugResources/out/resources-debug.ap_  153,769 330,766 xxx/out/resources-debug.ap_
+```
+
+压缩前:391KB , 压缩后:177KB; 即压缩了`46.49%`
+
+## 压缩总结
+
+我新建了一个`Android`工程，在使用`booster`压缩前打出的apk大小为`2.8MB`, 压缩后打出的apk大小为`2.6MB`。
+
+实际上`booster-task-compression`这个组件对于减小`apk`的大小还是有很显著的效果的。不过是否是适用于项目则需要根据项目具体情况来考虑。
 
