@@ -2,27 +2,20 @@
 
 本文就主要来分析一下上面两个问题: **`booster`的核心实现原理和`booster`的框架设计**。
 
->这两个问题其实很好回答,不过想要真正理解答案需要懂的知识还真不少。为了更好的弄明白这两个问题，我们先来回顾一些`booster`编写所基于的一些知识点:
+>为了更好的弄明白与回答这两个问题，我们先来回顾一些`booster`编写所基于的一些知识点:
 
 ## Gradle 插件
 
 在`gradle`中, 插件是用来模块化和重用的组件。我们可以在插件中定义一些常用的方法，以及一些自定义Task。然后把这个插件提供给其他人使用。
 
-`booster`也是一个`gradle`插件, 因此我们的工程可以引入`booster`:
+`booster`也是一个`gradle`插件:
 
 ```
-//top level build.gradle
-buildscript {
-     dependencies {
-        classpath "com.didiglobal.booster:booster-gradle-plugin:$booster_version" 
-     }
-}
-
 //app.gradle
 apply plugin: 'com.didiglobal.booster'
 ```
 
-编写一个插件使用`gradle api`, 并继承自`Plugin<Project>`
+编写一个插件需要使用`gradle api`, 并继承自`Plugin<Project>`
 
 >build.gradle
 ```
@@ -40,12 +33,101 @@ class BoosterPlugin : Plugin<Project> {
 }
 ```
 
-`booster`整个的编写都是使用`kotlin`来实现的(所以编写一个gradle插件并不困难哦,你了解api就行~),而`booster`插件是在`gradle 工程配置阶段`时加载的。
-
-对于`gradle`插件的编写和`gradle`的构建生命周期可以参考这两篇文章:
+`booster`插件是在`gradle 工程配置阶段`时加载的。对于`gradle`插件的编写和`gradle`的构建生命周期可以参考这两篇文章:
 
 [Gradle插件编写概述](https://www.jianshu.com/p/0ba503dc69f8)
 
-[Gradle构建生命周期](Gradle构建生命周期)
+[Gradle构建生命周期](https://www.jianshu.com/p/a45286b08db0)
 
-## 
+## SPI 与 ServiceLoader
+
+`SPI`全称Service Provider Interface, 它提供了一种机制:**为某个接口寻找实现实例的机制**, 而`ServiceLoader`是用来实现`SPI`的核心类。
+
+>理解`SPI`可以参考这篇文章 : https://juejin.im/post/5b9b1c115188255c5e66d18c
+
+
+## booster transform 实现
+
+整个`booster`框架中有许多`transform`: `booster-transform-activity-thread ` 、`booster-transform-thread `等等。
+
+`booster`利用`SPI`对`Transform`的编写做了高度的抽象，从而使在`booster`中编写一个`transform`十分的容易:
+
+```
+class BoosterPlugin : Plugin<Project> {
+
+    override fun apply(project: Project) {
+        when {
+            project.plugins.hasPlugin("com.android.application") -> project.getAndroid<AppExtension>().let { android ->
+                android.registerTransform(BoosterAppTransform()) // 加载所有的 transform
+                ...
+            }
+            ...
+        }
+    }
+}
+```
+
+即在注册插件时注册了`BoosterAppTransform`,`BoosterAppTransform`继承自`BoosterTransform`:
+
+```
+abstract class BoosterTransform : Transform() {
+
+    override fun getName() = "booster"
+
+    override fun isIncremental() = true
+
+    override fun getInputTypes(): MutableSet<QualifiedContent.ContentType> = TransformManager.CONTENT_CLASS
+
+    final override fun transform(invocation: TransformInvocation?) {
+        invocation?.let {
+            BoosterTransformInvocation(it).apply {
+                if (isIncremental) {
+                    onPreTransform(this)
+                    doIncrementalTransform()
+                } else {
+                    buildDir.file(AndroidProject.FD_INTERMEDIATES, "transforms", "dexBuilder").let { dexBuilder ->
+                        if (dexBuilder.exists()) {
+                            dexBuilder.deleteRecursively()
+                        }
+                    }
+                    outputProvider.deleteAll()
+                    onPreTransform(this)
+                    doFullTransform()
+                }
+                this.onPostTransform(this)
+            }
+        }
+    }
+}
+```
+
+即`BoosterTransform`的实际工作交给了`BoosterTransformInvocation`。他是`TransformInvocation`的代理类，这个类会使用`ServiceLoader`加载所有的`transform`, 并依次调用`transform`方法:
+
+```
+internal class BoosterTransformInvocation(private val delegate: TransformInvocation) : TransformInvocation{
+    
+    private val transformers = ServiceLoader.load(Transformer::class.java, javaClass.classLoader).toList()
+
+    internal fun doFullTransform() {
+        this.inputs.parallelStream().forEach { input ->
+            input.directoryInputs.parallelStream().forEach {
+                project.logger.info("Transforming ${it.file}")
+                it.file.transform(outputProvider.getContentLocation(it.name, it.contentTypes, it.scopes, Format.DIRECTORY)) { bytecode ->
+                    bytecode.transform(this)
+                }
+            }
+            input.jarInputs.parallelStream().forEach {
+                project.logger.info("Transforming ${it.file}")
+                it.file.transform(outputProvider.getContentLocation(it.name, it.contentTypes, it.scopes, Format.JAR)) { bytecode ->
+                    bytecode.transform(this)
+                }
+            }
+        }
+    }
+}
+```
+
+
+
+
+
