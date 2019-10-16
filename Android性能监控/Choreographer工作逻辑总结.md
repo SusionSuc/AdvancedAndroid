@@ -1,4 +1,6 @@
->为了更好的理解`App FPS`监控的原理，本文先来梳理一下`Choreographer`的工作原理。
+>为了更好的理解使用`Choreographer`监控`App FPS`的原理，本文先来梳理一下`Choreographer`的工作原理。
+
+`Choreographer`主要是用来协调动画、输入和绘制事件运行的。它通过接收`Vsync`信号来调度应用下一帧渲染时的动作。
 
 # 对 Vsync 信号的监听
 
@@ -37,7 +39,7 @@ private void scheduleVsyncLocked() {
 
 ## 设置callback
 
-`Choregrapher`提供类下面方法设置`callback`:
+`Choregrapher`提供了下面方法设置`callback`:
 
 ```
 public void postCallback(int callbackType, Runnable action, Object token) 
@@ -76,8 +78,8 @@ void scheduleTraversals() {
 
 1. 切换到 `Choregrapher`创建时所在的线程去调用`scheduleFrameLocked()`方法,设置`mFrameScheduled = true`
 2. 调用`scheduleVsyncLocked`请求下一次`Vsync`信号回调
-3. `FrameDisplayEventReceiver.onVsync()`会生成一个消息，然后发送到`Choreographer`的消息队列
-4. `Choreographer`取出上面`onVsync`中发送的消息，执行`Choreographer.doFrame()`方法，`doFrame()`中判断`mFrameScheduled`是否为`true`,如果为`true`的话就上面四种`callback`
+3. `FrameDisplayEventReceiver.onVsync()`会生成一个消息，然后发送到`Choreographer.mHander`的消息队列
+4. `Choreographer.mHander`取出上面`onVsync`中发送的消息，执行`Choreographer.doFrame()`方法，`doFrame()`中判断`mFrameScheduled`是否为`true`,如果为`true`的话就上面四种`callback`
 
 
 综上所述`Choreographer`的工作原理如下图:
@@ -144,3 +146,21 @@ void doFrame(long frameTimeNanos, int frame) {
 startNanos - frameTimeNanos > mFrameIntervalNanos(16ms)
 ```
 
+## doCallback(int callbackType, long frameTimeNanos)
+
+这个方法的逻辑并不复杂 : **获取`callbackType`对应的`Callback Queue`， 取出这个队列中已经过期的`calllbakc`进行执行。**
+
+```
+void doCallbacks(int callbackType, long frameTimeNanos) {
+    CallbackRecord callbacks;
+    callbacks = mCallbackQueues[callbackType].extractDueCallbacksLocked(now / TimeUtils.NANOS_PER_MS);
+    for (CallbackRecord c = callbacks; c != null; c = c.next) {
+        if (DEBUG_FRAMES) {
+            Log.d(TAG, "RunCallback: type=" + callbackType
+                    + ", action=" + c.action + ", token=" + c.token
+                    + ", latencyMillis=" + (SystemClock.uptimeMillis() - c.dueTime));
+        }
+        c.run(frameTimeNanos);
+    }
+}
+```
