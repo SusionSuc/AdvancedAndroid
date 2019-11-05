@@ -148,7 +148,7 @@ startNanos - frameTimeNanos > mFrameIntervalNanos(16ms)
 
 ## doCallback(int callbackType, long frameTimeNanos)
 
-这个方法的逻辑并不复杂 : **获取`callbackType`对应的`Callback Queue`， 取出这个队列中已经过期的`calllbakc`进行执行。**
+这个方法的逻辑并不复杂 : **获取`callbackType`对应的`Callback Queue`， 取出这个队列中已经过期的`calllback`进行执行。**
 
 ```
 void doCallbacks(int callbackType, long frameTimeNanos) {
@@ -164,3 +164,34 @@ void doCallbacks(int callbackType, long frameTimeNanos) {
     }
 }
 ```
+
+# Choreographer与主线程消息循环的关系
+
+上面我们已经知道`onVsync`把要执行`doFrame`的消息放入了`Choreographer.mHander`的消息队列。
+
+这里**Choreographer.mHander的消息队列**其实就是主线程的消息，所以**doFrame方法其实是由主线程的消息循环来调度的**。
+
+我们看一下`Choreographer`实例化时的`Looper`:
+
+```
+private static final ThreadLocal<Choreographer> sThreadInstance =
+        new ThreadLocal<Choreographer>() {
+    @Override
+    protected Choreographer initialValue() {
+        Looper looper = Looper.myLooper();
+        ...
+        Choreographer choreographer = new Choreographer(looper, VSYNC_SOURCE_APP);
+        if (looper == Looper.getMainLooper()) {
+            mMainInstance = choreographer;
+        }
+        return choreographer;
+    }
+};
+```
+
+即取的是当前线程的`Looper`,所以`donFrame()`是在主线程的消息循环中调度的。
+
+参考文章:
+
+> Android Choreographer 源码
+> [Choreographer原理](http://gityuan.com/2017/02/25/choreographer/ )
