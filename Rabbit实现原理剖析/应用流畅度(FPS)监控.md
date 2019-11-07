@@ -1,14 +1,13 @@
 
 # 应用流畅度(FPS)监控
 
-流畅度是页面在滑动、渲染等过程中的体验, Android系统要求每一帧都要在16.67ms内绘制完成, 即每秒绘制60帧(大部分手机的刷新频率都在60Hz)。本文所说的应用的
-流畅度监控就是指应用每秒刷新的帧率(FPS)。
+流畅度是页面在滑动、渲染等过程中的体验, Android系统要求每一帧都要在16.67ms内绘制完成, 即每秒绘制60帧(大部分手机的刷新频率都在60Hz)。本文所说的应用的流畅度监控就是指监控应用每秒刷新的帧率(FPS)。
 
-在Andorid中监控FPS一般使用`Choreographer`来实现,`Choreographer`主要是用来协调动画、输入和绘制事件运行的,它通过接收`Vsync`信号来调度应用下一帧渲染时的动作。流畅度可以理解为`Choreographer`运行的是否流畅。
+在Andorid中监控FPS一般使用`Choreographer`来实现,`Choreographer`主要是用来协调动画、输入和绘制事件运行的,它通过接收`Vsync`信号来调度应用下一帧渲染时的动作。
 
->我前面写过一篇分析`Choreographer`工作原理的文章:[Choreographer工作逻辑总结](Choreographer工作逻辑总结.md),继续阅读之前可以看这篇文章来回顾一下`Choreographer`。
+>我前面写过一篇分析`Choreographer`工作原理的文章:[Choreographer工作逻辑总结](Choreographer工作逻辑总结.md),继续阅读之前可以看这篇文章来回顾一下`Choreographer`。理解`Choreographer`的工作原理后,监控应用FPS的原理也就很好理解了。
 
-理解`Choreographer`的工作原理后,监控应用FPS的原理也就很好理解了。`github`上有很多这方面相关的代码。而本文所讲的FPS监控原理基本参考:[Matrix](https://github.com/Tencent/matrix)的实现。`Matrix`的实现还是和大部分FPS监控原理不同的。下面我们就一块来看一下大致实现逻辑:
+`github`上有很多应用FPS监控相关的代码。而本文所讲的FPS监控原理基本参考:[Matrix](https://github.com/Tencent/matrix)的实现。`Matrix`的实现还是和大部分FPS监控原理不同的。下面我们就一块来看一下大致实现逻辑:
 
 ## 监控主线程的消息循环
 
@@ -37,22 +36,22 @@ public static void loop() {
 即主线程在处理消息的时候会打"log",并且这个"log"格式还特别,我们可以利用上面这个"log"的特殊格式来监听主线程的消息循环是否在处理消息:
 
 ```
-    mOriginPrinter = RabbitReflectHelper.reflectField<Printer>(Looper.getMainLooper(), "mLogging")
+mOriginPrinter = RabbitReflectHelper.reflectField<Printer>(Looper.getMainLooper(), "mLogging")
 
-    mHookedPrinter = Printer { x ->
+mHookedPrinter = Printer { x ->
 
-        mOriginPrinter?.println(x)
+    mOriginPrinter?.println(x)
 
-        if (!enable) return@Printer
+    if (!enable) return@Printer
 
-        val dispatch = x[0] == '>' || x[0] == '<'
+    val dispatch = x[0] == '>' || x[0] == '<'
 
-        if (dispatch) {
-            notifyListenerLooperProcessMsg(x[0] == '>')
-        }
+    if (dispatch) {
+        notifyListenerLooperProcessMsg(x[0] == '>')
     }
+}
 
-    Looper.getMainLooper().setMessageLogging(mHookedPrinter)
+Looper.getMainLooper().setMessageLogging(mHookedPrinter)
 ```
 
 即上面代理了`Looper`中的`Printer`,然后根据`x[0] == '>'`来判断主线程的运行状态,并把主线程的运行状态通知给观察者:
@@ -71,7 +70,7 @@ private fun notifyListenerLooperProcessMsg(start: Boolean) {
 
 ## Choreographer与主线程Looper-MessageQueue的关联
 
-Choreographer与主线程Looper-MessageQueue有什么关联呢？ 这样个要从Android中的UI渲染逻辑说起:
+Choreographer的运行与主线程Looper-MessageQueue有什么关联呢？ 这样个要从Android中的UI渲染逻辑说起:
 
 >对于Android屏幕渲染的原理可以看一下这篇文章: [Android屏幕刷新机制](https://www.jianshu.com/p/0d00cb85fdf3)
 
@@ -142,10 +141,10 @@ void doFrame(long frameTimeNanos, int frame) {
 
 ## 利用Choreographer监听应用FPS
 
-`Matrix`监听应用的FPS并没有利用`Choreographer.postFrameCallback()`, 为了能够更详细的监控一帧内的事件，`Matrix`会在主线程消息循环开始处理消息时做了下面的操作:
+`Matrix`监听应用的FPS并没有利用`Choreographer.postFrameCallback()`, 为了能够更详细的监控一帧内的事件，`Matrix`会在主线程消息循环开始处理消息时做下面操作:
 
 ```
-private fun insertCallbackToInputQueue() {
+private fun insertCallbackToChoreographerQueue() {
     ...
     addCallbackToQueue(CALLBACK_INPUT, Runnable {
         inputEventCostTimeNs = System.nanoTime()
@@ -154,7 +153,7 @@ private fun insertCallbackToInputQueue() {
     addCallbackToQueue(CALLBACK_ANIMATION, Runnable {
         inputEventCostTimeNs = System.nanoTime() - inputEventCostTimeNs
         animationEventCostTimeNs = System.nanoTime()
-})
+    })
 
     addCallbackToQueue(CALLBACK_TRAVERSAL, Runnable {
         animationEventCostTimeNs = System.nanoTime() - animationEventCostTimeNs
@@ -168,7 +167,9 @@ private fun insertCallbackToInputQueue() {
 ![](pic/Choreographer事件耗时监控原理.png)
 
 
-在主线程处理完消息时我们就可以计算出一帧中各个事件的耗时:
+>其实这些事件处理时间的统计可以为我们的界面流畅度监控提供更多的数据，不过本文的FPS监控并没有用到这些值。
+
+所以在主线程处理完消息时我们就可以计算出一帧中各个事件的耗时:
 
 ```
 override fun onMessageLooperStopHandleMessage() {
@@ -206,6 +207,7 @@ fun endMonitorChoreographerDoFrame() {
 
 ```
 override fun doFrame(frameCostNs: Long, inputCostNs: Long, animationCostNs: Long, traversalCostNs: Long){
+    
     val costUnitFrameNumber = (frameCostNs / frameIntervalNs) + 1
 
     totalFrameNs += (costUnitFrameNumber * frameIntervalNs)
@@ -227,6 +229,8 @@ override fun doFrame(frameCostNs: Long, inputCostNs: Long, animationCostNs: Long
 
 ## 代码实现
 
-到这里基本叙述了`Matrix`监控应用FPS的总体思路, 不过里面还是涉及到很多的细节的。如果你想了解这些细节可以查看[RabbitFPSMonitor](https://github.com/SusionSuc/Rabbit/blob/master/library/src/main/java/com/susion/rabbit/trace/frame/RabbitFPSMonitor.kt)。
+到这里就基本叙述完了了`Matrix`监控应用FPS的总体思路, 不过里面还是涉及到很多的细节的。如果你想了解这些细节可以查看[RabbitFPSMonitor](https://github.com/SusionSuc/Rabbit/blob/master/library/src/main/java/com/susion/rabbit/trace/frame/RabbitFPSMonitor.kt)。
 
-[Rabbit](https://github.com/SusionSuc/Rabbit)是目前我一直在努力维护的库,欢迎关注 ！
+>[Rabbit](https://github.com/SusionSuc/Rabbit)是目前我一直在维护的库,欢迎关注 ！
+
+>当然也欢迎关注我的Android进阶计划[AdvancedAndroid](https://github.com/SusionSuc/AdvancedAndroid)
