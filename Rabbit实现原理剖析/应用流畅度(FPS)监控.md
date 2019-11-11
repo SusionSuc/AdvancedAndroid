@@ -227,7 +227,9 @@ override fun doFrame(frameCostNs: Long, inputCostNs: Long, animationCostNs: Long
 ```
 
 
-## 代码实现
+## 总结
+
+不过`Matrix`的流畅度监控也是有缺陷的 : **如果其他线程卡顿了主线程，那么这个卡顿是监控不到的。**
 
 到这里就基本叙述完了了`Matrix`监控应用FPS的总体思路, 不过里面还是涉及到很多的细节的。如果你想了解这些细节可以查看[RabbitFPSMonitor](https://github.com/SusionSuc/Rabbit/blob/master/library/src/main/java/com/susion/rabbit/trace/frame/RabbitFPSMonitor.kt)。
 
