@@ -4,6 +4,8 @@
 ![](picture/Activtiy启动流程.png)
 
 
+>应用的`Application`创建位于`ActivityThread.handleBindApplication()`方法中
+
 ## 图中相关模块的作用
 
 ## ActivityThread
