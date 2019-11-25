@@ -13,7 +13,7 @@
 |Fresco|主要分析Fresco框架的设计层级以及图片处理的整体流程|[detail](Fresco源码分析/README.md)|
 |RxJava|阅读RxJava源码，做一些自己的思考|[detail](Rxjava/README.md) |
 |Booster源码分析|如何提高app的稳定性、性能|[detail](booster框架分析/README.md) |
-|Rabbit实现原理分析|如何提高开发效率&开发质量|[detail](Rabbit实现原理剖析/README.md) |
+|Rabbit实现原理分析|从0实现一个APM框架|[detail](Rabbit实现原理剖析/README.md) |
 |......| |
 
  除了上面比较成体系的系列外，还有我零零散散总结的，暂不归类:
