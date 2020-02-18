@@ -1,3 +1,5 @@
+**为了更好的阅读体验,欢迎访问我的[个人博客](http://susion.work)**
+
 # Android进阶
 
 >本项目大部分文章都会涉及到源码分析，项目相关技术点索引如下:
@@ -13,27 +15,30 @@
 |Fresco|主要分析Fresco框架的设计层级以及图片处理的整体流程|[detail](Fresco源码分析/README.md)|
 |RxJava|阅读RxJava源码，做一些自己的思考|[detail](Rxjava/README.md) |
 |Booster源码分析|如何提高app的稳定性、性能|[detail](booster框架分析/README.md) |
+|Rabbit实现原理分析|从0实现一个APM框架|[detail](Rabbit实现原理剖析/README.md) |
 |......| |
 
  除了上面比较成体系的系列外，还有我零零散散总结的，暂不归类:
 
-> [kotlin最佳实践](零散但很重要/kotlin最佳实践.md): 这篇文章我总结了我工作中对于kotlin常用的语法以及一些使用注意事项
+> [life-clean](零散/life-clean介绍.md): 以一种简单的方式组织你的代码
 
-> [为什么要做屏幕适配](零散但很重要/使用dp做屏幕适配会出现的问题.md) 
+> [kotlin最佳实践](零散/kotlin最佳实践.md): 这篇文章我总结了我工作中对于kotlin常用的语法以及一些使用注意事项
 
-> [Android性能优化建议](零散但很重要/Android性能优化建议.md) : 这篇文章是我阅读《Android移动性能实战》总结的我们在开发时需要注意的一些点
+> [为什么要做屏幕适配](零散/使用dp做屏幕适配会出现的问题.md) 
 
-> [Presenter与View的解耦探讨](零散但很重要/Presenter与View的解耦探讨.md) : 如何正确的书写Android中的MVP
+> [Android性能优化建议](零散/Android性能优化建议.md) : 这篇文章是我阅读《Android移动性能实战》总结的我们在开发时需要注意的一些点
 
-> [Android中的异步消息处理机制](零散但很重要/Android中的异步消息处理机制.md) : 这个必须得懂哦
+> [Presenter与View的解耦探讨](零散/Presenter与View的解耦探讨.md) : 如何正确的书写Android中的MVP
 
-> [RxAndroid常用实践](零散但很重要/RxJava实践.md) : 工作中常用的一些RxAndroid的case
+> [Android中的异步消息处理机制](零散/Android中的异步消息处理机制.md) : 这个必须得懂哦
 
-> [使用View来搭建UI](零散但很重要/使用View来搭建UI.md) 
+> [RxAndroid常用实践](零散/RxJava实践.md) : 工作中常用的一些RxAndroid的case
 
-> [从0开始实现一款类似微信、B站的图片浏览组件](零散但很重要/从0开始实现一款类似微信、B站的图片浏览组件.md) 
+> [使用View来搭建UI](零散/使用View来搭建UI.md) 
 
-> [分享一个实现吸顶Item的简单方法](零散但很重要/分享一个实现吸顶Item的简单方法.md) 
+> [从0开始实现一款类似微信、B站的图片浏览组件](零散/从0开始实现一款类似微信、B站的图片浏览组件.md) 
+
+> [分享一个实现吸顶Item的简单方法](零散/分享一个实现吸顶Item的简单方法.md) 
 
 
 ## 其他
