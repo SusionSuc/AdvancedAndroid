@@ -39,7 +39,7 @@ private Looper(boolean quitAllowed) {
     ...
 }
 ```
-即，在这里`MessageQueue`作为`Looper`的成员变量被初始化了。所以 **一个Looper对应一个MessageQueue** 。 ok，到这里`Looper.prepare()`所涉及的逻辑以及浏览完毕，继续看一下`new Handler()`:
+即，在这里`MessageQueue`作为`Looper`的成员变量被初始化了。所以 **一个Looper对应一个MessageQueue** 。 ok，到这里`Looper.prepare()`所涉及的逻辑已经浏览完毕，继续看一下`new Handler()`:
 
 ### new Handler()
 

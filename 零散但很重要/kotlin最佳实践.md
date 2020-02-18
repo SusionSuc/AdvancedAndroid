@@ -173,7 +173,7 @@ class Person(val name:String = "", var age:Int = 0){
 }
 ``` 
 
-*`init代码块`会在主构造函数之后运行，注意不是所有的构造函数*。
+**`init代码块`会在主构造函数之后运行，注意不是所有的构造函数**。
 
 ## 数据类 data class
 
@@ -183,7 +183,7 @@ class Person(val name:String = "", var age:Int = 0){
 data class Person(val name:String = "", val age:Int = 0)
 ```
 
-使用`data`定义的`Person`会默认生成`equals`、`hashCode`、`toString`方法。需要注意的是*数据类的属性我们应该尽量定义成val的*。这是因为在主构造函数中声明的这些属性都会纳入到`equals`和`hashCode`方法中。如果某个属性是可变的，
+使用`data`定义的`Person`会默认生成`equals`、`hashCode`、`toString`方法。需要注意的是**数据类的属性我们应该尽量定义成val的**。这是因为在主构造函数中声明的这些属性都会纳入到`equals`和`hashCode`方法中。如果某个属性是可变的，
 那么这个对象在被加入到容器后就会是一个无效的状态。
 
 ## object 和 companion object
