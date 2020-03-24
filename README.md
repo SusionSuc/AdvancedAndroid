@@ -1,8 +1,6 @@
 
 # Android进阶
 
->本项目大部分文章都会涉及到源码分析，项目相关技术点索引如下:
-
 |技术点|简介||
 |:----|:-----|:-----|
 |Router|主要分析了WMRouter和ARouter两款开源框架的工作原理|[detail](router/README.md)|
