@@ -59,7 +59,7 @@ include 'services:api'   -> gradle会去查找 services/api
 
 ## Gradle的整个构建生命周期
 
-gradle的构建时再依赖分析完成后才开始的,简单来说就是你配置的所有依赖下载完毕后才会开始构建。在gradle中，整个构建分为3个过程：Initialization、Configuration、Execution。下面就针对这3个阶段简单看一下
+gradle的构建是在依赖分析完成后才开始的,简单来说就是你配置的所有依赖下载完毕后才会开始构建。在gradle中，整个构建分为3个过程：Initialization、Configuration、Execution。下面就针对这3个阶段简单看一下
 
 ### Initialization
 
