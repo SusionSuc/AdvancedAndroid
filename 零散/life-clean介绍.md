@@ -1,6 +1,6 @@
 # LifeClean
 
-`LifeClean`是一个变种的MVP框架, 适用于常见的UI页面, 也对Android常用的组件定义了一些使用规范, 主要具有以下特点:
+`LifeClean`是一个变种的MVP框架, 适用于常见的UI业务, 也对Android常用的组件定义了一些使用规范, 主要具有以下特点:
 
 1. 规范`MVP`写法
 2. 为`Presenter/View`提供`LifeCycle`
@@ -110,7 +110,7 @@ class GithubPresenter(val view: SimpleRvPageProtocol) : Presenter {
 
 **在`LifeClean`中将`View`定义为业务的中心,将`Presenter`的能力(Action)都定义到了`View`(约定)中,`Presenter`可以自己选择性的处理这个`Action`, 即`View`完全解耦于`Presenter`**
 
-## 为`Presenter/View`提供`LifeCycle`
+## 为`Presenter/View`提供`Lifecycle`
 
 ### 为Presenter提供Activity的生命周期
 
@@ -257,7 +257,27 @@ abstract class CommonRvAdapter<T>(val data: MutableList<T> = ArrayList()) :
 }
 ```
 
-即`CommonRvAdapter`强调的是: **把对象映射为View**
+即`CommonRvAdapter`强调的是: **把对象映射为View**。比如:
+
+```
+class SimpleDescView(context: Context) : AppCompatTextView(context), AdapterItemView<SimpleDescInfo> {
+
+    init {
+        layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14f)
+        setPadding(30, 30, 30, 0)
+        setTextColor(Color.DKGRAY)
+    }
+
+    override fun bindData(data: SimpleDescInfo, position: Int) {
+        text = data.desc
+    }
+
+}
+```
 
 ### SimpleRvAdapter 与 MergeAdapter
 
