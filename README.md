@@ -18,7 +18,7 @@
 
  除了上面比较成体系的系列外，还有我零零散散总结的，暂不归类:
 
-> [life-clean](零散/life-clean介绍.md): 以一种简单的方式组织你的代码
+> [life-clean](零散/life-clean介绍.md): 基于`LifeCycle`的`MVP`框架。
 
 > [kotlin最佳实践](零散/kotlin最佳实践.md): 这篇文章我总结了我工作中对于kotlin常用的语法以及一些使用注意事项
 
