@@ -35,3 +35,20 @@
 最基本的事件分发流程还是要过一遍的:
 
 [View事件传递机制源码走查](View事件传递机制源码走查.md)
+
+
+## 绘制优化相关
+
+[GPU 与 CPU](https://tech.meituan.com/2017/01/19/hardware-accelerate.html)
+
+[Android Bitmap变迁与原理解析（4.x-8.x）](https://www.jianshu.com/p/d5714e8987f3)
+
+[Android GPU呈现模式原理及卡顿掉帧浅析](https://www.jianshu.com/p/2ad8723865cc)
+
+### 硬件加速 & OpenGL
+
+[什么是OpenGL](https://www.zhihu.com/question/51867884)
+
+[理解Android硬件加速原理(上)](https://www.jianshu.com/p/40f660e17a73)
+
+[理解Android硬件加速原理(下)](https://www.jianshu.com/p/dd800800145b)
