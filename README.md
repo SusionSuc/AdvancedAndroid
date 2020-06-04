@@ -11,7 +11,7 @@
 |Android视图层源码分析|理清整个Android视图层是如何工作的，使UI编写起来更加胸有成竹|[detail](framework/Android视图层源码分析/README.md)|
 |Fresco|主要分析Fresco框架的设计层级以及图片处理的整体流程|[detail](bitmap/Fresco源码分析/README.md)|
 |Booster源码分析|如何提高app的稳定性、性能|[detail](performance/booster框架分析/README.md) |
-|RxJava|RxJava相关|[detail](rxjava/README.md) |
+|RxJava|RxJava相关|[detail](Rxjava/README.md) |
 |Rabbit实现原理分析|从0实现一个APM框架|[detail](performance/rabbit/README.md) |
 |......| |
 
