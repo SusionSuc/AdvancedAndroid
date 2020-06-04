@@ -5,7 +5,7 @@
 
 `RxJava`中有许多`doXXX`操作符。这些操作符一般是用来注册一个`Action`，这些`Action`会在`XXX`事件发生时调用。比如`doOnSubscribe`会在`Observable`被`subscribe()`时调用。下面这张图是官方描述的`Do`的执行时机:
 
-![doXXX](picture/RxJava/doXXX.png)
+![doXXX](picture/doXXX.png)
 
 下面来介绍一下一些我常用到的`Do`:
 
@@ -88,7 +88,7 @@ xxxApi
 `merge`类似于`zip`, 不过它不会做数据的转换操作，只是简单的按照顺序`merge`多个`Observable`。不过当任意一个`Observable`出现`error`时，都会终止`merge`操作。如果不希望这种处理，可以使用`mergeDelayError`,当一个`Observable`出现错误是不会
 打断其他`Observable`的执行，并在事件的最后派发`error`事件，如下图:
 
-![doXXX](picture/RxJava/merge.png)
+![doXXX](picture/merge.png)
 
 比如发射3个网络请求:
 
