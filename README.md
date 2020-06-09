@@ -17,21 +17,21 @@
 
  除了上面比较成体系的系列外，还有我零零散散总结的，暂不归类:
 
-> [life-clean](extra/life-clean介绍.md): 基于`LifeCycle`的`MVP`框架。
+> [life-clean](extra/life-clean介绍.md)
 
-> [kotlin最佳实践](extra/kotlin最佳实践.md): 这篇文章我总结了我工作中对于kotlin常用的语法以及一些使用注意事项
+> [kotlin最佳实践](extra/kotlin最佳实践.md)
 
 > [为什么要做屏幕适配](extra/使用dp做屏幕适配会出现的问题.md) 
 
-> [Presenter与View的解耦探讨](extra/Presenter与View的解耦探讨.md) : 如何正确的书写Android中的MVP
-
-> [Android中的异步消息处理机制](extra/Android中的异步消息处理机制.md) : 这个必须得懂哦
+> [Android中的异步消息处理机制](extra/Android中的异步消息处理机制.md) 
 
 > [使用View来搭建UI](extra/使用View来搭建UI.md) 
 
 > [从0开始实现一款类似微信、B站的图片浏览组件](extra/从0开始实现一款类似微信、B站的图片浏览组件.md) 
 
 > [分享一个实现吸顶Item的简单方法](extra/分享一个实现吸顶Item的简单方法.md) 
+
+> [B站弹幕库DanmakuFlameMaster源码分析](extra/B站弹幕库DanmakuFlameMaster源码分析.md)
 
 
 ## 其他
