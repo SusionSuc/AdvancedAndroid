@@ -5,7 +5,7 @@
 |:----|:-----|:-----|
 |Router|主要分析了WMRouter和ARouter两款开源框架的工作原理|[detail](router/README.md)|
 |插件化|分析VirtualApk和Replugin等开源框架，主要是透过他们了解Android底层组件的运行机制,系统是如何对他们提供支持的。|[detail](plugin/README.md)|
-|Gradle插件、代码注入|Gradle插件与代码生成等|[detail](gradle/README.md)|
+|Gradle|Gradle插件与代码生成等|[detail](gradle/README.md)|
 |Android Framework 源码分析|一些未成体系的Framework源码分析文章|[detail](framework/README.md)|
 |RecyclerView 源码分析|分析RecyclerView的大概实现以及一些使用心得|[detail](framework/recyclerview/README.md)|
 |Android视图层源码分析|理清整个Android视图层是如何工作的，使UI编写起来更加胸有成竹|[detail](framework/Android视图层源码分析/README.md)|
