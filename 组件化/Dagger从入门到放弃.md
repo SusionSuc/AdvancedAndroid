@@ -1,10 +1,15 @@
 
+`Dagger`是一个依赖注入框架, 它的核心实现原理是在编译期产生依赖注入相关代码, 我们可以通过`Dagger`提供的注解来描述我们的依赖注入需求。
+
+为了实现依赖注入,`Dagger`需要知道**对象的创建方式**, 开发者需要知道**怎么获取`Dagger`创建的对象**, 本文会围绕这两点介绍一下`Dagger`中的注解的功能以及实现原理。
+
+> 依赖注入 : 就是非自己主动初始化依赖(对象)，而是通过外部传入依赖的方式。本文除了介绍`Dagger`的基本使用,也会分析一下`Dagger`在火山组件化中的使用。
 
 # Dagger 基础
 
 ## @Inject
 
-它既可以用来指明对象的依赖，也可以用来指明依赖实例的创建方式, 不同的用法`Dagger`会在编译期生成不同的辅助类来完成依赖实例的注入 :
+它既可以用来指明对象的依赖，也可以用来指明依赖对象的创建方式, 不同的用法`Dagger`会在编译期生成不同的辅助类来完成依赖实例的注入 :
 
 ### 声明在成员变量上
 
@@ -15,7 +20,7 @@ class StudentTest {
 }
 ```
 
-`Dagger`会在编译期生成对应的依赖实例注入类(`StudentTest_MembersInjector`),它用来给`StudentTest`对象注入对应的依赖实例 :
+`Dagger`会在编译期生成对应的依赖对象注入类(`StudentTest_MembersInjector`),在运行时它用来给`StudentTest`对象的`nameInfo`注入`NameInfo`实例:
 
 ```
 public final class StudentTest_MembersInjector implements MembersInjector<StudentTest> {
@@ -39,7 +44,7 @@ public final class StudentTest_MembersInjector implements MembersInjector<Studen
 }
 ```
 
->`Provider<NameInfo>`创建`NameInfo`的模板方法。
+>`Provider<NameInfo>`创建`NameInfo`的模板接口
 
 ### 声明在构造函数上
 
@@ -53,14 +58,7 @@ class Student @Inject constructor(val nameInfo: NameInfo) : IPeople
 public final class Student_Factory implements Factory<Student> {
   private final Provider<NameInfo> nameInfoProvider;
 
-  public Student_Factory(Provider<NameInfo> nameInfoProvider) {
-    this.nameInfoProvider = nameInfoProvider;
-  }
-
-  @Override
-  public Student get() {
-    return new Student(nameInfoProvider.get());
-  }
+  ...
 
   public static Student_Factory create(Provider<NameInfo> nameInfoProvider) {
     return new Student_Factory(nameInfoProvider);
@@ -72,9 +70,13 @@ public final class Student_Factory implements Factory<Student> {
 }
 ```
 
+>如果构造参数上标记了`@Inject`,那么`Dagger`会先寻找这个参数的`XX_Factory`,创建这个参数对象，然后再创建目前对象
+
 ## @Module 
 
-可以使用它来封装提供对象的方法:
+它用来封装创建对象实例的方法:
+
+>`@Inject`的方式散落在各处不好管理
 
 ```
 @Module
@@ -91,18 +93,7 @@ class StudentModule {
 public final class StudentModule_ProvideNameInfoFactory implements Factory<NameInfo> {
   private final StudentModule module;
 
-  public StudentModule_ProvideNameInfoFactory(StudentModule module) {
-    this.module = module;
-  }
-
-  @Override
-  public NameInfo get() {
-    return provideNameInfo(module);
-  }
-
-  public static StudentModule_ProvideNameInfoFactory create(StudentModule module) {
-    return new StudentModule_ProvideNameInfoFactory(module);
-  }
+  ...
 
   public static NameInfo provideNameInfo(StudentModule instance) {
     return Preconditions.checkNotNull(instance.provideNameInfo(), "Cannot return null from a non-@Nullable @Provides method");
@@ -123,9 +114,9 @@ interface StudentComponent {
 }
 ```
 
->`fun inject(studentTest: StudentTest)`的作用是告诉`Dagger`,`StudentTest`在运行时需要依赖注入
+`StudentComponent`会收集`modules = [StudentModule::class]`中依赖的创建方式,并通过这些方式创建对象实例赋值给`StudentTest`需要的成员变量。
 
-`Dagger`会在编译期为这个接口生成对应的实现类`DaggerStudentComponent`,这个类会结合`Dagger`为`@Inject`和`@Module`生成的类为`StudentTest`对象注入需要的依赖:
+>`Dagger`会在编译期为这个接口生成对应的实现类`DaggerStudentComponent`,这个类实现了`StudentTest`的依赖注入:
 
 ```
 public final class DaggerStudentComponent implements StudentComponent {
@@ -135,14 +126,8 @@ public final class DaggerStudentComponent implements StudentComponent {
     this.studentModule = studentModuleParam;
   }
 
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public static StudentComponent create() {
-    return new Builder().build();
-  }
-
+  ...
+  
   @Override
   public void inject(StudentTest studentTest) {
     injectStudentTest(studentTest);}
@@ -162,9 +147,9 @@ public final class DaggerStudentComponent implements StudentComponent {
 }
 ```
 
-`DaggerStudentComponent`私有化构造函数,通过`Builder`来创建。从`injectStudentTest(StudentTest instance)`方法可以看出`Dagger`依赖注入的实现原理。
+>`DaggerStudentComponent`私有化构造函数,通过`Builder`来创建, 创建时需要传入`StudentModule`对象
 
-- 暴露依赖实例
+### 暴露依赖实例
 
 可以在`@Component`添加方法来暴露依赖实例:
 
@@ -184,7 +169,7 @@ val teacher = DaggerClassroomComponent.builder().classroomModule(ClassroomModule
 
 ## Dagger的简单使用
 
-通过对上面的三大金刚的介绍, 我们了解了`Dagger`为了依赖注入而生成的相关辅助类, 接下来在编码时就可以这样使用:
+通过对上面三大金刚的介绍, 我们了解了`Dagger`的基本使用与实现原理, 在编码时就可以这样使用:
 
 ```
 class StudentTest {
@@ -216,7 +201,11 @@ abstract class ClassroomModule {
 }
 ```
 
-`fun bindPeopleWithStudent(test: Student): IPeople` 定义 **`IPeople`的实现类为`Student`**, `Student`实例的提供可以使用`@Provides`,也可以使用`@Inject`标注在构造方法上 :
+>`@Module(includes = [StudentModule::class])`可以使`ClassroomModule`拥有`StudentModule`创建依赖实例的能力
+
+`fun bindPeopleWithStudent(test: Student): IPeople` 定义 **`IPeople`的实现类为`Student`**
+
+> 对于`Student`实例的提供可以使用`@Provides`,也可以使用`@Inject`标注在构造方法上 :
 
 ```
 class Student @Inject constructor(val nameInfo: NameInfo) : IPeople
@@ -228,8 +217,6 @@ class Student @Inject constructor(val nameInfo: NameInfo) : IPeople
   @Provides
   fun providePeopleWithStudent() = Student(provideNameInfo()) as IPeople
 ```
-
->`@Module(includes = [StudentModule::class])`可以使`ClassroomModule`拥有`StudentModule`创建依赖实例的能力
 
 ## Component依赖
 
@@ -286,10 +273,11 @@ class ClassroomTest {
 
 ## Subcomponent
 
->前面`dependencies = [XXXComponent::class]`可以简单的理解为 : **`AComponent`把`BComponent`变成成员变量, 然后使用`BComponent`其依赖注入的能力**
+>上面`dependencies = [XXXComponent::class]`可以简单的理解为: **`AComponent`把`BComponent`变成成员变量, 然后使用`BComponent`其依赖注入的能力**
 
-**`@Subcomponent`则可以使`BComponent`变为`AComponent`的内部类,然后使用`AComponent`的依赖注入能力**。
+**`@Subcomponent`则可以使`BComponent`变为`AComponent`的内部类,然后使用`AComponent`的依赖注入能力(`@Module`):**
 
+>AComponent:
 ```
 @Component(modules = [ClassroomModule::class])
 interface ClassroomComponent {
@@ -309,13 +297,14 @@ class ClassroomModule {
 }
 ```
 
-表示`StudentComponent`可以看到`ClassroomModule`的依赖实例
+`subcomponents = [StudentComponent::class]`表示`StudentComponent`可以看到`ClassroomModule`提供的依赖实例 :
 
+>BComponent:
 ```
 @Subcomponent(modules = [StudentModule::class])
 interface StudentComponent {
 
-    fun inject(studentTest: StudentTest)
+    fun inject(studentTest: StudentTest) //StudentTest对象依赖Teacher实例
 
     @Subcomponent.Builder
     interface Builder {
@@ -324,7 +313,7 @@ interface StudentComponent {
 }
 ```
 
-**使用`@Subcomponent`声明子`Component`,并显示声明`Builder`, 这样父组件才知道如何创建子组件**
+**使用`@Subcomponent`声明子`Component`, 还需要显示声明`Builder`, 这样父组件才知道如何创建子组件**
 
 上面经过`Dagger`编译后不会生成`DaggerStudentComponent`, 只会生成`DaggerClassroomComponent` :
 
@@ -358,7 +347,9 @@ public final class DaggerClassroomComponent implements ClassroomComponent {
 }
 ```
 
-可以看到`StudentTest injectStudentTest(StudentTest instance)`方法中使用了`ClassroomModule`提供的依赖实例方法。因为没有生成`DaggerStudentComponent`,所以对于`DaggerStudentComponent`的构建必须这样做:
+可以看到`StudentTest injectStudentTest(StudentTest instance)`方法中使用了`ClassroomModule`提供的依赖实例方法。
+
+>因为没有生成`DaggerStudentComponent`,所以对于`DaggerStudentComponent`的构建必须这样做 :
 
 ```
 class StudentTest {
@@ -373,7 +364,6 @@ class StudentTest {
     }
 }
 ```
-
 
 ## @Scope
 
@@ -411,7 +401,7 @@ class Test {
 }
 ```
 
-上面这个`Test`的两个成员变量其实引用的是同一个`Classroom`实例, 不过在使用`@Scope`是需要注意 : **@Subcomponent不能和@Component声明相同的@Scope**
+上面这个`Test`的两个成员变量其实引用的是同一个`Classroom`实例, 不过在使用`@Scope`是需要注意 : **`@Subcomponent`不能和`@Component`声明相同的`@Scope`**
 
 ### 单例的实现原理
 
@@ -425,11 +415,13 @@ private ClassroomActivity injectClassroomActivity(ClassroomActivity instance) {
 }
 ```
 
-即使用同一个`Provider<T>`来获取的对象。
+即使用同一个`Provider<T>`来获取的对象
 
 # Dagger in Android
 
-上面介绍了`Dagger`的基本原理与使用方法, 不过在Android中如何使用`Dagger`呢？如果按照上面的基本用法使用`Dagger`则会遇到一些列的问题, 比如像`Activity/Fragment`一般是由系统创建的, 所以我们不能把它变成依赖实例, 也不能完成自动依赖注入, 因此我们需要写出类似下面这种代码 :
+上面介绍了`Dagger`的基本原理与使用方法, 不过在Android中如何使用`Dagger`呢？
+
+如果按照上面的基本用法使用`Dagger`则会遇到一些列的问题, 比如像`Activity/Fragment`一般是由系统创建的, 所以我们不能把它变成依赖实例, 也不能完成自动依赖注入, 因此我们需要写出类似下面这种代码 :
 
 ```
 class ClassroomActivity : Activity() {
@@ -618,9 +610,6 @@ public boolean maybeInject(T instance) {
 
 其实上面`injectorFactories`就是`DaggerAppComponent`中的那个`Factory Map`, 最终调用到`ClassroomActivitySubcomponentImpl.inject()`
 
-
-
-**最后, 你学废了吗？**
 
 # 参考文档
 
