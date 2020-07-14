@@ -1,3 +1,13 @@
+
+- [回顾 App 资源编译步骤](#回顾-app-资源编译步骤)
+- [冗余资源的删除](#冗余资源的删除)
+    - [AAPT 的冗余资源的移除](#aapt-的冗余资源的移除)
+    - [AAPT2 的冗余资源的移除](#aapt2-的冗余资源的移除)
+- [图片资源的压缩](#图片资源的压缩)
+    - [具体实现](#具体实现)
+- [重新压缩`resourceXX.ap_`文件中的资源](#重新压缩resourcexxap_文件中的资源)
+- [压缩总结](#压缩总结)
+
 >本文继续分析[booster](https://github.com/didi/booster)的实现原理。更多相关文章见[booster-分析](https://github.com/SusionSuc/AdvancedAndroid/blob/master/booster%E6%A1%86%E6%9E%B6%E5%88%86%E6%9E%90/README.md)
 
 `booster-task-compression`这个组件主要做了3件事:

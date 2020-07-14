@@ -1,9 +1,9 @@
-
-[(第一篇)Fresco架构设计赏析](Fresco架构设计赏析.md)
-
-[(第二篇)Fresco缓存架构分析](Fresco缓存架构分析.md)
-
-[(第三篇)Fresco图片显示原理浅析](Fresco图片显示原理浅析.md)
+- [Android应用内存](#android应用内存)
+- [MemoryChunk的分类](#memorychunk的分类)
+    - [BufferMemoryChunk](#buffermemorychunk)
+    - [NativeMemoryChunk](#nativememorychunk)
+- [EncodeMemoryCache的大小](#encodememorycache的大小)
+- [编码图片默认的缓存位置](#编码图片默认的缓存位置)
 
 >通过前面的分析我们了解到`Fresco`中的图片缓存分为3种: 解码图片内存缓存、编码图片内存缓存和磁盘缓存,在[Fresco缓存架构分析](Fresco缓存架构分析.md)一文中比较详细的分析了内存缓存和磁盘缓存。本文就来分析一下`Fresco编码图片缓存(EncodeMemoryCache)`的实现。
 

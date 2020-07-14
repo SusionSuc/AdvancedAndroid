@@ -1,4 +1,11 @@
 
+- [监控主线程的消息循环](#监控主线程的消息循环)
+- [Choreographer与主线程Looper-MessageQueue的关联](#choreographer与主线程looper-messagequeue的关联)
+- [利用Choreographer监听应用FPS](#利用choreographer监听应用fps)
+- [FPS计算](#fps计算)
+- [总结](#总结)
+
+
 流畅度是页面在滑动、渲染等过程中的体验, Android系统要求每一帧都要在16.67ms内绘制完成, 即每秒绘制60帧(大部分手机的刷新频率都在60Hz)。本文所说的应用的流畅度监控就是指监控应用每秒刷新的帧率(FPS)。
 
 在Andorid中监控FPS一般使用`Choreographer`来实现,`Choreographer`主要是用来协调动画、输入和绘制事件运行的,它通过接收`Vsync`信号来调度应用下一帧渲染时的动作。

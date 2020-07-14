@@ -1,3 +1,18 @@
+- [Fresco的整体架构](#fresco的整体架构)
+    - [UI层](#ui层)
+        - [DraweeView](#draweeview)
+        - [DraweeHierachy](#draweehierachy)
+        - [DraweeHolder](#draweeholder)
+    - [DraweeController : 加载逻辑控制层](#draweecontroller--加载逻辑控制层)
+        - [DraweeController的构造逻辑](#draweecontroller的构造逻辑)
+        - [通过DataSource发起图片加载](#通过datasource发起图片加载)
+        - [Fresco图片加载前的逻辑](#fresco图片加载前的逻辑)
+    - [图片加载实现层](#图片加载实现层)
+        - [Producer](#producer)
+        - [Producer的组合](#producer的组合)
+        - [网络图片加载的处理流程](#网络图片加载的处理流程)
+
+
 >本文是`Fresco`源码分析系列的开篇，主要分析`Fresco`的整体架构、各个组成模块的功能以及图片加载流程,希望通过本文可以对`Fresco`的整体框架设计有一个大概的了解，也为后续更为深入的分析打下基础。
 
 `Fresco`源码庞大，涉及的图片加载情况众多。本系列`Fresco`源码分析是沿着**Fresco网络加载图片**这个点展开的。

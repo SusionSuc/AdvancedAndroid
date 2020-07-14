@@ -1,3 +1,12 @@
+- [单线程中的消息处理机制的实现](#单线程中的消息处理机制的实现)
+    - [Looper.prepare()](#looperprepare)
+    - [new Handler()](#new-handler)
+    - [Looper.loop()](#looperloop)
+    - [发送一个消息](#发送一个消息)
+- [多线程中的消息处理机制的应用](#多线程中的消息处理机制的应用)
+    - [指定Handler所依附的Looper](#指定handler所依附的looper)
+- [线程通信](#线程通信)
+
 >这也是`Android`中老生常谈的一个话题了，它本身并不是很复杂，可是面试官比较喜欢问。本文就从源码再简单的理一下这个机制。也可以说是理一下`Handler`、`Looper`、`MessageQueue`之间的关系。
 
 ## 单线程中的消息处理机制的实现

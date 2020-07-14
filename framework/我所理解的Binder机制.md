@@ -1,4 +1,3 @@
-
 讲`Android Binder机制`的文章非常多,这篇文章主要是理一下我对`Binder`的理解。本文不是一篇介绍`Binder`的文章,也不是一篇探讨`Binder`实现的文章。 
 本文会以`AndroidStudio`根据`aidl接口`自动产生的`java文件`来看`Binder`,进而来理解`Binder机制`。
 

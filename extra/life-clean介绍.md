@@ -1,3 +1,15 @@
+- [LifeClean](#lifeclean)
+    - [规范`MVP`写法](#规范mvp写法)
+    - [为`Presenter/View`提供`Lifecycle`](#为presenterview提供lifecycle)
+        - [为Presenter提供Activity的生命周期](#为presenter提供activity的生命周期)
+        - [为View提供Activity的生命周期](#为view提供activity的生命周期)
+- [及时释放`RxJava Disposable`](#及时释放rxjava-disposable)
+- [规范`RecyclerView.Adapter`的使用方式 : 对象到View的映射](#规范recyclerviewadapter的使用方式--对象到view的映射)
+        - [CommonRvAdapter](#commonrvadapter)
+        - [SimpleRvAdapter 与 MergeAdapter](#simplervadapter-与-mergeadapter)
+- [规范全局UI状态的刷新](#规范全局ui状态的刷新)
+- [End](#end)
+
 # LifeClean
 
 `LifeClean`是一个变种的MVP框架, 适用于常见的UI业务, 也对Android常用的组件定义了一些使用规范, 主要具有以下特点:

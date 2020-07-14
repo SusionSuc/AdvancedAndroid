@@ -1,3 +1,13 @@
+
+- [对 Vsync 信号的监听](#对-vsync-信号的监听)
+    - [onVsync的回调逻辑](#onvsync的回调逻辑)
+- [Vsync信号到来时执行callback](#vsync信号到来时执行callback)
+    - [设置callback](#设置callback)
+    - [callback的执行逻辑](#callback的执行逻辑)
+    - [doFrame() 的时间参数](#doframe-的时间参数)
+    - [doCallback(int callbackType, long frameTimeNanos)](#docallbackint-callbacktype-long-frametimenanos)
+- [Choreographer与主线程消息循环的关系](#choreographer与主线程消息循环的关系)
+
 >为了更好的理解使用`Choreographer`监控`App FPS`的原理，本文先来梳理一下`Choreographer`的工作原理。
 
 `Choreographer`主要是用来协调动画、输入和绘制事件运行的。它通过接收`Vsync`信号来调度应用下一帧渲染时的动作。

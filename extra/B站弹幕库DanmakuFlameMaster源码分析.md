@@ -1,4 +1,11 @@
+- [DrawHandler调度引起DanmakuView的渲染](#drawhandler调度引起danmakuview的渲染)
+    - [创建弹幕缓存`DrawingCacheHolder`](#创建弹幕缓存drawingcacheholder)
+    - [通过`Choreographer`来不断渲染`DanmakuView`](#通过choreographer来不断渲染danmakuview)
+- [DanmakuSurfaceView](#danmakusurfaceview)
+- [DanmakuTextureView](#danmakutextureview)
+- [简单的性能分析](#简单的性能分析)
 
+<!-- /TOC -->
 对于视频网站来说弹幕是一个十分常见的功能, 目前业界比较出名的弹幕库是B站的[DanmakuFlameMaster](https://github.com/bilibili/DanmakuFlameMaster)(不过很久没有更新了),这个弹幕库的功能还是十分完善和稳定的,它里面的弹幕主要分为两种:
 
 1. 视频播放时用户实时发送的

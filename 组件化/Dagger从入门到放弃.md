@@ -1,9 +1,27 @@
 
+- [Dagger 基础](#dagger-基础)
+    - [@Inject](#inject)
+        - [声明在成员变量上](#声明在成员变量上)
+        - [声明在构造函数上](#声明在构造函数上)
+    - [@Module](#module)
+    - [@Component](#component)
+        - [暴露依赖实例](#暴露依赖实例)
+    - [Dagger的简单使用](#dagger的简单使用)
+    - [@Binds](#binds)
+    - [Component依赖](#component依赖)
+    - [Subcomponent](#subcomponent)
+    - [@Scope](#scope)
+        - [单例的实现原理](#单例的实现原理)
+- [Dagger in Android](#dagger-in-android)
+    - [Activity的自动注入](#activity的自动注入)
+    - [Activity自动注入实现原理](#activity自动注入实现原理)
+- [参考文档](#参考文档)
+
 `Dagger`是一个依赖注入框架, 它的核心实现原理是在编译期产生依赖注入相关代码, 我们可以通过`Dagger`提供的注解来描述我们的依赖注入需求。
 
 为了实现依赖注入,`Dagger`需要知道**对象的创建方式**, 开发者需要知道**怎么获取`Dagger`创建的对象**, 本文会围绕这两点介绍一下`Dagger`中的注解的功能以及实现原理。
 
-> 依赖注入 : 就是非自己主动初始化依赖(对象)，而是通过外部传入依赖的方式。本文除了介绍`Dagger`的基本使用,也会分析一下`Dagger`在火山组件化中的使用。
+> 依赖注入 : 就是非自己主动初始化依赖(对象)，而是通过外部传入依赖的方式
 
 # Dagger 基础
 

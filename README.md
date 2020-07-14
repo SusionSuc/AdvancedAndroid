@@ -33,7 +33,7 @@
 
 > [B站弹幕库DanmakuFlameMaster源码分析](extra/B站弹幕库DanmakuFlameMaster源码分析.md)
 
-> [dagger从入门到放弃](组件化/dagger从入门到放弃.md)
+> [dagger从入门到放弃](组件化/Dagger从入门到放弃.md)
 
 ## 其他
 

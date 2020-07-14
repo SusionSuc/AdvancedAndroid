@@ -1,3 +1,9 @@
+- [常规的写法](#常规的写法)
+    - [问题一 : 接口过多](#问题一--接口过多)
+    - [问题二 : View依赖于固定的Presenter接口](#问题二--view依赖于固定的presenter接口)
+- [更纯净的VP写法](#更纯净的vp写法)
+    - [使用Action统一Presenter的处理逻辑](#使用action统一presenter的处理逻辑)
+    - [View使用`State`来获取当前的数据状态](#view使用state来获取当前的数据状态)
 
 >本文主要讨论如何将Android中的`Presenter`以一种简洁的方式做到与`View`的解耦,并且不容易脱轨(变的混乱)。本文假设`页面数据`完全是由`Presenter`管理。。
 

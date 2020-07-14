@@ -1,3 +1,14 @@
+- [Fragment与View](#fragment与view)
+    - [View相较于Fragment的优势](#view相较于fragment的优势)
+- [View使用实战](#view使用实战)
+    - [使用View来代替Fragment](#使用view来代替fragment)
+        - [View的Presenter对生命周期的感知](#view的presenter对生命周期的感知)
+    - [RecyclerView中的View](#recyclerview中的view)
+        - [View中可以做一些简单的网络请求](#view中可以做一些简单的网络请求)
+    - [PopupWindow与View](#popupwindow与view)
+    - [View的生命周期](#view的生命周期)
+    - [Dialog与View](#dialog与view)
+
 
 >本文主要是想表达一下在Android UI开发中我对`View`的看法,个人经验有限,有什么问题欢迎一块讨论。
 

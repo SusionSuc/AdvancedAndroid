@@ -1,5 +1,24 @@
 
-[(第一篇)Fresco架构设计赏析](Fresco架构设计赏析.md)
+- [引言](#引言)
+    - [解码图片与未解码图片](#解码图片与未解码图片)
+        - [CloseableImage](#closeableimage)
+        - [EncodeImage](#encodeimage)
+- [Bitmap内存缓存 : BitmapMemoryCacheProducer](#bitmap内存缓存--bitmapmemorycacheproducer)
+    - [CacheProducer : 缓存的工作流程](#cacheproducer--缓存的工作流程)
+    - [内存缓存的实现 : MemoryCache](#内存缓存的实现--memorycache)
+        - [将图片保存到内存缓存 : CountingMemoryCache.cache()](#将图片保存到内存缓存--countingmemorycachecache)
+            - [Fresco的默认内存缓存大小](#fresco的默认内存缓存大小)
+        - [从内存缓存中获取图片 : CountingMemoryCache.get()](#从内存缓存中获取图片--countingmemorycacheget)
+        - [trim策略 : CountingMemoryCache.getrimt()](#trim策略--countingmemorycachegetrimt)
+- [Bitmap编码内存缓存 : EncodedMemoryCacheProducer](#bitmap编码内存缓存--encodedmemorycacheproducer)
+- [Bitmap磁盘缓存 : DiskCacheWriteProducer](#bitmap磁盘缓存--diskcachewriteproducer)
+    - [BufferedDiskCache](#buffereddiskcache)
+        - [将图片保存至磁盘 : BufferedDiskCache.put()](#将图片保存至磁盘--buffereddiskcacheput)
+            - [Step1 :  生成ResourceId](#step1---生成resourceid)
+            - [Step2 : 创建临时文件，并把图片写入到临时文件中](#step2--创建临时文件并把图片写入到临时文件中)
+            - [Step3 : 把临时文件重命名为resourceId](#step3--把临时文件重命名为resourceid)
+            - [Step4 : 设置好文件的最后修改时间](#step4--设置好文件的最后修改时间)
+        - [从磁盘中获取文件 : BufferedDiskCache.get()](#从磁盘中获取文件--buffereddiskcacheget)
 
 >本文是`Fresco`源码分析系列第二篇文章,主要来看一下Fresco中有关图片缓存的内容。
 

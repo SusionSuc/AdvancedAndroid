@@ -1,3 +1,13 @@
+- [Phabricator](#phabricator)
+    - [为什么要使用Phabricator](#为什么要使用phabricator)
+    - [arc安装](#arc安装)
+    - [code review 工作流](#code-review-工作流)
+        - [新建一个feature分支。（这个分支应只包含一个feature的改动）](#新建一个feature分支这个分支应只包含一个feature的改动)
+        - [执行 arc diff](#执行-arc-diff)
+        - [代码review](#代码review)
+        - [arc land](#arc-land)
+        - [land后的操作](#land后的操作)
+
 # Phabricator
 
 最近公司把代码review的工作由`gitlab`迁移到了`Phabricator`。刚开始使用把一些要点记录一下。

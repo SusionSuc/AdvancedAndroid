@@ -1,6 +1,12 @@
 
-刚开始看这几个东西把我搞的晕头转向的.... 本文就来理一下它们的绘制原理:
+- [SurfaceView](#surfaceview)
+- [TextureView](#textureview)
+    - [TextureView绘制流程梳理](#textureview绘制流程梳理)
+- [GLSurfaceView](#glsurfaceview)
+- [GLTextureView](#gltextureview)
 
+
+刚开始看这几个东西把我搞的晕头转向的.... 本文就来理一下它们的绘制原理:
 
 # SurfaceView
 

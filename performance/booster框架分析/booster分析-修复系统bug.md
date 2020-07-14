@@ -1,3 +1,17 @@
+- [booster-transform-activity-thread](#booster-transform-activity-thread)
+    - [实现原理](#实现原理)
+    - [问题](#问题)
+        - [catch哪些系统异常呢？](#catch哪些系统异常呢)
+        - [ActivityThread.Handler.handleMessage() 是什么时候调用的呢？](#activitythreadhandlerhandlemessage-是什么时候调用的呢)
+- [booster-transform-toast](#booster-transform-toast)
+    - [Toast在Android 7.1 上的问题](#toast在android-71-上的问题)
+- [booster-transform-res-check](#booster-transform-res-check)
+- [booster-transform-media-player](#booster-transform-media-player)
+- [booster-transform-finalizer-watchdog-daemon](#booster-transform-finalizer-watchdog-daemon)
+    - [手动停掉 FinalizerWatchdogDaemon 线程](#手动停掉-finalizerwatchdogdaemon-线程)
+    - [try-cathch 住异常](#try-cathch-住异常)
+    - [booster使用的方案](#booster使用的方案)
+- [END](#end)
 
 [Booster](https://github.com/didi/booster)是一款专门为移动应用设计的易用、轻量级且可扩展的质量优化框架，其目标主要是为了解决随着 APP 复杂度的提升而带来的性能、稳定性、包体积等一系列质量问题。它提供了性能检测、多线程优化、资源索引内联、资源去冗余、资源压缩、系统 Bug 修复等一系列功能模块，可以使得稳定性能够提升 15% ~ 25%，包体积可以减小 1MB ~ 10MB。
 

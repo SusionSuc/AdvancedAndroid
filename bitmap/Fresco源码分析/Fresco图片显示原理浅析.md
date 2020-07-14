@@ -1,6 +1,11 @@
-[(第一篇)Fresco架构设计赏析](Fresco架构设计赏析.md)
 
-[(第二篇)Fresco缓存架构分析](Fresco缓存架构分析.md)
+- [图片显示原理与多状态切换逻辑](#图片显示原理与多状态切换逻辑)
+    - [图片显示原理](#图片显示原理)
+- [圆角的实现](#圆角的实现)
+- [ScaleType的实现](#scaletype的实现)
+    - [ImageView ScaleType的实现](#imageview-scaletype的实现)
+    - [Fresco的实现](#fresco的实现)
+
 
 >本文是Fresco源码分析系列第三篇文章，主要来分析一下`Fresco UI`层的实现，包括下面这些点:
 

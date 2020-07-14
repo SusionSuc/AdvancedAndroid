@@ -1,3 +1,20 @@
+- [类型的声明与使用](#类型的声明与使用)
+    - [val与var](#val与var)
+    - [空与非空](#空与非空)
+        - [空与非空的使用](#空与非空的使用)
+        - [val与bylazy、var与lateinit](#val与bylazyvar与lateinit)
+- [when 与 if](#when-与-if)
+    - [if](#if)
+    - [when](#when)
+- [类](#类)
+    - [类的构造与主构造函数](#类的构造与主构造函数)
+    - [数据类 data class](#数据类-data-class)
+    - [object 和 companion object](#object-和-companion-object)
+- [lambda](#lambda)
+- [常用的库函数](#常用的库函数)
+    - [内联函数](#内联函数)
+- [Kotlin的一些优秀的设计思想](#kotlin的一些优秀的设计思想)
+
 
 >本文主要介绍一下个人工作中常用的kotlin的一些语法以及一些注意事项。文章我没有做分割，可能比较长。另外欢迎关注我的[Android进阶计划](https://github.com/SusionSuc/AdvancedAndroid)
 

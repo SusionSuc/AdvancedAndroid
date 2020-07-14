@@ -1,3 +1,17 @@
+- [磁盘](#磁盘)
+    - [SharedPreferences](#sharedpreferences)
+        - [commit](#commit)
+        - [flag的保存与使用](#flag的保存与使用)
+    - [ObjectOutputStream](#objectoutputstream)
+    - [合理设置buffer](#合理设置buffer)
+    - [Bitmap的解码](#bitmap的解码)
+- [内存](#内存)
+    - [内存泄漏](#内存泄漏)
+        - [Activit内存泄漏](#activit内存泄漏)
+    - [图片](#图片)
+        - [Feed流中的图片如果可以应尽可能降低所占内存大小](#feed流中的图片如果可以应尽可能降低所占内存大小)
+        - [图片资源不要放在错误的目录](#图片资源不要放在错误的目录)
+        - [SparseArray与ArrayMap](#sparsearray与arraymap)
 
 >最近看了一本腾讯测试同学写的书 :《Android移动性能实战》,书中介绍了很多如何检测Android性能问题的工具比如磁盘、内存、CPU、电池等。不过也指出了一些在开发过程中需要注意的点:
 

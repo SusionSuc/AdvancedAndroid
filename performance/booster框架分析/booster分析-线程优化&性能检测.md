@@ -1,3 +1,12 @@
+- [多线程优化 [booster-transform-thread](https://github.com/didi/booster/tree/master/booster-transform-thread)](#多线程优化-booster-transform-threadhttpsgithubcomdidiboostertreemasterbooster-transform-thread)
+    - [给线程设置名称，便于代码追踪和bug修复](#给线程设置名称便于代码追踪和bug修复)
+    - [设置线程池的 `allowCoreThreadTimeOut(true)`](#设置线程池的-allowcorethreadtimeouttrue)
+- [性能瓶颈检测 booster-transform-lint](#性能瓶颈检测-booster-transform-lint)
+    - [实现原理](#实现原理)
+        - [指定检查方法](#指定检查方法)
+        - [根据定义好的lint API列表来检查有没有调用敏感的API](#根据定义好的lint-api列表来检查有没有调用敏感的api)
+    - [检测Demo](#检测demo)
+
 >本文继续分析[booster](https://github.com/didi/booster)的实现原理。
 
 #  多线程优化 [booster-transform-thread](https://github.com/didi/booster/tree/master/booster-transform-thread)
