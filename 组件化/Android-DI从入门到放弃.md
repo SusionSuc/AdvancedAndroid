@@ -1,36 +1,36 @@
 
-- [1. 依赖注入 : Dependency Injection，DI](#1-依赖注入--dependency-injectiondi)
-    - [1.1. 什么是依赖?](#11-什么是依赖)
-    - [1.2. 依赖存在的问题](#12-依赖存在的问题)
-    - [1.3. 什么是依赖注入](#13-什么是依赖注入)
-    - [1.4. Dagger](#14-dagger)
-        - [1.4.1. 基本实现概述](#141-基本实现概述)
-        - [1.4.2. 其他特性](#142-其他特性)
-    - [1.5. Koin](#15-koin)
-- [2. Dagger](#2-dagger)
-    - [2.1. Dagger 基础](#21-dagger-基础)
-        - [2.1.1. @Inject](#211-inject)
-            - [2.1.1.1. 声明在成员变量上](#2111-声明在成员变量上)
-            - [2.1.1.2. 声明在构造函数上](#2112-声明在构造函数上)
-        - [2.1.2. @Module](#212-module)
-        - [2.1.3. @Component](#213-component)
-            - [2.1.3.1. 暴露依赖实例](#2131-暴露依赖实例)
-        - [2.1.4. Dagger的简单使用](#214-dagger的简单使用)
-        - [2.1.5. @Binds](#215-binds)
-        - [2.1.6. Component依赖](#216-component依赖)
-        - [2.1.7. Subcomponent](#217-subcomponent)
-        - [2.1.8. @Scope](#218-scope)
-            - [2.1.8.1. 单例的实现原理](#2181-单例的实现原理)
-        - [2.1.9. @Named](#219-named)
-        - [2.1.10. Dagger in Android](#2110-dagger-in-android)
-        - [2.1.11. Activity的自动注入](#2111-activity的自动注入)
-        - [2.1.12. Activity自动注入实现原理](#2112-activity自动注入实现原理)
-- [3. 参考文档](#3-参考文档)
+- [依赖注入 : Dependency Injection，DI](#依赖注入--dependency-injectiondi)
+    - [什么是依赖?](#什么是依赖)
+    - [依赖存在的问题](#依赖存在的问题)
+    - [什么是依赖注入](#什么是依赖注入)
+    - [Dagger](#dagger)
+        - [基本实现概述](#基本实现概述)
+        - [其他特性](#其他特性)
+    - [Koin](#koin)
+- [Dagger](#dagger-1)
+    - [1. Dagger 基础](#1-dagger-基础)
+        - [1.1. @Inject](#11-inject)
+            - [1.1.1. 声明在成员变量上](#111-声明在成员变量上)
+            - [1.1.2. 声明在构造函数上](#112-声明在构造函数上)
+        - [1.2. @Module](#12-module)
+        - [1.3. @Component](#13-component)
+            - [1.3.1. 暴露依赖实例](#131-暴露依赖实例)
+        - [1.4. Dagger的简单使用](#14-dagger的简单使用)
+        - [1.5. @Binds](#15-binds)
+        - [1.6. Component依赖](#16-component依赖)
+        - [1.7. Subcomponent](#17-subcomponent)
+        - [1.8. @Scope](#18-scope)
+            - [1.8.1. 单例的实现原理](#181-单例的实现原理)
+        - [1.9 @Named](#19-named)
+        - [2. Dagger in Android](#2-dagger-in-android)
+        - [2.1. Activity的自动注入](#21-activity的自动注入)
+        - [2.2. Activity自动注入实现原理](#22-activity自动注入实现原理)
+- [4. 参考文档](#4-参考文档)
 
 
-# 1. 依赖注入 : Dependency Injection，DI
+# 依赖注入 : Dependency Injection，DI
 
-## 1.1. 什么是依赖?
+## 什么是依赖?
 
 比如类`ClassroomActivity`中用到了`Teacher`类的实例:
 
@@ -42,13 +42,13 @@ class ClassroomActivity {
 
 这里`Teacher`就被称为`ClassroomActivity`的依赖
 
-## 1.2. 依赖存在的问题
+## 依赖存在的问题
 
 想象我们程序中有多个地方需要`Teacher`对象,那就要在很多地方手动构造`Teacher`, 万一`Teacher`的构造方式发生了变化, 那你就要改动多处来实现`Teacher`新的构造方式
 
 导致上面这个问题的原因是 : **依赖的创建方式与使用方耦合与业务逻辑** , `依赖注入(DI)`就是为了解决这个问题
 
-## 1.3. 什么是依赖注入
+## 什么是依赖注入
 
 依赖注入是这样的一种行为,在类`ClassroomActivity`中不主动创建`Teacher`的对象,而是通过外部传入`Teacher`对象形式来设置依赖, 即**非自己主动初始化依赖(对象)，而是通过外部传入依赖的方式**
 
@@ -66,9 +66,9 @@ class ClassroomActivity {
 
 目前`Android`中有许多`依赖注入(DI)`框架, **本文主要介绍一下`Dagger`和`Koin`,了解一下它们的实现原理**
 
-## 1.4. Dagger
+## Dagger
 
-### 1.4.1. 基本实现概述
+### 基本实现概述
 
 `Dagger`的核心实现原理是:**基于注解在编译期产生依赖注入相关代码,然后开发者调用生成的代码进行依赖注入**, 以一个简单的使用场景为例:
 
@@ -116,7 +116,7 @@ ClassroomActivity_MembersInjector.(activity, ClassroomModule_ProvideTeacherFacto
 
 即`Dagger`会生成**依赖实例构造的工厂方法**和**依赖注入相关模板方法**
 
-### 1.4.2. 其他特性
+### 其他特性
 
 除了基本的依赖注入外`Dagger`还支持 :
 
@@ -125,7 +125,7 @@ ClassroomActivity_MembersInjector.(activity, ClassroomModule_ProvideTeacherFacto
 
 `Dagger`有完善、强大的依赖注入功能,不过`Dagger`的学习难度比较高,不是那么容易上手, 而`Koin`相较于`Dagger`在上手程度上则容易的多:
 
-## 1.5. Koin
+## Koin
 
 `Koin`是为`Kotlin`开发者提供的一个实用型轻量级依赖注入框架，采用纯`Kotlin`语言编写而成，仅使用功能解析，无代理、无代码生成、无反射,它的实现依赖于`kotlin`强大的语法糖（例如 Inline、Reified 等等）和函数式编程。
 
@@ -192,15 +192,15 @@ internal fun <T> resolveInstance(indexKey: IndexKey, parameters: ParametersDefin
 
 dagger的语法比较复杂, 下面就简单学习和理解一下`dagger`中的各种用法:
 
-# 2. Dagger
+# Dagger
 
-## 2.1. Dagger 基础
+## 1. Dagger 基础
 
-### 2.1.1. @Inject
+### 1.1. @Inject
 
 它既可以用来指明对象的依赖，也可以用来指明依赖对象的创建方式, 不同的用法`Dagger`会在编译期生成不同的辅助类来完成依赖实例的注入 :
 
-#### 2.1.1.1. 声明在成员变量上
+#### 1.1.1. 声明在成员变量上
 
 ```
 class StudentTest {
@@ -235,7 +235,7 @@ public final class StudentTest_MembersInjector implements MembersInjector<Studen
 
 >`Provider<NameInfo>`创建`NameInfo`的模板接口
 
-#### 2.1.1.2. 声明在构造函数上
+#### 1.1.2. 声明在构造函数上
 
 ```
 class Student @Inject constructor(val nameInfo: NameInfo) : IPeople
@@ -261,7 +261,7 @@ public final class Student_Factory implements Factory<Student> {
 
 >如果构造参数上标记了`@Inject`,那么`Dagger`会先寻找这个参数的`XX_Factory`,创建这个参数对象，然后再创建目前对象
 
-### 2.1.2. @Module 
+### 1.2. @Module 
 
 它用来封装创建对象实例的方法:
 
@@ -292,7 +292,7 @@ public final class StudentModule_ProvideNameInfoFactory implements Factory<NameI
 
 即通过`StudentModule().provideNameInfo()`创建对应的`NameInfo`实例。
 
-### 2.1.3. @Component
+### 1.3. @Component
 
 管理依赖实例, 链接`@Inject`和`@Module`, 可以为对象注入依赖实例 :
 
@@ -338,7 +338,7 @@ public final class DaggerStudentComponent implements StudentComponent {
 
 >`DaggerStudentComponent`私有化构造函数,通过`Builder`来创建, 创建时需要传入`StudentModule`对象
 
-#### 2.1.3.1. 暴露依赖实例
+#### 1.3.1. 暴露依赖实例
 
 可以在`@Component`添加方法来暴露依赖实例:
 
@@ -356,7 +356,7 @@ interface ClassroomComponent {
 val teacher = DaggerClassroomComponent.builder().classroomModule(ClassroomModule()).build().getTeacher()
 ```
 
-### 2.1.4. Dagger的简单使用
+### 1.4. Dagger的简单使用
 
 通过对上面三大金刚的介绍, 我们了解了`Dagger`的基本使用与实现原理, 在编码时就可以这样使用:
 
@@ -378,7 +378,7 @@ logcat输出:
  D/dagger-test: wang pengcheng
 ```
 
-### 2.1.5. @Binds
+### 1.5. @Binds
 
 它也可以像`@Provides`指明一个依赖实例的提供方式, 不过它只能声明在抽象方法上, 它用来告诉`Dagger`接口应采用哪种实现:
 
@@ -407,7 +407,7 @@ class Student @Inject constructor(val nameInfo: NameInfo) : IPeople
   fun providePeopleWithStudent() = Student(provideNameInfo()) as IPeople
 ```
 
-### 2.1.6. Component依赖
+### 1.6. Component依赖
 
 如果`ClassroomComponent`需要使用`StudentComponent`的依赖实例, 则可以这样写:
 
@@ -460,7 +460,7 @@ class ClassroomTest {
 }
 ```
 
-### 2.1.7. Subcomponent
+### 1.7. Subcomponent
 
 >上面`dependencies = [XXXComponent::class]`可以简单的理解为: **`AComponent`把`BComponent`变成成员变量, 然后使用`BComponent`其依赖注入的能力**
 
@@ -554,7 +554,7 @@ class StudentTest {
 }
 ```
 
-### 2.1.8. @Scope
+### 1.8. @Scope
 
 `@Scope`在`Dagger`中和`@Component`紧紧相连 : **如果一个`@Module`提供的依赖实例声明了和`@Component`相同的`@Scope`,那么这个`@Component`会使用同一个依赖实例来做依赖注入** : 
 
@@ -592,7 +592,7 @@ class Test {
 
 上面这个`Test`的两个成员变量其实引用的是同一个`Classroom`实例, 不过在使用`@Scope`是需要注意 : **`@Subcomponent`不能和`@Component`声明相同的`@Scope`**
 
-#### 2.1.8.1. 单例的实现原理
+#### 1.8.1. 单例的实现原理
 
 其实看一下`Component`的注入实现就明白了:
 
@@ -606,7 +606,7 @@ private ClassroomActivity injectClassroomActivity(ClassroomActivity instance) {
 
 即使用同一个`Provider<T>`来获取的对象
 
-### 2.1.9. @Named
+### 1.9 @Named
 
 在`Dagger`中提供依赖实例的方式一种有两种 :
 
@@ -638,7 +638,7 @@ class ClassroomActivity : Activity() {
 ```
 
 
-### 2.1.10. Dagger in Android
+### 2. Dagger in Android
 
 上面介绍了`Dagger`的基本原理与使用方法, 不过在Android中如何使用`Dagger`呢？
 
@@ -662,7 +662,7 @@ class ClassroomActivity : Activity() {
 
 怎么解决呢？`Dagger`官方给出的实现步骤如下:
 
-### 2.1.11. Activity的自动注入
+### 2.1. Activity的自动注入
 
 1. 顶层Component绑定AndroidInjectionModule
 
@@ -757,7 +757,7 @@ abstract class ClassroomActivityModule {
 
 那上面实现原理是什么呢？
 
-### 2.1.12. Activity自动注入实现原理
+### 2.2. Activity自动注入实现原理
 
 来看一下`DaggerAppComponent`中生成的依赖注入代码:
 
@@ -831,7 +831,9 @@ public boolean maybeInject(T instance) {
 
 其实上面`injectorFactories`就是`DaggerAppComponent`中的那个`Factory Map`, 最终调用到`ClassroomActivitySubcomponentImpl.inject()`
 
-# 3. 参考文档
+
+
+# 4. 参考文档
 
 [google dagger](https://developer.android.com/training/dependency-injection/dagger-android)
 
